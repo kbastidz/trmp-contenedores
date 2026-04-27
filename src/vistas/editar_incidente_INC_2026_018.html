@@ -1,0 +1,418 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.br{background:#FCEBEB;color:#A32D2D}.ba{background:#FAEEDA;color:#854F0B}
+.bh{background:#FAECE7;color:#993C1D}.bg{background:#EAF3DE;color:#3B6D11}
+.bb{background:#E6F1FB;color:#185FA5}.bgr{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.alert{display:flex;align-items:flex-start;gap:8px;padding:.65rem .85rem;border-radius:var(--border-radius-md);font-size:12px;margin-bottom:.85rem}
+.alert-warn{background:#FAEEDA;border:0.5px solid #FAC775;color:#633806}
+.alert-info{background:#E6F1FB;border:0.5px solid #B5D4F4;color:#0C447C}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:.85rem;overflow-x:auto}
+.tab{font-size:12px;color:var(--color-text-secondary);padding:.45rem .85rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-left:none;border-right:none;border-top:none;white-space:nowrap;font-family:var(--font-sans)}
+.tab.on{color:var(--color-text-primary);font-weight:500;border-bottom-color:#185FA5}
+.tab.mod::after{content:'•';color:#854F0B;margin-left:4px;font-size:14px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.9rem 1rem;margin-bottom:.75rem}
+.card-warn{border-color:#F09595}
+.section-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.field{margin-bottom:.8rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.label .req{color:#E24B4A;font-size:11px}
+.label .changed{font-size:10px;color:#854F0B;font-weight:500;background:#FAEEDA;padding:1px 5px;border-radius:3px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.grid3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+input.changed,select.changed,textarea.changed{border-color:#854F0B!important;background:#FAEEDA22}
+textarea{resize:vertical;min-height:68px}
+.sev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sev-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.55rem .4rem;text-align:center;cursor:pointer;transition:border-color .15s}
+.sev-card:hover{background:var(--color-background-secondary)}
+.sev-card.sel-verde{border:2px solid #3B6D11;background:#EAF3DE}
+.sev-card.sel-amber{border:2px solid #854F0B;background:#FAEEDA}
+.sev-card.sel-high{border:2px solid #993C1D;background:#FAECE7}
+.sev-card.sel-rojo{border:2px solid #A32D2D;background:#FCEBEB}
+.chk-row{display:flex;align-items:center;gap:8px;padding:.45rem .65rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:5px;cursor:pointer}
+.chk-row:last-child{margin-bottom:0}
+.chk-row input[type=checkbox]{width:auto;margin:0}
+.accion-row{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem .75rem;margin-bottom:6px;position:relative}
+.accion-row:last-child{margin-bottom:0}
+.accion-del{position:absolute;top:.5rem;right:.65rem;font-size:10px;color:var(--color-text-secondary);background:none;border:none;cursor:pointer;padding:2px 6px}
+.accion-del:hover{color:#A32D2D}
+.estado-pill{display:flex;gap:6px;flex-wrap:wrap}
+.ep{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:5px 12px;font-size:12px;cursor:pointer;transition:all .15s;background:transparent;font-family:var(--font-sans)}
+.ep.sel-abierto{border-color:#A32D2D;background:#FCEBEB;color:#A32D2D;font-weight:500}
+.ep.sel-analisis{border-color:#854F0B;background:#FAEEDA;color:#854F0B;font-weight:500}
+.ep.sel-plan{border-color:#185FA5;background:#E6F1FB;color:#185FA5;font-weight:500}
+.ep.sel-cerrado{border-color:#3B6D11;background:#EAF3DE;color:#3B6D11;font-weight:500}
+.footer-bar{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.diff-preview{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.6rem .75rem;font-size:11px;margin-top:.65rem;display:none}
+.diff-preview.show{display:block}
+.diff-item{display:flex;gap:6px;padding:.25rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.diff-item:last-child{border-bottom:none}
+.diff-key{color:var(--color-text-secondary);min-width:110px}
+.diff-old{color:#A32D2D;text-decoration:line-through}
+.diff-new{color:#3B6D11;font-weight:500}
+.success-wrap{display:none;text-align:center;padding:1.5rem 1rem}
+.success-icon{width:44px;height:44px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem}
+</style>
+
+<h2 class="sr-only">Formulario de edición del incidente INC-2026-018 — Acceso no autorizado zona ISPS norte</h2>
+
+<div class="w">
+
+<div class="topbar">
+  <button onclick="sendPrompt('Ver módulo de gestión de incidentes operacionales')" style="font-size:12px;padding:5px 10px">← Volver a incidentes</button>
+  <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--color-text-secondary)">INC-2026-018</span>
+    <span class="badge br">Crítico</span>
+    <span class="badge ba" id="estado-badge">En análisis</span>
+    <span style="font-size:11px;color:var(--color-text-secondary)">Editando</span>
+  </div>
+</div>
+
+<!-- Alerta cambios no guardados -->
+<div class="alert alert-warn" id="unsaved-alert" style="display:none">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  Tienes cambios sin guardar — revisa las secciones marcadas con <strong style="color:#854F0B">●</strong> antes de guardar.
+</div>
+
+<div class="alert alert-info">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Todos los cambios quedarán registrados en el log de auditoría con tu usuario y la fecha/hora exacta.
+</div>
+
+<!-- TABS SECCIONES -->
+<div class="tabs">
+  <button class="tab on" id="tab-ocurrencia" onclick="goTab(this,'ocurrencia')">Ocurrencia</button>
+  <button class="tab" id="tab-afectados"  onclick="goTab(this,'afectados')">Afectados</button>
+  <button class="tab" id="tab-analisis"   onclick="goTab(this,'analisis')">Análisis</button>
+  <button class="tab" id="tab-acciones"   onclick="goTab(this,'acciones')">Acciones</button>
+  <button class="tab" id="tab-estado"     onclick="goTab(this,'estado')">Estado</button>
+</div>
+
+<!-- ── OCURRENCIA ── -->
+<div id="sec-ocurrencia">
+  <div class="card">
+    <div class="section-title">Datos del evento</div>
+    <div class="field">
+      <label class="label">Título del incidente <span class="req">*</span></label>
+      <input type="text" id="f-titulo" value="Intento de acceso no autorizado — zona restringida ISPS sector norte" oninput="markChanged(this,'tab-ocurrencia')"/>
+    </div>
+    <div class="field">
+      <label class="label">Descripción detallada</label>
+      <textarea id="f-desc" oninput="markChanged(this,'tab-ocurrencia')">Persona no identificada intentó ingresar al área de almacenamiento de carga de alto valor a través de sector norte a las 02:34h. Detectado por sensor perimetral y confirmado por cámara C-07. Policía portuaria notificada a las 02:41h.</textarea>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="label">Fecha del incidente <span class="req">*</span></label><input type="date" id="f-fecha" value="2026-04-16" oninput="markChanged(this,'tab-ocurrencia')"/></div>
+      <div class="field"><label class="label">Hora exacta <span class="req">*</span></label><input type="time" id="f-hora" value="02:34" oninput="markChanged(this,'tab-ocurrencia')"/></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label class="label">Área operacional <span class="req">*</span></label>
+        <select id="f-area" onchange="markChanged(this,'tab-ocurrencia')">
+          <option>Muelle / Operaciones de buque</option>
+          <option>Patio de contenedores</option>
+          <option>Gate / Portería</option>
+          <option>Taller y equipos</option>
+          <option selected>Seguridad ISPS / BASC</option>
+          <option>Carga peligrosa IMDG</option>
+          <option>Sistemas TOS / IT</option>
+        </select>
+      </div>
+      <div class="field"><label class="label">Turno</label>
+        <select id="f-turno" onchange="markChanged(this,'tab-ocurrencia')">
+          <option>Turno día (06:00–18:00)</option>
+          <option selected>Turno noche (18:00–06:00)</option>
+        </select>
+      </div>
+      <div class="field"><label class="label">Equipo involucrado</label>
+        <select id="f-equipo" onchange="markChanged(this,'tab-ocurrencia')">
+          <option selected>Ninguno / N/A</option>
+          <option>Grúa STS</option><option>RTG</option>
+          <option>Reach stacker</option><option>Sistema TOS</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Nivel de severidad <span class="req">*</span></div>
+    <div class="sev-grid">
+      <div class="sev-card sel-verde" id="sv1" onclick="setSev(1)"><div style="font-size:11px;font-weight:500;color:#3B6D11">Leve</div><div style="font-size:10px;color:#639922">Sin lesiones</div></div>
+      <div class="sev-card sel-amber" id="sv2" onclick="setSev(2)"><div style="font-size:11px;font-weight:500;color:#854F0B">Moderado</div><div style="font-size:10px;color:#BA7517">Primeros auxilios</div></div>
+      <div class="sev-card sel-high" id="sv3" onclick="setSev(3)"><div style="font-size:11px;font-weight:500;color:#993C1D">Grave</div><div style="font-size:10px;color:#D85A30">Lesión con baja</div></div>
+      <div class="sev-card sel-rojo" id="sv4" onclick="setSev(4)"><div style="font-size:11px;font-weight:500;color:#A32D2D">Crítico</div><div style="font-size:10px;color:#E24B4A">Fatalidad / emergencia</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:.6rem">Severidad actual: <span id="sev-actual" class="badge br">Crítico</span></div>
+  </div>
+</div>
+
+<!-- ── AFECTADOS ── -->
+<div id="sec-afectados" style="display:none">
+  <div class="card">
+    <div class="section-title">Personas</div>
+    <div class="grid3">
+      <div class="field"><label class="label">¿Hubo lesionados?</label>
+        <select id="f-lesion" onchange="markChanged(this,'tab-afectados')"><option selected>No</option><option>Sí</option></select>
+      </div>
+      <div class="field"><label class="label">Número de personas</label>
+        <input type="number" value="0" min="0" onchange="markChanged(this,'tab-afectados')"/>
+      </div>
+      <div class="field"><label class="label">Atención médica</label>
+        <select onchange="markChanged(this,'tab-afectados')"><option selected>No fue necesaria</option><option>Primeros auxilios</option><option>Traslado a clínica</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Daños materiales y operacionales</div>
+    <div style="margin-bottom:.75rem">
+      <div class="label" style="margin-bottom:6px">¿Qué se vio afectado?</div>
+      <div id="afect-list"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="label">Estimación económica</label>
+        <select onchange="markChanged(this,'tab-afectados')"><option selected>Sin daño económico</option><option>Menor ($0–$1,000)</option><option>Moderado ($1K–$10K)</option><option>Significativo ($10K–$100K)</option></select>
+      </div>
+      <div class="field"><label class="label">Impacto en operación</label>
+        <select onchange="markChanged(this,'tab-afectados')"><option selected>Sin interrupción</option><option>Retraso menor</option><option>Interrupción parcial</option><option>Paralización total</option></select>
+      </div>
+    </div>
+    <div class="field"><label class="label">Impacto ambiental</label>
+      <select onchange="markChanged(this,'tab-afectados')"><option selected>No</option><option>Derrame menor</option><option>Derrame externo</option></select>
+    </div>
+  </div>
+</div>
+
+<!-- ── ANÁLISIS ── -->
+<div id="sec-analisis" style="display:none">
+  <div class="card">
+    <div class="section-title">Causa raíz</div>
+    <div class="field"><label class="label">Metodología</label>
+      <select onchange="markChanged(this,'tab-analisis')"><option selected>5 Porqués</option><option>Diagrama Ishikawa</option><option>Árbol de fallas (FTA)</option><option>Análisis simplificado</option></select>
+    </div>
+    <div class="field">
+      <label class="label" id="lbl-causa-inmediata">Causa inmediata <span class="changed" id="ci-badge" style="display:none">Modificado</span></label>
+      <textarea id="f-causa-inmediata" oninput="markChanged(this,'tab-analisis');showBadge('ci-badge')">Sensor perimetral sector norte con cobertura parcial — área ciega de 4m sin detección.</textarea>
+    </div>
+    <div class="field">
+      <label class="label" id="lbl-causa-raiz">Causa raíz <span class="changed" id="cr-badge" style="display:none">Modificado</span></label>
+      <textarea id="f-causa-raiz" oninput="markChanged(this,'tab-analisis');showBadge('cr-badge')">Presupuesto de actualización de infraestructura ISPS no fue aprobado en Q1. Los sensores instalados datan de 2019.</textarea>
+    </div>
+    <div class="field">
+      <div class="label" style="margin-bottom:6px">Factores contribuyentes</div>
+      <div id="factores-list"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Lecciones aprendidas</div>
+    <div class="field">
+      <textarea id="f-lecciones" oninput="markChanged(this,'tab-analisis')">Necesario realizar auditoría de cobertura de todos los sensores perimetrales y programar rondas obligatorias en horas de menor actividad.</textarea>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="label">¿Podría repetirse?</label>
+        <select onchange="markChanged(this,'tab-analisis')"><option selected>Sí, sin acciones correctivas</option><option>Poco probable</option><option>No, fue aislado</option></select>
+      </div>
+      <div class="field"><label class="label">Actualizar procedimiento</label>
+        <select onchange="markChanged(this,'tab-analisis')"><option>No</option><option selected>Sí — Procedimiento operativo</option><option>Sí — Plan de emergencia</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ACCIONES ── -->
+<div id="sec-acciones" style="display:none">
+  <div class="card">
+    <div class="section-title">Acciones inmediatas tomadas</div>
+    <div class="field">
+      <textarea id="f-inmediatas" oninput="markChanged(this,'tab-acciones')">Se activó protocolo ISPS nivel 2. Policía portuaria notificada a las 02:41h. Área asegurada y evidencia recopilada.</textarea>
+    </div>
+    <div class="field"><label class="label">Notificación a autoridades</label>
+      <select onchange="markChanged(this,'tab-acciones')"><option selected>Policía portuaria</option><option>No fue necesario</option><option>Cuerpo de bomberos</option><option>Ministerio de Trabajo</option></select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Plan de acciones correctivas</div>
+    <div id="acciones-container"></div>
+    <button onclick="addAccion()" style="font-size:12px;padding:5px 12px;margin-top:.6rem">+ Agregar acción</button>
+  </div>
+</div>
+
+<!-- ── ESTADO ── -->
+<div id="sec-estado" style="display:none">
+  <div class="card">
+    <div class="section-title">Estado del incidente</div>
+    <div class="field">
+      <div class="label" style="margin-bottom:.5rem">Estado actual</div>
+      <div class="estado-pill">
+        <button class="ep" onclick="setEstado('Abierto')" id="ep-abierto">Abierto</button>
+        <button class="ep sel-analisis" onclick="setEstado('En análisis')" id="ep-analisis">En análisis</button>
+        <button class="ep" onclick="setEstado('Con plan')" id="ep-plan">Con plan</button>
+        <button class="ep" onclick="setEstado('Cerrado')" id="ep-cerrado">Cerrado</button>
+      </div>
+    </div>
+    <div class="field" id="motivo-cierre-wrap" style="display:none">
+      <label class="label">Motivo de cierre <span class="req">*</span></label>
+      <textarea placeholder="Describe cómo se resolvió el incidente y las acciones tomadas que justifican el cierre..." style="min-height:80px" onchange="markChanged(this,'tab-estado')"></textarea>
+    </div>
+    <div class="field"><label class="label">Observaciones internas</label>
+      <textarea placeholder="Notas adicionales visibles solo para supervisores y gerencia..." onchange="markChanged(this,'tab-estado')">Reporte formal enviado a autoridad portuaria ISPS el 17/04. Auditoría de sensores en curso.</textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Vista previa de cambios</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.5rem">Los siguientes campos han sido modificados en esta sesión:</div>
+    <div id="diff-preview">
+      <div style="font-size:12px;color:var(--color-text-secondary);font-style:italic">Sin cambios registrados aún.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER GUARDAR -->
+<div class="footer-bar" id="footer-bar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:11px;color:var(--color-text-secondary)">INC-2026-018 · Última edición: hoy 09:14h</span>
+    <span id="cambios-badge" class="badge ba" style="display:none">Cambios sin guardar</span>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button onclick="sendPrompt('Ver módulo de gestión de incidentes operacionales')" style="font-size:12px;padding:5px 12px">Cancelar</button>
+    <button onclick="guardar()" style="font-size:12px;padding:5px 16px;background:#185FA5;color:white;border-color:#185FA5">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- ÉXITO -->
+<div class="success-wrap" id="success-wrap">
+  <div class="success-icon">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px">Cambios guardados</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem">Los cambios en INC-2026-018 quedaron registrados en el log de auditoría.</div>
+  <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+    <button onclick="sendPrompt('Ver detalle del incidente INC-2026-018')" style="font-size:12px;padding:5px 14px">Ver incidente ↗</button>
+    <button onclick="sendPrompt('Ver módulo de gestión de incidentes operacionales')" style="font-size:12px;padding:5px 14px">Volver a incidentes ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+let sevSel=4, estadoSel='En análisis', cambiados=new Set();
+
+const afectItems=['Contenedor(es)','Equipo pesado','Vehículo liviano','Infraestructura del terminal','Sistema TOS / Software','Carga del cliente'];
+const al=document.getElementById('afect-list');
+afectItems.forEach((a,i)=>{al.innerHTML+=`<div class="chk-row"><input type="checkbox" id="af${i}" style="width:auto;margin:0" onchange="markChanged(this,'tab-afectados')"><label for="af${i}" style="font-size:12px;color:var(--color-text-primary);cursor:pointer">${a}</label></div>`;});
+
+const factores=['Fallo de equipo / maquinaria','Error humano','Falta de capacitación','Procedimiento no seguido','Condiciones climáticas adversas','Fatiga del operador','Comunicación deficiente'];
+const fl=document.getElementById('factores-list');
+factores.forEach((f,i)=>{fl.innerHTML+=`<div class="chk-row"><input type="checkbox" id="fc${i}" style="width:auto;margin:0" ${i===0?'checked':''} onchange="markChanged(this,'tab-analisis')"><label for="fc${i}" style="font-size:12px;color:var(--color-text-primary);cursor:pointer">${f}</label></div>`;});
+
+const accionesInicial=[
+  {desc:'Auditoría completa cobertura sensores perimetrales',resp:'Jef. Seg. ISPS',fecha:'2026-04-20',estado:'En progreso'},
+  {desc:'Programar rondas nocturnas 01:00–03:00h sector norte',resp:'Sup. Turno',fecha:'2026-04-18',estado:'Completada'},
+  {desc:'Solicitud presupuesto actualización sensores Q2',resp:'Gerencia Ops',fecha:'2026-04-30',estado:'Pendiente'},
+];
+let accionCount=accionesInicial.length;
+const ac=document.getElementById('acciones-container');
+accionesInicial.forEach((a,i)=>renderAccion(a,i));
+
+function renderAccion(a,idx){
+  const estadoMap={'Pendiente':'bgr','En progreso':'ba','Completada':'bg'};
+  const div=document.createElement('div');
+  div.className='accion-row';div.id='arow-'+idx;
+  div.innerHTML=`<button class="accion-del" onclick="delAccion(${idx})">✕ Eliminar</button>
+    <div class="grid3" style="margin-bottom:6px">
+      <div class="field" style="margin-bottom:0"><label class="label">Acción</label><input type="text" value="${a.desc}" onchange="markChanged(this,'tab-acciones')"/></div>
+      <div class="field" style="margin-bottom:0"><label class="label">Responsable</label><input type="text" value="${a.resp}" onchange="markChanged(this,'tab-acciones')"/></div>
+      <div class="field" style="margin-bottom:0"><label class="label">Fecha límite</label><input type="date" value="${a.fecha}" onchange="markChanged(this,'tab-acciones')"/></div>
+    </div>
+    <div class="field" style="margin-bottom:0"><label class="label">Estado</label>
+      <select onchange="markChanged(this,'tab-acciones')">
+        <option ${a.estado==='Pendiente'?'selected':''}>Pendiente</option>
+        <option ${a.estado==='En progreso'?'selected':''}>En progreso</option>
+        <option ${a.estado==='Completada'?'selected':''}>Completada</option>
+        <option ${a.estado==='Vencida'?'selected':''}>Vencida</option>
+      </select>
+    </div>`;
+  ac.appendChild(div);
+}
+
+function addAccion(){
+  const div=document.createElement('div');
+  div.className='accion-row';div.id='arow-'+accionCount;
+  div.innerHTML=`<button class="accion-del" onclick="this.parentElement.remove();markChanged(this,'tab-acciones')">✕ Eliminar</button>
+    <div class="grid3" style="margin-bottom:6px">
+      <div class="field" style="margin-bottom:0"><label class="label">Acción</label><input type="text" placeholder="Descripción de la acción" onchange="markChanged(this,'tab-acciones')"/></div>
+      <div class="field" style="margin-bottom:0"><label class="label">Responsable</label><input type="text" placeholder="Nombre o cargo" onchange="markChanged(this,'tab-acciones')"/></div>
+      <div class="field" style="margin-bottom:0"><label class="label">Fecha límite</label><input type="date" onchange="markChanged(this,'tab-acciones')"/></div>
+    </div>
+    <div class="field" style="margin-bottom:0"><label class="label">Estado</label>
+      <select onchange="markChanged(this,'tab-acciones')"><option>Pendiente</option><option>En progreso</option><option>Completada</option></select>
+    </div>`;
+  ac.appendChild(div);
+  accionCount++;
+  markChanged(div,'tab-acciones');
+}
+
+function delAccion(idx){const el=document.getElementById('arow-'+idx);if(el)el.remove();markChanged(null,'tab-acciones');}
+
+function setSev(n){
+  sevSel=n;
+  ['sv1','sv2','sv3','sv4'].forEach(id=>document.getElementById(id).className='sev-card');
+  const clsMap={1:'sel-verde',2:'sel-amber',3:'sel-high',4:'sel-rojo'};
+  document.getElementById('sv'+n).classList.add(clsMap[n]);
+  const lblMap={1:'Leve',2:'Moderado',3:'Grave',4:'Crítico'};
+  const bdgMap={1:'bg',2:'ba',3:'bh',4:'br'};
+  const el=document.getElementById('sev-actual');
+  el.textContent=lblMap[n];el.className='badge '+bdgMap[n];
+  markChanged(null,'tab-ocurrencia');
+}
+
+function setEstado(est){
+  estadoSel=est;
+  ['ep-abierto','ep-analisis','ep-plan','ep-cerrado'].forEach(id=>document.getElementById(id).className='ep');
+  const map={'Abierto':'ep-abierto sel-abierto','En análisis':'ep-analisis sel-analisis','Con plan':'ep-plan sel-plan','Cerrado':'ep-cerrado sel-cerrado'};
+  document.getElementById({'Abierto':'ep-abierto','En análisis':'ep-analisis','Con plan':'ep-plan','Cerrado':'ep-cerrado'}[est]).className='ep '+({'Abierto':'sel-abierto','En análisis':'sel-analisis','Con plan':'sel-plan','Cerrado':'sel-cerrado'}[est]);
+  document.getElementById('motivo-cierre-wrap').style.display=est==='Cerrado'?'block':'none';
+  const bdgMap={'Abierto':'br','En análisis':'ba','Con plan':'bb','Cerrado':'bg'};
+  const badge=document.getElementById('estado-badge');
+  badge.textContent=est;badge.className='badge '+bdgMap[est];
+  markChanged(null,'tab-estado');
+}
+
+function markChanged(el,tabId){
+  if(el) el.classList&&el.classList.add('changed');
+  cambiados.add(tabId);
+  const tab=document.getElementById(tabId);
+  if(tab&&!tab.classList.contains('mod')) tab.classList.add('mod');
+  document.getElementById('unsaved-alert').style.display='flex';
+  document.getElementById('cambios-badge').style.display='inline-block';
+  updateDiff();
+}
+
+function showBadge(id){document.getElementById(id).style.display='inline';}
+
+function updateDiff(){
+  const dp=document.getElementById('diff-preview');
+  const campos=[];
+  if(cambiados.has('tab-ocurrencia')) campos.push({k:'Título',o:'Intento acceso no autorizado zona ISPS norte',n:document.getElementById('f-titulo').value.slice(0,40)+'…'});
+  if(cambiados.has('tab-analisis')) campos.push({k:'Causa inmediata',o:'Sensor perimetral con cobertura parcial…',n:document.getElementById('f-causa-inmediata').value.slice(0,40)+'…'});
+  if(cambiados.has('tab-estado')) campos.push({k:'Estado',o:'En análisis',n:estadoSel});
+  if(cambiados.has('tab-acciones')) campos.push({k:'Acciones correctivas',o:'3 acciones',n:'Modificadas'});
+  if(cambiados.has('tab-afectados')) campos.push({k:'Afectados / Daños',o:'Sin cambios',n:'Actualizado'});
+  if(campos.length===0){dp.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);font-style:italic">Sin cambios registrados aún.</div>';return;}
+  dp.innerHTML=campos.map(c=>`<div class="diff-item"><div class="diff-key">${c.k}</div><span class="diff-old">${c.o}</span><span style="color:var(--color-text-secondary);margin:0 4px">→</span><span class="diff-new">${c.n}</span></div>`).join('');
+}
+
+function goTab(el,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['ocurrencia','afectados','analisis','acciones','estado'].forEach(s=>{
+    document.getElementById('sec-'+s).style.display=s===id?'block':'none';
+  });
+}
+
+function guardar(){
+  document.getElementById('footer-bar').style.display='none';
+  document.getElementById('success-wrap').style.display='block';
+}
+</script>

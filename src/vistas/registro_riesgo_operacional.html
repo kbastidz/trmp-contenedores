@@ -1,0 +1,379 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem;font-family:var(--font-sans)}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.back-btn{font-size:12px;color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;gap:4px;background:none;border:none;padding:0}
+.steps{display:flex;align-items:center;gap:0;margin-bottom:1.5rem}
+.step{display:flex;align-items:center;gap:6px;font-size:12px}
+.step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.step.done .step-num{background:#185FA5;color:white}
+.step.active .step-num{background:#185FA5;color:white}
+.step.pending .step-num{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.step.done .step-label{color:var(--color-text-secondary)}
+.step.active .step-label{color:var(--color-text-primary);font-weight:500}
+.step.pending .step-label{color:var(--color-text-secondary)}
+.step-label{font-size:12px}
+.step-line{flex:1;height:1px;background:var(--color-border-tertiary);margin:0 8px}
+.step-line.done{background:#185FA5}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem}
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;display:block}
+.label .req{color:#E24B4A}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+textarea{resize:vertical;min-height:72px}
+.matrix-mini{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:6px}
+.mc{height:34px;border-radius:5px;cursor:pointer;border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;transition:border-color .15s,opacity .15s}
+.mc:hover{opacity:.8}
+.mc.selected{border-color:var(--color-text-primary)}
+.cell-low{background:#EAF3DE;color:#3B6D11}
+.cell-med{background:#FAEEDA;color:#854F0B}
+.cell-high{background:#FAECE7;color:#993C1D}
+.cell-crit{background:#FCEBEB;color:#A32D2D}
+.score-display{display:flex;align-items:center;gap:10px;margin-top:10px;padding:.65rem 1rem;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
+.score-num{font-size:22px;font-weight:500}
+.score-label{font-size:12px;color:var(--color-text-secondary)}
+.badge{display:inline-block;padding:3px 9px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-high{background:#FAECE7;color:#993C1D}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.ctrl-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:.5rem .75rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md)}
+.ctrl-row input[type=checkbox]{width:auto;margin:0}
+.ctrl-label{font-size:12px;color:var(--color-text-primary);flex:1}
+.ctrl-type{font-size:11px;color:var(--color-text-secondary)}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:.5rem}
+.summary-row{display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.summary-row:last-child{border-bottom:none}
+.summary-key{color:var(--color-text-secondary);font-size:12px;min-width:140px}
+.summary-val{color:var(--color-text-primary);font-size:12px;font-weight:500;text-align:right}
+.success-state{text-align:center;padding:2rem 1rem}
+.success-icon{width:48px;height:48px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+</style>
+
+<h2 class="sr-only">Formulario de registro de nuevo riesgo operacional en el terminal de contenedores</h2>
+
+<div class="wrap" id="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="sendPrompt('Volver al dashboard de riesgos')">← Volver al dashboard</button>
+    <span style="font-size:11px;color:var(--color-text-secondary)">ID provisional: RISK-2026-025</span>
+  </div>
+
+  <div class="steps" id="steps-bar">
+    <div class="step active" id="s1"><div class="step-num">1</div><div class="step-label">Identificación</div></div>
+    <div class="step-line" id="l1"></div>
+    <div class="step pending" id="s2"><div class="step-num">2</div><div class="step-label">Evaluación</div></div>
+    <div class="step-line" id="l2"></div>
+    <div class="step pending" id="s3"><div class="step-num">3</div><div class="step-label">Controles</div></div>
+    <div class="step-line" id="l3"></div>
+    <div class="step pending" id="s4"><div class="step-num">4</div><div class="step-label">Revisión</div></div>
+  </div>
+
+  <div id="step1">
+    <div class="card">
+      <div class="section-title">Información general del riesgo</div>
+      <div class="field">
+        <label class="label">Nombre del riesgo <span class="req">*</span></label>
+        <input type="text" id="f-nombre" placeholder="Ej: Caída de contenedor durante operación de RTG en patio" />
+      </div>
+      <div class="field">
+        <label class="label">Descripción detallada</label>
+        <textarea id="f-desc" placeholder="Describa el escenario de riesgo, condiciones que lo generan y posibles consecuencias..."></textarea>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Área operacional <span class="req">*</span></label>
+          <select id="f-area">
+            <option value="">Seleccionar...</option>
+            <option>Muelle / Operaciones de buque</option>
+            <option>Patio de contenedores (Yard)</option>
+            <option>Gate / Portería</option>
+            <option>Taller y equipos</option>
+            <option>Seguridad ISPS / BASC</option>
+            <option>Carga peligrosa IMDG</option>
+            <option>Sistemas TOS / IT</option>
+            <option>Salud ocupacional</option>
+            <option>Medio ambiente</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Tipo de riesgo <span class="req">*</span></label>
+          <select id="f-tipo">
+            <option value="">Seleccionar...</option>
+            <option>Seguridad industrial</option>
+            <option>Operacional / Proceso</option>
+            <option>Seguridad física</option>
+            <option>Ambiental</option>
+            <option>Tecnológico</option>
+            <option>Humano / Fatiga</option>
+            <option>Externo / Climático</option>
+            <option>Legal / Regulatorio</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="field">
+          <label class="label">Responsable <span class="req">*</span></label>
+          <input type="text" id="f-resp" placeholder="Nombre o cargo" />
+        </div>
+        <div class="field">
+          <label class="label">Turno afectado</label>
+          <select id="f-turno">
+            <option value="">Todos</option>
+            <option>Turno día</option>
+            <option>Turno noche</option>
+            <option>Todos los turnos</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Normativa aplicable</label>
+          <select id="f-norma">
+            <option value="">Ninguna específica</option>
+            <option>ISO 45001</option>
+            <option>Código ISPS</option>
+            <option>IMDG</option>
+            <option>BASC</option>
+            <option>ISO 31000</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 1 de 4</span>
+      <button onclick="goStep(2)" style="font-size:13px;padding:7px 20px">Siguiente → Evaluación</button>
+    </div>
+  </div>
+
+  <div id="step2" style="display:none">
+    <div class="card">
+      <div class="section-title">Matriz de evaluación — probabilidad × impacto</div>
+      <div class="grid2" style="gap:16px;align-items:start">
+        <div>
+          <div class="label" style="margin-bottom:8px">Probabilidad de ocurrencia <span class="req">*</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px" id="prob-opts">
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="prob" value="1" style="width:auto"> <span>1 — Raro (menos de 1 vez al año)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="prob" value="2" style="width:auto"> <span>2 — Improbable (1 vez al año)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="prob" value="3" style="width:auto"> <span>3 — Posible (mensual)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="prob" value="4" style="width:auto"> <span>4 — Probable (semanal)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="prob" value="5" style="width:auto"> <span>5 — Casi seguro (diario)</span></label>
+          </div>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:8px">Nivel de impacto <span class="req">*</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="imp" value="1" style="width:auto"> <span>1 — Insignificante (sin lesiones)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="imp" value="2" style="width:auto"> <span>2 — Menor (primeros auxilios)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="imp" value="3" style="width:auto"> <span>3 — Moderado (lesión con baja)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="imp" value="4" style="width:auto"> <span>4 — Mayor (lesión grave / pérdida)</span></label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)"><input type="radio" name="imp" value="5" style="width:auto"> <span>5 — Catastrófico (fatalidad)</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="score-display" id="score-display" style="margin-top:1rem">
+        <div>
+          <div class="score-label">Puntaje calculado</div>
+          <div class="score-num" id="score-num" style="color:var(--color-text-secondary)">—</div>
+        </div>
+        <div style="flex:1"></div>
+        <div id="score-badge" style="font-size:13px;color:var(--color-text-secondary)">Selecciona probabilidad e impacto</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Contexto adicional</div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">¿Ya ocurrió antes?</label>
+          <select id="f-prev">
+            <option>No hay antecedentes</option>
+            <option>Sí, una vez</option>
+            <option>Sí, varias veces</option>
+            <option>Casi ocurrió (near miss)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Condición que lo desencadena</label>
+          <input type="text" id="f-trigger" placeholder="Ej: viento > 45 km/h, fallo de sensor..." />
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Consecuencias potenciales</label>
+        <textarea id="f-conseq" placeholder="Personas, equipos, medio ambiente, reputación, operación..." style="min-height:56px"></textarea>
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(1)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 2 de 4</span>
+      <button onclick="goStep(3)" style="font-size:13px;padding:7px 20px">Siguiente → Controles</button>
+    </div>
+  </div>
+
+  <div id="step3" style="display:none">
+    <div class="card">
+      <div class="section-title">Controles existentes</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.75rem">Marca los controles que ya están implementados para este riesgo</div>
+      <div id="controles-list"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Plan de mitigación</div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Acción de mitigación propuesta <span class="req">*</span></label>
+          <input type="text" id="f-accion" placeholder="Ej: Instalar sensor de carga en gancho de RTG" />
+        </div>
+        <div class="field">
+          <label class="label">Responsable de la acción</label>
+          <input type="text" id="f-resp2" placeholder="Cargo o nombre" />
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Fecha límite</label>
+          <input type="date" id="f-fecha" />
+        </div>
+        <div class="field">
+          <label class="label">Prioridad</label>
+          <select id="f-prio">
+            <option>Inmediata (24h)</option>
+            <option>Alta (1 semana)</option>
+            <option>Media (1 mes)</option>
+            <option>Baja (trimestral)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Recursos necesarios</label>
+        <input type="text" id="f-recursos" placeholder="Ej: Presupuesto $3,000, coordinación con proveedor..." />
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(2)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 3 de 4</span>
+      <button onclick="goStep(4)" style="font-size:13px;padding:7px 20px">Siguiente → Revisar</button>
+    </div>
+  </div>
+
+  <div id="step4" style="display:none">
+    <div class="card">
+      <div class="section-title">Resumen del riesgo — revisión final</div>
+      <div id="summary-content"></div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(3)" style="font-size:13px;padding:7px 16px">← Editar</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 4 de 4</span>
+      <button onclick="submitForm()" style="font-size:13px;padding:7px 22px;background:#185FA5;color:white;border-color:#185FA5">Registrar riesgo</button>
+    </div>
+  </div>
+
+  <div id="step5" style="display:none">
+    <div class="card">
+      <div class="success-state">
+        <div class="success-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Riesgo registrado exitosamente</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem">ID asignado: <strong>RISK-2026-025</strong> · El responsable será notificado por correo</div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button onclick="sendPrompt('Ver el riesgo RISK-2026-025 recién registrado')" style="font-size:13px;padding:7px 16px">Ver registro ↗</button>
+          <button onclick="sendPrompt('Registrar otro riesgo operacional')" style="font-size:13px;padding:7px 16px">Registrar otro ↗</button>
+          <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:13px;padding:7px 16px">Ir al dashboard ↗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const controles=[
+  {label:'Procedimiento operativo estándar (POE) documentado',tipo:'Preventivo'},
+  {label:'Capacitación y entrenamiento del personal',tipo:'Preventivo'},
+  {label:'Inspección preoperacional de equipos',tipo:'Preventivo'},
+  {label:'Sistema de bloqueo/etiquetado (LOTO)',tipo:'Preventivo'},
+  {label:'Equipo de protección personal (EPP)',tipo:'Preventivo'},
+  {label:'Señalización y demarcación de zonas',tipo:'Preventivo'},
+  {label:'Permisos de trabajo en altura / espacios confinados',tipo:'Preventivo'},
+  {label:'Alarmas y sensores de seguridad',tipo:'Detectivo'},
+  {label:'Rondas de supervisión y auditorías',tipo:'Detectivo'},
+  {label:'Plan de emergencia y evacuación',tipo:'Correctivo'},
+];
+const cl=document.getElementById('controles-list');
+controles.forEach((c,i)=>{
+  cl.innerHTML+=`<div class="ctrl-row">
+    <input type="checkbox" id="ctrl${i}" value="${c.label}">
+    <label class="ctrl-label" for="ctrl${i}">${c.label}</label>
+    <span class="ctrl-type">${c.tipo}</span>
+  </div>`;
+});
+
+document.querySelectorAll('input[name=prob], input[name=imp]').forEach(r=>{
+  r.addEventListener('change', updateScore);
+});
+
+function updateScore(){
+  const p=document.querySelector('input[name=prob]:checked');
+  const i=document.querySelector('input[name=imp]:checked');
+  if(!p||!i){return;}
+  const score=parseInt(p.value)*parseInt(i.value);
+  document.getElementById('score-num').textContent=score;
+  let cls,txt,col;
+  if(score<=4){cls='badge-green';txt='Bajo';col='#3B6D11';}
+  else if(score<=9){cls='badge-amber';txt='Medio';col='#854F0B';}
+  else if(score<=16){cls='badge-high';txt='Alto';col='#993C1D';}
+  else{cls='badge-red';txt='Crítico';col='#A32D2D';}
+  document.getElementById('score-num').style.color=col;
+  document.getElementById('score-badge').innerHTML=`<span class="badge ${cls}">${txt}</span>`;
+}
+
+function goStep(n){
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('step'+i);
+    if(el) el.style.display=i===n?'block':'none';
+  }
+  for(let i=1;i<=4;i++){
+    const s=document.getElementById('s'+i);
+    if(!s)continue;
+    s.className='step '+(i<n?'done':i===n?'active':'pending');
+    const l=document.getElementById('l'+i);
+    if(l) l.className='step-line '+(i<n?'done':'');
+  }
+  if(n===4) buildSummary();
+}
+
+function buildSummary(){
+  const p=document.querySelector('input[name=prob]:checked');
+  const im=document.querySelector('input[name=imp]:checked');
+  const score=p&&im?parseInt(p.value)*parseInt(im.value):null;
+  let nivel='—';
+  if(score){nivel=score<=4?'Bajo':score<=9?'Medio':score<=16?'Alto':'Crítico';}
+  const ctrls=[...document.querySelectorAll('#controles-list input:checked')].map(c=>c.value);
+  const rows=[
+    ['Nombre del riesgo', document.getElementById('f-nombre').value||'—'],
+    ['Área operacional', document.getElementById('f-area').value||'—'],
+    ['Tipo de riesgo', document.getElementById('f-tipo').value||'—'],
+    ['Responsable', document.getElementById('f-resp').value||'—'],
+    ['Probabilidad', p?p.value+'/5':'—'],
+    ['Impacto', im?im.value+'/5':'—'],
+    ['Puntaje / Nivel', score?(score+' — '+nivel):'—'],
+    ['Antecedentes', document.getElementById('f-prev').value||'—'],
+    ['Controles existentes', ctrls.length?ctrls.join(', '):'Ninguno marcado'],
+    ['Acción de mitigación', document.getElementById('f-accion').value||'—'],
+    ['Prioridad', document.getElementById('f-prio').value||'—'],
+    ['Fecha límite', document.getElementById('f-fecha').value||'—'],
+  ];
+  let html='';
+  rows.forEach(r=>{
+    html+=`<div class="summary-row"><div class="summary-key">${r[0]}</div><div class="summary-val">${r[1]}</div></div>`;
+  });
+  document.getElementById('summary-content').innerHTML=html;
+}
+
+function submitForm(){
+  goStep(5);
+}
+</script>

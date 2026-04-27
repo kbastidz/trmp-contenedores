@@ -1,0 +1,374 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.title-block{display:flex;align-items:center;gap:10px}
+.logo-box{width:32px;height:32px;border-radius:var(--border-radius-md);background:#185FA5;display:flex;align-items:center;justify-content:center}
+.logo-box svg{width:17px;height:17px;fill:white}
+.page-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.page-sub{font-size:12px;color:var(--color-text-secondary)}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:1.25rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.8rem .9rem}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.metric-value{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.metric-sub{font-size:11px;margin-top:3px;color:var(--color-text-secondary)}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-high{background:#FAECE7;color:#993C1D}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.filters{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.filter-btn{font-size:12px;padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;color:var(--color-text-secondary);transition:all .15s}
+.filter-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-secondary)}
+.filter-sep{width:1px;height:20px;background:var(--color-border-tertiary)}
+select.filter-sel{font-size:12px;padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);width:auto}
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.25rem}
+.col{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:.75rem}
+.col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.col-title{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.col-count{font-size:11px;color:var(--color-text-secondary);background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:1px 7px}
+.plan-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.75rem;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
+.plan-card:hover{border-color:var(--color-border-secondary)}
+.plan-card:last-child{margin-bottom:0}
+.plan-id{font-size:10px;color:var(--color-text-secondary);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.plan-name{font-size:12px;color:var(--color-text-primary);line-height:1.4;margin-bottom:6px;font-weight:500}
+.plan-meta{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.plan-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.plan-resp{font-size:11px;color:var(--color-text-secondary)}
+.plan-date{font-size:11px}
+.progress-bar{height:3px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:2px;transition:width .3s}
+.venc-tag{font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px}
+.venc-ok{background:#EAF3DE;color:#3B6D11}
+.venc-warn{background:#FAEEDA;color:#854F0B}
+.venc-late{background:#FCEBEB;color:#A32D2D}
+.detail-panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.detail-field{margin-bottom:.75rem}
+.detail-field:last-child{margin-bottom:0}
+.field-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.field-val{font-size:13px;color:var(--color-text-primary)}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:10px;padding-bottom:12px;position:relative}
+.tl-item:last-child{padding-bottom:0}
+.tl-left{display:flex;flex-direction:column;align-items:center;gap:0}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.tl-line{width:1px;flex:1;background:var(--color-border-tertiary);margin-top:3px}
+.tl-item:last-child .tl-line{display:none}
+.tl-body{flex:1;padding-top:0}
+.tl-action{font-size:12px;color:var(--color-text-primary);font-weight:500}
+.tl-detail{font-size:11px;color:var(--color-text-secondary);margin-top:1px;line-height:1.4}
+.tl-time{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.tab-row{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1rem}
+.tab{font-size:12px;color:var(--color-text-secondary);padding:.5rem .85rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--color-text-primary);font-weight:500;border-bottom-color:#185FA5}
+</style>
+
+<h2 class="sr-only">Módulo de seguimiento de planes de mitigación de riesgos operacionales</h2>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="title-block">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+      <div>
+        <div class="page-title">Planes de mitigación</div>
+        <div class="page-sub">Seguimiento de acciones y controles — Abril 2026</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="sendPrompt('Agregar nuevo plan de mitigación para un riesgo')" style="font-size:12px;padding:5px 14px">+ Nuevo plan ↗</button>
+      <button onclick="sendPrompt('Exportar seguimiento de planes de mitigación a PDF')" style="font-size:12px;padding:5px 14px">Exportar ↗</button>
+      <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:12px;padding:5px 14px">← Dashboard ↗</button>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total acciones</div><div class="metric-value">41</div><div class="metric-sub">en seguimiento activo</div></div>
+    <div class="metric"><div class="metric-label">Completadas</div><div class="metric-value" style="color:#3B6D11">18</div><div class="metric-sub">44% del total</div></div>
+    <div class="metric"><div class="metric-label">En progreso</div><div class="metric-value" style="color:#185FA5">15</div><div class="metric-sub">37% del total</div></div>
+    <div class="metric"><div class="metric-label">Vencidas</div><div class="metric-value" style="color:#A32D2D">2</div><div class="metric-sub">requieren atención</div></div>
+    <div class="metric"><div class="metric-label">Pendientes</div><div class="metric-value" style="color:#854F0B">6</div><div class="metric-sub">no iniciadas</div></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter(this,'todos')">Todos</button>
+    <button class="filter-btn" onclick="setFilter(this,'vencidas')">Vencidas</button>
+    <button class="filter-btn" onclick="setFilter(this,'criticas')">Riesgos críticos</button>
+    <div class="filter-sep"></div>
+    <select class="filter-sel" id="sel-area" onchange="filterByArea()">
+      <option value="">Todas las áreas</option>
+      <option>Muelle / Buque</option>
+      <option>Patio / Yard</option>
+      <option>Taller / Equipos</option>
+      <option>Gate / Portería</option>
+      <option>Seg. ISPS / BASC</option>
+    </select>
+    <select class="filter-sel">
+      <option>Todos los responsables</option>
+      <option>Jef. Mantenimiento</option>
+      <option>Sup. Patio</option>
+      <option>Seguridad Industrial</option>
+      <option>RRHH</option>
+      <option>Gerencia Ops</option>
+    </select>
+  </div>
+
+  <div class="kanban" id="kanban-board">
+
+    <div class="col">
+      <div class="col-header">
+        <div class="col-title">Pendiente</div>
+        <span class="col-count">6</span>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-041')">
+        <div class="plan-id">PM-041 <span class="venc-tag venc-warn">Vence 30/04</span></div>
+        <div class="plan-name">Simulacro de emergencia IMDG clase 3</div>
+        <div class="plan-meta"><span class="badge badge-red" style="font-size:10px">Crítico</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="plan-footer"><span class="plan-resp">Seg. Industrial</span><span class="plan-date" style="color:#854F0B">30/04/26</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-038')">
+        <div class="plan-id">PM-038 <span class="venc-tag venc-ok">Vence 15/05</span></div>
+        <div class="plan-name">Instalar cámaras PTZ en zona de carga peligrosa</div>
+        <div class="plan-meta"><span class="badge badge-high" style="font-size:10px">Alto</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="plan-footer"><span class="plan-resp">Seg. Industrial</span><span class="plan-date" style="color:#3B6D11">15/05/26</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-035')">
+        <div class="plan-id">PM-035 <span class="venc-tag venc-ok">Vence 20/05</span></div>
+        <div class="plan-name">Actualizar plan de emergencia portuaria</div>
+        <div class="plan-meta"><span class="badge badge-high" style="font-size:10px">Alto</span><span class="badge badge-blue" style="font-size:10px">Muelle</span></div>
+        <div class="plan-footer"><span class="plan-resp">Gerencia Ops</span><span class="plan-date" style="color:#3B6D11">20/05/26</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-033')">
+        <div class="plan-id">PM-033 <span class="venc-tag venc-ok">Vence 30/05</span></div>
+        <div class="plan-name">Contratar técnico especialista en grúas STS</div>
+        <div class="plan-meta"><span class="badge badge-amber" style="font-size:10px">Medio</span><span class="badge badge-blue" style="font-size:10px">Muelle</span></div>
+        <div class="plan-footer"><span class="plan-resp">RRHH</span><span class="plan-date" style="color:#3B6D11">30/05/26</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="col-header">
+        <div class="col-title">En progreso</div>
+        <span class="col-count">15</span>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-039')" style="border-left:2px solid #E24B4A;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0">
+        <div class="plan-id">PM-039 <span class="venc-tag venc-warn">Vence 20/04</span></div>
+        <div class="plan-name">Plan de recuperación mantenimiento preventivo RTG</div>
+        <div class="plan-meta"><span class="badge badge-red" style="font-size:10px">Crítico</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:45%;background:#E24B4A"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">Jef. Mantenimiento</span><span style="font-size:10px;color:#854F0B">45%</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-037')">
+        <div class="plan-id">PM-037 <span class="venc-tag venc-ok">Vence 30/04</span></div>
+        <div class="plan-name">Capacitación operadores nocturnos — fatiga y ergonomía</div>
+        <div class="plan-meta"><span class="badge badge-high" style="font-size:10px">Alto</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:70%;background:#378ADD"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">RRHH</span><span style="font-size:10px;color:#185FA5">70%</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-036')">
+        <div class="plan-id">PM-036 <span class="venc-tag venc-ok">Vence 05/05</span></div>
+        <div class="plan-name">Capacitar operadores en IMDG clase 3</div>
+        <div class="plan-meta"><span class="badge badge-high" style="font-size:10px">Alto</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:60%;background:#378ADD"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">RRHH</span><span style="font-size:10px;color:#185FA5">60%</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-034')">
+        <div class="plan-id">PM-034 <span class="venc-tag venc-ok">Vence 10/05</span></div>
+        <div class="plan-name">Revisión y refuerzo de señalización en patio</div>
+        <div class="plan-meta"><span class="badge badge-amber" style="font-size:10px">Medio</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:85%;background:#639922"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">Sup. Patio</span><span style="font-size:10px;color:#3B6D11">85%</span></div>
+      </div>
+      <div style="text-align:center;padding:.4rem 0">
+        <span style="font-size:11px;color:var(--color-text-secondary);cursor:pointer" onclick="sendPrompt('Ver todas las acciones en progreso del plan de mitigación')">Ver 11 más ↗</span>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="col-header">
+        <div class="col-title">Vencidas</div>
+        <span class="col-count" style="background:#FCEBEB;color:#A32D2D;border-color:#F09595">2</span>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-029')" style="border:0.5px solid #F09595">
+        <div class="plan-id" style="color:#A32D2D">PM-029 <span class="venc-tag venc-late">Venció 05/04</span></div>
+        <div class="plan-name">Revisión integral del plan de emergencia portuaria</div>
+        <div class="plan-meta"><span class="badge badge-red" style="font-size:10px">Crítico</span><span class="badge badge-blue" style="font-size:10px">Muelle</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:20%;background:#E24B4A"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">Seg. Industrial</span><span style="font-size:10px;color:#A32D2D">20% · 11 días tarde</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-027')" style="border:0.5px solid #F09595">
+        <div class="plan-id" style="color:#A32D2D">PM-027 <span class="venc-tag venc-late">Venció 01/04</span></div>
+        <div class="plan-name">Mantenimiento correctivo grúa STS-2</div>
+        <div class="plan-meta"><span class="badge badge-red" style="font-size:10px">Crítico</span><span class="badge badge-blue" style="font-size:10px">Muelle</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:10%;background:#E24B4A"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">Jef. Mantenimiento</span><span style="font-size:10px;color:#A32D2D">10% · 15 días tarde</span></div>
+      </div>
+      <div style="margin-top:.5rem;padding:.6rem .75rem;background:#FCEBEB;border-radius:var(--border-radius-md)">
+        <div style="font-size:11px;color:#791F1F;line-height:1.5">Estas acciones están vinculadas a riesgos críticos. Se recomienda escalar a Gerencia de Operaciones.</div>
+        <button onclick="sendPrompt('Escalar acciones vencidas PM-029 y PM-027 a gerencia')" style="font-size:11px;padding:4px 10px;margin-top:6px;color:#A32D2D;border-color:#F09595">Escalar ↗</button>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="col-header">
+        <div class="col-title">Completadas</div>
+        <span class="col-count" style="background:#EAF3DE;color:#3B6D11;border-color:#C0DD97">18</span>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-032')">
+        <div class="plan-id">PM-032 <span class="venc-tag venc-ok">Cerrado 15/04</span></div>
+        <div class="plan-name">Instalar sensor de carga en gancho RTG-03</div>
+        <div class="plan-meta"><span class="badge badge-high" style="font-size:10px">Alto</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#639922"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">Jef. Mantenimiento</span><span style="font-size:10px;color:#3B6D11">100%</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-031')">
+        <div class="plan-id">PM-031 <span class="venc-tag venc-ok">Cerrado 10/04</span></div>
+        <div class="plan-name">Actualizar POE de operaciones nocturnas</div>
+        <div class="plan-meta"><span class="badge badge-amber" style="font-size:10px">Medio</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#639922"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">Sup. Patio</span><span style="font-size:10px;color:#3B6D11">100%</span></div>
+      </div>
+      <div class="plan-card" onclick="openDetail('PM-028')">
+        <div class="plan-id">PM-028 <span class="venc-tag venc-ok">Cerrado 08/04</span></div>
+        <div class="plan-name">Demarcación de zonas de tránsito peatonal en patio</div>
+        <div class="plan-meta"><span class="badge badge-amber" style="font-size:10px">Medio</span><span class="badge badge-blue" style="font-size:10px">Patio</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#639922"></div></div>
+        <div class="plan-footer" style="margin-top:6px"><span class="plan-resp">Sup. Patio</span><span style="font-size:10px;color:#3B6D11">100%</span></div>
+      </div>
+      <div style="text-align:center;padding:.4rem 0">
+        <span style="font-size:11px;color:var(--color-text-secondary);cursor:pointer" onclick="sendPrompt('Ver todas las acciones completadas del historial de mitigación')">Ver 15 más ↗</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="detail-panel" id="detail-panel" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:2px" id="d-id">PM-039</div>
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)" id="d-name">Plan de recuperación mantenimiento preventivo RTG</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="d-badge"></span>
+        <button onclick="closeDetail()" style="font-size:11px;padding:4px 10px">Cerrar</button>
+      </div>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="setTab(this,'info')">Información</div>
+      <div class="tab" onclick="setTab(this,'timeline')">Historial</div>
+      <div class="tab" onclick="setTab(this,'riesgo')">Riesgo vinculado</div>
+    </div>
+    <div id="tab-info">
+      <div class="detail-grid">
+        <div>
+          <div class="detail-field"><div class="field-label">Descripción</div><div class="field-val" id="d-desc">Ejecutar plan de choque para recuperar el 90% de cumplimiento de mantenimiento preventivo en flota RTG antes del cierre de abril.</div></div>
+          <div class="detail-field"><div class="field-label">Área operacional</div><div class="field-val">Patio de contenedores</div></div>
+          <div class="detail-field"><div class="field-label">Responsable principal</div><div class="field-val">Jefatura de Mantenimiento</div></div>
+          <div class="detail-field"><div class="field-label">Recursos asignados</div><div class="field-val">$8,500 — 2 técnicos externos + repuestos</div></div>
+        </div>
+        <div>
+          <div class="detail-field"><div class="field-label">Estado actual</div><div class="field-val"><span class="badge badge-amber">En progreso — 45%</span></div></div>
+          <div class="detail-field"><div class="field-label">Fecha de inicio</div><div class="field-val">01/04/2026</div></div>
+          <div class="detail-field"><div class="field-label">Fecha límite</div><div class="field-val" style="color:#854F0B">20/04/2026 · en 4 días</div></div>
+          <div class="detail-field"><div class="field-label">Prioridad</div><div class="field-val"><span class="badge badge-red">Urgente</span></div></div>
+        </div>
+      </div>
+      <div style="margin-top:.75rem">
+        <div class="field-label" style="margin-bottom:6px">Avance de tareas</div>
+        <div style="display:flex;flex-direction:column;gap:5px" id="tasks-list"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:1rem;padding-top:.75rem;border-top:0.5px solid var(--color-border-tertiary)">
+        <button onclick="sendPrompt('Actualizar avance del plan PM-039')" style="font-size:12px;padding:5px 14px">Actualizar avance ↗</button>
+        <button onclick="sendPrompt('Marcar como completado el plan PM-039')" style="font-size:12px;padding:5px 14px">Marcar completado ↗</button>
+        <button onclick="sendPrompt('Escalar plan PM-039 a gerencia por riesgo de vencimiento')" style="font-size:12px;padding:5px 14px">Escalar ↗</button>
+      </div>
+    </div>
+    <div id="tab-timeline" style="display:none">
+      <div class="timeline" id="timeline-content"></div>
+    </div>
+    <div id="tab-riesgo" style="display:none">
+      <div class="detail-grid">
+        <div>
+          <div class="detail-field"><div class="field-label">Riesgo vinculado</div><div class="field-val">Incumplimiento de mantenimiento preventivo en flota RTG</div></div>
+          <div class="detail-field"><div class="field-label">ID del riesgo</div><div class="field-val" style="color:#185FA5;cursor:pointer" onclick="sendPrompt('Ver detalle del riesgo RISK-2026-012')">RISK-2026-012 ↗</div></div>
+          <div class="detail-field"><div class="field-label">Área</div><div class="field-val">Patio de contenedores</div></div>
+        </div>
+        <div>
+          <div class="detail-field"><div class="field-label">Puntaje de riesgo</div><div class="field-val"><span class="badge badge-red">20 — Crítico</span></div></div>
+          <div class="detail-field"><div class="field-label">Probabilidad</div><div class="field-val">5 / 5 — Casi seguro</div></div>
+          <div class="detail-field"><div class="field-label">Impacto</div><div class="field-val">4 / 5 — Mayor</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-top:0.5px solid var(--color-border-tertiary)">
+    <div style="font-size:11px;color:var(--color-text-secondary)">Última actualización: hoy 09:14 · Terminal Risk Monitor v2.1</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="sendPrompt('Ver módulo de gestión de incidentes operacionales')" style="font-size:12px;padding:5px 12px">Incidentes ↗</button>
+      <button onclick="sendPrompt('Generar reporte ejecutivo mensual de riesgos')" style="font-size:12px;padding:5px 12px">Reporte ejecutivo ↗</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const tasks=[
+  {name:'Auditoría de estado actual flota RTG',done:true},
+  {name:'Mantenimiento RTG-01 completado',done:true},
+  {name:'Mantenimiento RTG-02 completado',done:true},
+  {name:'Mantenimiento RTG-03 — en ejecución',done:false},
+  {name:'Mantenimiento RTG-04 — pendiente repuestos',done:false},
+  {name:'Validación final y cierre de cumplimiento',done:false},
+];
+const tl=document.getElementById('tasks-list');
+tasks.forEach(t=>{
+  tl.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;padding:.4rem .6rem;border-radius:var(--border-radius-md);background:var(--color-background-secondary)">
+    <div style="width:14px;height:14px;border-radius:50%;border:0.5px solid ${t.done?'#3B6D11':'var(--color-border-secondary)'};background:${t.done?'#EAF3DE':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      ${t.done?'<svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#3B6D11" stroke-width="2.5"><polyline points="10 3 5 8 2 5"/></svg>':''}
+    </div>
+    <span style="font-size:12px;color:${t.done?'var(--color-text-secondary)':'var(--color-text-primary)'};${t.done?'text-decoration:line-through':''}">${t.name}</span>
+  </div>`;
+});
+
+const timelineData=[
+  {action:'Acción escalada a Jefatura de Mantenimiento',detail:'Se asignó presupuesto de emergencia de $8,500 para contratación de técnicos externos',time:'01/04/2026 · 08:30',color:'#185FA5'},
+  {action:'Inicio de auditoría de estado de la flota',detail:'Se identificaron 4 RTG con mantenimiento vencido. RTG-01 y RTG-02 priorizados',time:'02/04/2026 · 10:15',color:'#185FA5'},
+  {action:'Mantenimiento RTG-01 completado',detail:'Verificado por supervisor de turno. Equipo operativo al 100%',time:'07/04/2026 · 16:00',color:'#639922'},
+  {action:'Mantenimiento RTG-02 completado',detail:'Reemplazo de sistema hidráulico y revisión eléctrica',time:'11/04/2026 · 14:30',color:'#639922'},
+  {action:'Alerta: retraso en llegada de repuestos RTG-04',detail:'Proveedor confirmó entrega para el 18/04. Se notificó a Gerencia',time:'14/04/2026 · 09:00',color:'#EF9F27'},
+  {action:'RTG-03 en mantenimiento — en curso',detail:'Técnico externo trabajando. Estimado de finalización: 17/04',time:'16/04/2026 · 07:45',color:'#378ADD'},
+];
+const tc=document.getElementById('timeline-content');
+timelineData.forEach(t=>{
+  tc.innerHTML+=`<div class="tl-item">
+    <div class="tl-left"><div class="tl-dot" style="background:${t.color}"></div><div class="tl-line"></div></div>
+    <div class="tl-body"><div class="tl-action">${t.action}</div><div class="tl-detail">${t.detail}</div><div class="tl-time">${t.time}</div></div>
+  </div>`;
+});
+
+function openDetail(id){
+  document.getElementById('detail-panel').style.display='block';
+  document.getElementById('d-id').textContent=id;
+  document.getElementById('detail-panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeDetail(){
+  document.getElementById('detail-panel').style.display='none';
+}
+function setTab(el,tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['info','timeline','riesgo'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+}
+function setFilter(btn,f){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function filterByArea(){}
+</script>

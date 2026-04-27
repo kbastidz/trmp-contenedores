@@ -1,0 +1,298 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.dash{padding:1rem;display:flex;flex-direction:column;gap:1rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg)}
+.topbar-left{display:flex;align-items:center;gap:.75rem}
+.logo{width:32px;height:32px;border-radius:var(--border-radius-md);background:#185FA5;display:flex;align-items:center;justify-content:center}
+.logo svg{width:18px;height:18px;fill:white}
+.brand{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.brand span{font-size:12px;color:var(--color-text-secondary);font-weight:400;display:block}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#639922;display:inline-block;margin-right:4px}
+.status-text{font-size:12px;color:var(--color-text-secondary)}
+.nav{display:flex;gap:4px}
+.nav button{background:transparent;border:none;font-size:12px;color:var(--color-text-secondary);padding:5px 10px;border-radius:var(--border-radius-md);cursor:pointer}
+.nav button.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.85rem 1rem}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.metric-value{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.metric-sub{font-size:11px;margin-top:4px}
+.badge{display:inline-block;padding:2px 7px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.content{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem}
+.card-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:.85rem;display:flex;align-items:center;justify-content:space-between}
+.card-title span{font-size:11px;font-weight:400;color:var(--color-text-secondary)}
+.matrix-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;position:relative}
+.matrix-cell{height:44px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:pointer;transition:opacity .15s;position:relative}
+.matrix-cell:hover{opacity:.8}
+.cell-low{background:#EAF3DE;color:#3B6D11}
+.cell-med{background:#FAEEDA;color:#854F0B}
+.cell-high{background:#FAECE7;color:#993C1D}
+.cell-crit{background:#FCEBEB;color:#A32D2D}
+.axis-label{font-size:10px;color:var(--color-text-tertiary);text-align:center}
+.risk-list{display:flex;flex-direction:column;gap:6px}
+.risk-item{display:flex;align-items:center;gap:8px;padding:.6rem .75rem;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:background .15s}
+.risk-item:hover{background:var(--color-background-secondary)}
+.risk-indicator{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.risk-name{font-size:12px;color:var(--color-text-primary);flex:1}
+.risk-area{font-size:11px;color:var(--color-text-secondary)}
+.risk-score{font-size:12px;font-weight:500}
+.incidents-table{width:100%;border-collapse:collapse}
+.incidents-table th{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-align:left;padding:0 0 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.incidents-table td{font-size:12px;color:var(--color-text-primary);padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top}
+.incidents-table tr:last-child td{border-bottom:none}
+.area-bar{height:5px;border-radius:3px;background:#E6F1FB;margin-top:3px;overflow:hidden}
+.area-fill{height:100%;border-radius:3px}
+.footer-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kri-item{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.kri-item:last-child{border-bottom:none}
+.kri-name{font-size:12px;color:var(--color-text-primary)}
+.kri-bar-wrap{flex:1;margin:0 10px;height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden}
+.kri-bar-fill{height:100%;border-radius:2px;transition:width .3s}
+.kri-val{font-size:12px;font-weight:500;min-width:32px;text-align:right}
+.activity-item{display:flex;gap:8px;padding:.45rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.activity-text{font-size:12px;color:var(--color-text-primary);line-height:1.4}
+.activity-time{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+</style>
+
+<h2 class="sr-only">Dashboard de gestión y monitoreo de riesgos operacionales — Terminal de contenedores</h2>
+
+<div class="dash">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm2 4h14v2H5zm3 4h8v2H8z"/></svg>
+      </div>
+      <div class="brand">Terminal Risk Monitor <span>Puerto Principal · Turno Día</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span><span class="status-dot"></span><span class="status-text">Sistema activo</span></span>
+      <span style="font-size:12px;color:var(--color-text-secondary)" id="clock"></span>
+      <div class="nav">
+        <button class="active" onclick="showTab('dashboard')">Dashboard</button>
+        <button onclick="sendPrompt('Mostrar módulo de registro de incidentes')">Incidentes ↗</button>
+        <button onclick="sendPrompt('Mostrar módulo de planes de mitigación')">Mitigación ↗</button>
+        <button onclick="sendPrompt('Mostrar reportes de auditoría')">Reportes ↗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Riesgos activos</div>
+      <div class="metric-value">24</div>
+      <div class="metric-sub"><span class="badge badge-red">6 críticos</span></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Incidentes (30d)</div>
+      <div class="metric-value">17</div>
+      <div class="metric-sub"><span class="badge badge-amber">+3 vs mes ant.</span></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Controles vigentes</div>
+      <div class="metric-value">41</div>
+      <div class="metric-sub"><span class="badge badge-green">87% efectivos</span></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Acciones pendientes</div>
+      <div class="metric-value">9</div>
+      <div class="metric-sub"><span class="badge badge-blue">2 vencidas</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="card">
+      <div class="card-title">Matriz de riesgo <span>probabilidad × impacto</span></div>
+      <div style="display:flex;gap:8px">
+        <div style="display:flex;flex-direction:column;justify-content:space-between;padding-bottom:20px">
+          <div class="axis-label" style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);white-space:nowrap">Probabilidad ↑</div>
+        </div>
+        <div style="flex:1">
+          <div class="matrix-grid" id="matrix"></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px">
+            <div class="axis-label">Muy bajo</div><div class="axis-label">Bajo</div><div class="axis-label">Medio</div><div class="axis-label">Alto</div><div class="axis-label">Muy alto</div>
+          </div>
+          <div class="axis-label" style="margin-top:2px">Impacto →</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:.75rem">
+        <span class="badge badge-green" style="font-size:10px">Bajo (1-4)</span>
+        <span class="badge badge-amber" style="font-size:10px">Medio (5-9)</span>
+        <span class="badge" style="font-size:10px;background:#FAECE7;color:#993C1D">Alto (10-16)</span>
+        <span class="badge badge-red" style="font-size:10px">Crítico (17-25)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Riesgos principales <span>ordenados por nivel</span></div>
+      <div class="risk-list" id="risk-list"></div>
+    </div>
+
+  </div>
+
+  <div class="content">
+
+    <div class="card">
+      <div class="card-title">Incidentes recientes <span>últimas 48h</span></div>
+      <table class="incidents-table">
+        <thead><tr><th>Descripción</th><th>Área</th><th>Nivel</th><th>Estado</th></tr></thead>
+        <tbody id="incidents-body"></tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+
+      <div class="card">
+        <div class="card-title">KRI — Indicadores clave de riesgo</div>
+        <div id="kri-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Actividad reciente</div>
+        <div id="activity-list"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+    <div class="card" style="padding:.75rem;cursor:pointer" onclick="sendPrompt('Ver todos los riesgos del área de Muelle y operaciones de buque')">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Muelle / Buque</div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary)">5 riesgos</div>
+      <div class="area-bar"><div class="area-fill" style="width:80%;background:#E24B4A"></div></div>
+    </div>
+    <div class="card" style="padding:.75rem;cursor:pointer" onclick="sendPrompt('Ver todos los riesgos del área de Patio de contenedores')">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Patio / Yard</div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary)">7 riesgos</div>
+      <div class="area-bar"><div class="area-fill" style="width:70%;background:#EF9F27"></div></div>
+    </div>
+    <div class="card" style="padding:.75rem;cursor:pointer" onclick="sendPrompt('Ver todos los riesgos del área de Gate y portería')">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Gate / Portería</div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary)">4 riesgos</div>
+      <div class="area-bar"><div class="area-fill" style="width:40%;background:#378ADD"></div></div>
+    </div>
+    <div class="card" style="padding:.75rem;cursor:pointer" onclick="sendPrompt('Ver todos los riesgos del área de Taller de equipos')">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Taller / Equipos</div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary)">5 riesgos</div>
+      <div class="area-bar"><div class="area-fill" style="width:55%;background:#EF9F27"></div></div>
+    </div>
+    <div class="card" style="padding:.75rem;cursor:pointer" onclick="sendPrompt('Ver todos los riesgos del área de Seguridad ISPS y BASC')">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Seg. ISPS / BASC</div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary)">3 riesgos</div>
+      <div class="area-bar"><div class="area-fill" style="width:30%;background:#639922"></div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center">
+    <button onclick="sendPrompt('Quiero agregar un nuevo riesgo operacional al sistema')" style="font-size:13px;padding:8px 20px;margin-right:8px">+ Registrar riesgo ↗</button>
+    <button onclick="sendPrompt('Quiero registrar un nuevo incidente operacional')" style="font-size:13px;padding:8px 20px;margin-right:8px">+ Nuevo incidente ↗</button>
+    <button onclick="sendPrompt('Generar reporte ejecutivo mensual de riesgos')" style="font-size:13px;padding:8px 20px">Generar reporte ↗</button>
+  </div>
+
+</div>
+
+<script>
+const matrixData=[
+  [1,2,3,4,5],
+  [2,4,6,8,10],
+  [3,6,9,12,15],
+  [4,8,12,16,20],
+  [5,10,15,20,25]
+];
+const dots={
+  '4-3':2,'3-4':1,'4-4':1,'3-2':1,'1-4':1,'2-3':2
+};
+const grid=document.getElementById('matrix');
+for(let r=4;r>=0;r--){
+  for(let c=0;c<5;c++){
+    const v=matrixData[r][c];
+    const cell=document.createElement('div');
+    cell.className='matrix-cell '+(v<=4?'cell-low':v<=9?'cell-med':v<=16?'cell-high':'cell-crit');
+    const key=r+'-'+c;
+    const count=dots[key]||0;
+    cell.innerHTML=count?`<span style="font-size:13px;font-weight:500">${count}</span>`:'';
+    cell.title=`Probabilidad ${r+1}, Impacto ${c+1}, Score ${v}`;
+    cell.addEventListener('click',()=>sendPrompt(`Mostrar riesgos con probabilidad ${r+1} e impacto ${c+1}`));
+    grid.appendChild(cell);
+  }
+}
+const risks=[
+  {name:'Caída de contenedor en operación RTG',area:'Patio',score:20,color:'#A32D2D'},
+  {name:'Falla de grúa STS en operación de buque',area:'Muelle',score:20,color:'#A32D2D'},
+  {name:'Incendio en carga IMDG clase 3',area:'Patio',score:15,color:'#993C1D'},
+  {name:'Acceso no autorizado a zona restringida',area:'Seg. ISPS',score:12,color:'#993C1D'},
+  {name:'Falla del TOS — pérdida de trazabilidad',area:'Sistemas',score:12,color:'#993C1D'},
+  {name:'Atropello por reach stacker en patio',area:'Patio',score:10,color:'#BA7517'},
+];
+const rl=document.getElementById('risk-list');
+risks.forEach(r=>{
+  const lvl=r.score>=20?'Crítico':r.score>=15?'Alto':r.score>=10?'Medio':'Bajo';
+  const bdg=r.score>=20?'badge-red':r.score>=15?'badge badge-amber':r.score>=10?'badge-amber':'badge-green';
+  rl.innerHTML+=`<div class="risk-item" onclick="sendPrompt('Ver detalle del riesgo: ${r.name}')">
+    <div class="risk-indicator" style="background:${r.color}"></div>
+    <div class="risk-name">${r.name}</div>
+    <div class="risk-area">${r.area}</div>
+    <span class="badge ${bdg}" style="font-size:10px">${r.score}</span>
+  </div>`;
+});
+const incidents=[
+  {desc:'Operador de RTG reporta fallo hidráulico',area:'Patio',nivel:'Alto',estado:'En análisis',ec:'badge-amber'},
+  {desc:'Contenedor con daño estructural detectado en gate',area:'Gate',nivel:'Medio',estado:'Cerrado',ec:'badge-green'},
+  {desc:'Derrame menor de lubricante en taller',area:'Taller',nivel:'Bajo',estado:'Cerrado',ec:'badge-green'},
+  {desc:'Acceso intento de persona no autorizada',area:'ISPS',nivel:'Crítico',estado:'Escalado',ec:'badge-red'},
+  {desc:'Retraso operacional por viento > 45 km/h',area:'Muelle',nivel:'Medio',estado:'Monitoreando',ec:'badge-blue'},
+];
+const ib=document.getElementById('incidents-body');
+incidents.forEach(i=>{
+  ib.innerHTML+=`<tr style="cursor:pointer" onclick="sendPrompt('Ver detalle del incidente: ${i.desc}')">
+    <td>${i.desc}</td>
+    <td style="white-space:nowrap">${i.area}</td>
+    <td><span class="badge ${i.ec}" style="font-size:10px">${i.nivel}</span></td>
+    <td><span style="font-size:11px;color:var(--color-text-secondary)">${i.estado}</span></td>
+  </tr>`;
+});
+const kris=[
+  {name:'Movimientos/hora (grúas)',val:78,max:100,color:'#378ADD',text:'78%'},
+  {name:'Tasa de incidentes (MTD)',val:62,max:100,color:'#EF9F27',text:'62%'},
+  {name:'Disponib. de equipos',val:91,max:100,color:'#639922',text:'91%'},
+  {name:'Tiempo resp. emergencia',val:45,max:100,color:'#E24B4A',text:'4.5 min'},
+];
+const kl=document.getElementById('kri-list');
+kris.forEach(k=>{
+  kl.innerHTML+=`<div class="kri-item">
+    <div class="kri-name">${k.name}</div>
+    <div class="kri-bar-wrap"><div class="kri-bar-fill" style="width:${k.val}%;background:${k.color}"></div></div>
+    <div class="kri-val" style="color:${k.color}">${k.text}</div>
+  </div>`;
+});
+const activities=[
+  {text:'Plan de mitigación actualizado — Riesgo RTG-04',time:'Hace 12 min',color:'#378ADD'},
+  {text:'Nuevo incidente registrado en área ISPS',time:'Hace 43 min',color:'#E24B4A'},
+  {text:'Control preventivo validado — Grúa STS-2',time:'Hace 1h 20min',color:'#639922'},
+  {text:'Alerta: KRI de respuesta a emergencia supera umbral',time:'Hace 2h',color:'#EF9F27'},
+];
+const al=document.getElementById('activity-list');
+activities.forEach(a=>{
+  al.innerHTML+=`<div class="activity-item">
+    <div class="activity-dot" style="background:${a.color}"></div>
+    <div><div class="activity-text">${a.text}</div><div class="activity-time">${a.time}</div></div>
+  </div>`;
+});
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});
+}
+updateClock();
+setInterval(updateClock,10000);
+</script>

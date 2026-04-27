@@ -1,0 +1,484 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.br{background:#FCEBEB;color:#A32D2D}.ba{background:#FAEEDA;color:#854F0B}
+.bh{background:#FAECE7;color:#993C1D}.bg{background:#EAF3DE;color:#3B6D11}
+.bb{background:#E6F1FB;color:#185FA5}.bgr{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.bv{background:#EEEDFE;color:#3C3489}
+.alert{display:flex;align-items:flex-start;gap:8px;padding:.65rem .85rem;border-radius:var(--border-radius-md);font-size:12px;margin-bottom:.85rem;line-height:1.5}
+.alert-warn{background:#FAEEDA;border:0.5px solid #FAC775;color:#633806}
+.alert-info{background:#E6F1FB;border:0.5px solid #B5D4F4;color:#0C447C}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:.85rem;overflow-x:auto}
+.tab{font-size:12px;color:var(--color-text-secondary);padding:.45rem .85rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-left:none;border-right:none;border-top:none;white-space:nowrap;font-family:var(--font-sans)}
+.tab.on{color:var(--color-text-primary);font-weight:500;border-bottom-color:#A32D2D}
+.tab.mod::after{content:'●';color:#854F0B;margin-left:4px;font-size:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.9rem 1rem;margin-bottom:.75rem}
+.st{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.field{margin-bottom:.85rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.req{color:#E24B4A;font-size:11px}
+.changed-tag{font-size:10px;color:#854F0B;font-weight:500;background:#FAEEDA;padding:1px 5px;border-radius:3px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.grid3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+textarea{resize:vertical;min-height:68px}
+input.mod,select.mod,textarea.mod{border-color:#854F0B!important;background:#FAEEDA18}
+/* MATRIZ */
+.mx-wrap{display:flex;gap:12px;align-items:flex-start}
+.mx-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;flex:1}
+.mc{height:34px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;transition:opacity .12s}
+.mc:hover{opacity:.8}
+.mc.sel{outline:3px solid var(--color-text-primary)}
+.cl{background:#EAF3DE;color:#3B6D11}.cm{background:#FAEEDA;color:#854F0B}
+.ch{background:#FAECE7;color:#993C1D}.cc{background:#FCEBEB;color:#A32D2D}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem;text-align:center;min-width:100px}
+.sv{font-size:28px;font-weight:500;line-height:1}
+.sl{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+/* Controles */
+.ctrl-row{display:flex;align-items:center;gap:8px;padding:.45rem .65rem;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);margin-bottom:5px}
+.ctrl-row:last-child{margin-bottom:0}
+.ctrl-row input[type=checkbox]{width:auto;margin:0}
+/* Factores */
+.fac-row{display:flex;align-items:center;gap:8px;padding:.4rem .65rem;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);margin-bottom:5px}
+.fac-row:last-child{margin-bottom:0}
+.fac-row input[type=checkbox]{width:auto;margin:0}
+/* Estado riesgo */
+.estado-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ep{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.55rem .5rem;font-size:12px;cursor:pointer;transition:all .15s;background:transparent;font-family:var(--font-sans);text-align:center;width:100%}
+.ep:hover{background:var(--color-background-secondary)}
+.ep.sel-activo{border:2px solid #A32D2D;background:#FCEBEB;color:#A32D2D;font-weight:500}
+.ep.sel-mitig{border:2px solid #185FA5;background:#E6F1FB;color:#185FA5;font-weight:500}
+.ep.sel-acept{border:2px solid #854F0B;background:#FAEEDA;color:#854F0B;font-weight:500}
+.ep.sel-cerrado{border:2px solid #3B6D11;background:#EAF3DE;color:#3B6D11;font-weight:500}
+/* Diff */
+.diff-item{display:flex;gap:8px;padding:.3rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:11px;flex-wrap:wrap}
+.diff-item:last-child{border-bottom:none}
+.diff-key{color:var(--color-text-secondary);min-width:120px;flex-shrink:0}
+.diff-old{color:#A32D2D;text-decoration:line-through}
+.diff-new{color:#3B6D11;font-weight:500}
+/* Footer */
+.footer-bar{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.success-wrap{display:none;text-align:center;padding:1.5rem 1rem}
+.sico{width:44px;height:44px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem}
+</style>
+
+<h2 class="sr-only">Formulario de edición del riesgo RISK-2026-001 — Caída de contenedor durante operación de RTG</h2>
+
+<div class="w">
+
+<div class="topbar">
+  <button onclick="sendPrompt('Ver ficha completa del riesgo RISK-2026-001: Caída de contenedor durante operación de RTG')" style="font-size:12px;padding:5px 10px">← Volver a la ficha</button>
+  <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--color-text-secondary)">RISK-2026-001</span>
+    <span class="badge br" id="nivel-badge">Crítico · 20</span>
+    <span class="badge bgr" id="estado-badge">Activo</span>
+    <span style="font-size:11px;color:var(--color-text-secondary)">Editando</span>
+  </div>
+</div>
+
+<!-- Alertas -->
+<div class="alert alert-warn" id="unsaved-alert" style="display:none">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  Tienes cambios sin guardar — las pestañas con <strong style="color:#854F0B">●</strong> tienen modificaciones pendientes.
+</div>
+<div class="alert alert-info">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Cada cambio quedará registrado automáticamente en el log de auditoría con usuario, fecha y valores anterior/nuevo.
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on"  id="tab-info"       onclick="goTab(this,'info')">Información general</button>
+  <button class="tab"     id="tab-evaluacion"  onclick="goTab(this,'evaluacion')">Evaluación</button>
+  <button class="tab"     id="tab-causas"      onclick="goTab(this,'causas')">Causa raíz</button>
+  <button class="tab"     id="tab-controles"   onclick="goTab(this,'controles')">Controles</button>
+  <button class="tab"     id="tab-estado"      onclick="goTab(this,'estado')">Estado y revisiones</button>
+</div>
+
+<!-- ── INFO GENERAL ── -->
+<div id="sec-info">
+  <div class="card">
+    <div class="st">Datos del riesgo</div>
+    <div class="field">
+      <label class="label">Nombre del riesgo <span class="req">*</span></label>
+      <input type="text" id="f-nombre" value="Caída de contenedor durante operación de RTG" oninput="mc(this,'tab-info')"/>
+    </div>
+    <div class="field">
+      <label class="label">Descripción detallada</label>
+      <textarea id="f-desc" oninput="mc(this,'tab-info')">Riesgo de caída de contenedor de 20' o 40' durante operaciones de apilamiento o traslado con RTG-01 a RTG-04 en bloques A y B del patio norte y sur. Condición agravada por ausencia de sensor de carga en gancho y mantenimiento preventivo vencido en 2 de los 4 equipos.</textarea>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label class="label">Área operacional <span class="req">*</span></label>
+        <select id="f-area" onchange="mc(this,'tab-info')">
+          <option>Muelle / Operaciones de buque</option>
+          <option selected>Patio de contenedores</option>
+          <option>Gate / Portería</option>
+          <option>Taller y equipos</option>
+          <option>Seguridad ISPS / BASC</option>
+          <option>Carga peligrosa IMDG</option>
+          <option>Sistemas TOS / IT</option>
+          <option>Salud ocupacional / SSOMA</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Tipo de riesgo <span class="req">*</span></label>
+        <select id="f-tipo" onchange="mc(this,'tab-info')">
+          <option selected>Seguridad industrial</option>
+          <option>Operacional / Proceso</option>
+          <option>Seguridad física</option>
+          <option>Ambiental</option>
+          <option>Tecnológico</option>
+          <option>Humano / Fatiga</option>
+          <option>Externo / Climático</option>
+          <option>Legal / Regulatorio</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="field">
+        <label class="label">Responsable <span class="req">*</span></label>
+        <input type="text" id="f-resp" value="Jef. Mantenimiento · Carlos Loor" oninput="mc(this,'tab-info')"/>
+      </div>
+      <div class="field">
+        <label class="label">Turno afectado</label>
+        <select id="f-turno" onchange="mc(this,'tab-info')">
+          <option>Turno día</option>
+          <option>Turno noche</option>
+          <option selected>Todos los turnos</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Normativa aplicable</label>
+        <select id="f-norma" onchange="mc(this,'tab-info')">
+          <option>Ninguna específica</option>
+          <option selected>ISO 45001</option>
+          <option>ISO 31000</option>
+          <option>Código ISPS</option>
+          <option>IMDG</option>
+          <option>BASC</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Condición desencadenante</label>
+      <input type="text" id="f-trigger" value="Fallo del sistema hidráulico del RTG o sobrecarga sin detección de sensor" oninput="mc(this,'tab-info')"/>
+    </div>
+  </div>
+</div>
+
+<!-- ── EVALUACIÓN ── -->
+<div id="sec-evaluacion" style="display:none">
+  <div class="card">
+    <div class="st">Probabilidad × Impacto</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.85rem">Haz clic en la celda de la matriz que representa la nueva evaluación del riesgo.</div>
+    <div class="mx-wrap">
+      <div style="flex:1">
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px;text-align:center">Impacto →</div>
+        <div class="mx-grid" id="mx"></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:9px;color:var(--color-text-secondary);text-align:center">1 Muy bajo</div>
+          <div style="font-size:9px;color:var(--color-text-secondary);text-align:center">2 Bajo</div>
+          <div style="font-size:9px;color:var(--color-text-secondary);text-align:center">3 Medio</div>
+          <div style="font-size:9px;color:var(--color-text-secondary);text-align:center">4 Alto</div>
+          <div style="font-size:9px;color:var(--color-text-secondary);text-align:center">5 Muy alto</div>
+        </div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:6px;text-align:left">Probabilidad ↑ (filas de abajo a arriba: 1→5)</div>
+      </div>
+      <div style="min-width:110px">
+        <div class="score-box" style="margin-bottom:8px">
+          <div class="sl">Puntaje actual</div>
+          <div class="sv" id="score-val" style="color:#A32D2D">20</div>
+          <div style="margin-top:4px" id="nivel-pill"><span class="badge br">Crítico</span></div>
+        </div>
+        <div class="score-box">
+          <div class="sl">Objetivo</div>
+          <div style="font-size:20px;font-weight:500;color:#854F0B;line-height:1">8</div>
+          <div style="margin-top:4px"><span class="badge ba">Medio</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Puntaje objetivo post-mitigación</div>
+    <div class="grid2">
+      <div class="field">
+        <label class="label">Probabilidad objetivo</label>
+        <select id="f-prob-obj" onchange="mc(this,'tab-evaluacion')">
+          <option>1 — Raro</option>
+          <option>2 — Improbable</option>
+          <option selected>3 — Posible</option>
+          <option>4 — Probable</option>
+          <option>5 — Casi seguro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Impacto objetivo</label>
+        <select id="f-imp-obj" onchange="mc(this,'tab-evaluacion')">
+          <option>1 — Insignificante</option>
+          <option selected>2 — Menor</option>
+          <option>3 — Moderado</option>
+          <option>4 — Mayor</option>
+          <option>5 — Catastrófico</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:.25rem">Puntaje objetivo calculado: <strong style="color:#854F0B">6</strong> — Medio</div>
+  </div>
+  <div class="card">
+    <div class="st">Antecedentes e historial</div>
+    <div class="grid2">
+      <div class="field">
+        <label class="label">¿Ya ocurrió antes?</label>
+        <select onchange="mc(this,'tab-evaluacion')">
+          <option>No hay antecedentes</option>
+          <option>Sí, una vez</option>
+          <option selected>Sí, varias veces</option>
+          <option>Casi ocurrió (near miss)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Consecuencias potenciales</label>
+        <input type="text" value="Fatalidad, daño de contenedor, paralización de patio, sanción regulatoria" oninput="mc(this,'tab-evaluacion')"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CAUSA RAÍZ ── -->
+<div id="sec-causas" style="display:none">
+  <div class="card">
+    <div class="st">Análisis de causa raíz</div>
+    <div class="field">
+      <label class="label">Causa inmediata <span id="badge-ci" style="display:none" class="changed-tag">Modificado</span></label>
+      <textarea id="f-ci" oninput="mc(this,'tab-causas');showB('badge-ci')">RTG-03 y RTG-04 sin sensor de carga en gancho — sin detección de sobrecarga en tiempo real durante apilamiento.</textarea>
+    </div>
+    <div class="field">
+      <label class="label">Causa raíz <span id="badge-cr" style="display:none" class="changed-tag">Modificado</span></label>
+      <textarea id="f-cr" oninput="mc(this,'tab-causas');showB('badge-cr')">Mantenimiento preventivo vencido en 2 de 4 RTGs por escasez de repuestos importados y priorización operativa sobre mantenimiento.</textarea>
+    </div>
+    <div class="field">
+      <label class="label" style="margin-bottom:6px">Factores contribuyentes</label>
+      <div id="fac-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTROLES ── -->
+<div id="sec-controles" style="display:none">
+  <div class="card">
+    <div class="st">Controles existentes <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">Marca los que están implementados</span></div>
+    <div id="ctrl-list"></div>
+  </div>
+  <div class="card">
+    <div class="st">Efectividad estimada</div>
+    <div class="grid2">
+      <div class="field">
+        <label class="label">Efectividad global de controles</label>
+        <select onchange="mc(this,'tab-controles')">
+          <option>Menor del 50%</option>
+          <option>50–65%</option>
+          <option selected>66–80%</option>
+          <option>81–90%</option>
+          <option>Mayor del 90%</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">¿Requiere nuevos controles?</label>
+        <select onchange="mc(this,'tab-controles')">
+          <option selected>Sí, urgente</option>
+          <option>Sí, a mediano plazo</option>
+          <option>No por ahora</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ESTADO Y REVISIONES ── -->
+<div id="sec-estado" style="display:none">
+  <div class="card">
+    <div class="st">Estado del riesgo</div>
+    <div class="field">
+      <div class="label" style="margin-bottom:.5rem">Estado actual</div>
+      <div class="estado-grid">
+        <button class="ep sel-activo" id="ep-activo"  onclick="setEst('Activo')">Activo</button>
+        <button class="ep"           id="ep-mitig"   onclick="setEst('En mitigación')">En mitigación</button>
+        <button class="ep"           id="ep-acept"   onclick="setEst('Aceptado')">Aceptado</button>
+        <button class="ep"           id="ep-cerrado" onclick="setEst('Cerrado')">Cerrado</button>
+      </div>
+    </div>
+    <div class="field" id="justif-wrap" style="display:none">
+      <label class="label">Justificación de cambio de estado <span class="req">*</span></label>
+      <textarea placeholder="Explica por qué el riesgo cambia a este estado..." style="min-height:64px" onchange="mc(this,'tab-estado')"></textarea>
+    </div>
+    <div class="field">
+      <label class="label">Observaciones internas</label>
+      <textarea onchange="mc(this,'tab-estado')" style="min-height:52px">Plan PM-039 al 45%. Plan PM-042 pendiente de aprobación presupuestal. Próxima revisión programada con Gerencia Ops el 25/04.</textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Configuración de revisiones</div>
+    <div class="grid3">
+      <div class="field">
+        <label class="label">Fecha de próxima revisión</label>
+        <input type="date" value="2026-04-25" onchange="mc(this,'tab-estado')"/>
+      </div>
+      <div class="field">
+        <label class="label">Frecuencia de revisión</label>
+        <select onchange="mc(this,'tab-estado')">
+          <option>Semanal</option>
+          <option>Quincenal</option>
+          <option selected>Mensual</option>
+          <option>Trimestral</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Responsable de revisión</label>
+        <input type="text" value="Gerencia de Operaciones" onchange="mc(this,'tab-estado')"/>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Vista previa de cambios</div>
+    <div id="diff-area">
+      <div style="font-size:12px;color:var(--color-text-secondary);font-style:italic">Sin cambios registrados aún.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar" id="footer-bar">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--color-text-secondary)">RISK-2026-001 · Última edición: 10/04/2026 · 08:00h</span>
+    <span class="badge ba" id="cambios-ind" style="display:none">Cambios sin guardar</span>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button onclick="sendPrompt('Ver ficha completa del riesgo RISK-2026-001: Caída de contenedor durante operación de RTG')" style="font-size:12px;padding:5px 12px">Cancelar</button>
+    <button onclick="guardar()" style="font-size:12px;padding:5px 16px;background:#185FA5;color:white;border-color:#185FA5">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- ÉXITO -->
+<div class="success-wrap" id="sw">
+  <div class="sico">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px">Riesgo actualizado correctamente</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem">Los cambios en RISK-2026-001 quedaron registrados en el log de auditoría con tu usuario y timestamp.</div>
+  <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+    <button onclick="sendPrompt('Ver ficha completa del riesgo RISK-2026-001: Caída de contenedor durante operación de RTG')" style="font-size:12px;padding:5px 14px">Ver ficha ↗</button>
+    <button onclick="sendPrompt('Ver listado de todos los riesgos operacionales')" style="font-size:12px;padding:5px 14px">Ver listado ↗</button>
+    <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:12px;padding:5px 14px">Ver planes ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+let cambiados=new Set(), probSel=5, impSel=4, estSel='Activo';
+
+// MATRIZ
+const mxd=[[1,2,3,4,5],[2,4,6,8,10],[3,6,9,12,15],[4,8,12,16,20],[5,10,15,20,25]];
+const mxEl=document.getElementById('mx');
+for(let r=4;r>=0;r--){
+  for(let c=0;c<5;c++){
+    const v=mxd[r][c];
+    const d=document.createElement('div');
+    d.className='mc '+(v<=4?'cl':v<=9?'cm':v<=16?'ch':'cc');
+    d.dataset.r=r;d.dataset.c=c;
+    if(r===probSel-1&&c===impSel-1){d.innerHTML='★';d.classList.add('sel');}
+    d.addEventListener('click',()=>{
+      probSel=parseInt(d.dataset.r)+1;
+      impSel=parseInt(d.dataset.c)+1;
+      document.querySelectorAll('.mc').forEach(x=>{x.classList.remove('sel');x.innerHTML=''});
+      d.classList.add('sel');d.innerHTML='★';
+      updateScore();mc(d,'tab-evaluacion');
+    });
+    mxEl.appendChild(d);
+  }
+}
+
+function updateScore(){
+  const s=probSel*impSel;
+  const nivel=s>=17?'Crítico':s>=10?'Alto':s>=5?'Medio':'Bajo';
+  const cls={Crítico:'br',Alto:'bh',Medio:'ba',Bajo:'bg'}[nivel];
+  const col={Crítico:'#A32D2D',Alto:'#993C1D',Medio:'#854F0B',Bajo:'#3B6D11'}[nivel];
+  document.getElementById('score-val').textContent=s;
+  document.getElementById('score-val').style.color=col;
+  document.getElementById('nivel-pill').innerHTML=`<span class="badge ${cls}">${nivel}</span>`;
+  document.getElementById('nivel-badge').textContent=nivel+' · '+s;
+  document.getElementById('nivel-badge').className='badge '+cls;
+}
+
+// Factores
+const facs=['Fallo de equipo / maquinaria','Error humano / falta de atención','Falta de capacitación','Procedimiento no seguido','Condiciones climáticas adversas','Fatiga del operador','Comunicación deficiente','EPP inadecuado'];
+const fl=document.getElementById('fac-list');
+facs.forEach((f,i)=>{fl.innerHTML+=`<div class="fac-row"><input type="checkbox" id="fac${i}" ${i===0?'checked':''} style="width:auto;margin:0" onchange="mc(this,'tab-causas')"><label for="fac${i}" style="font-size:12px;color:var(--color-text-primary);flex:1;cursor:pointer">${f}</label></div>`;});
+
+// Controles
+const ctrls=[
+  {n:'Inspección preoperacional de RTGs (diaria)',t:'Preventivo',ok:false},
+  {n:'Procedimiento operativo estándar — apilamiento',t:'Preventivo',ok:true},
+  {n:'Capacitación operadores en manejo de RTG',t:'Preventivo',ok:true},
+  {n:'Sensor de carga en gancho RTG',t:'Detectivo',ok:false},
+  {n:'Ronda de supervisión por turno',t:'Detectivo',ok:true},
+  {n:'Plan de emergencia ante caída de contenedor',t:'Correctivo',ok:false},
+];
+const cl2=document.getElementById('ctrl-list');
+ctrls.forEach((c,i)=>{cl2.innerHTML+=`<div class="ctrl-row"><input type="checkbox" id="ctrl${i}" ${c.ok?'checked':''} style="width:auto;margin:0" onchange="mc(this,'tab-controles')"><label for="ctrl${i}" style="flex:1;font-size:12px;color:var(--color-text-primary);cursor:pointer">${c.n}</label><span style="font-size:10px;color:var(--color-text-secondary)">${c.t}</span></div>`;});
+
+function mc(el,tabId){
+  if(el&&el.classList) el.classList.add('mod');
+  cambiados.add(tabId);
+  const tab=document.getElementById(tabId);
+  if(tab&&!tab.classList.contains('mod')) tab.classList.add('mod');
+  document.getElementById('unsaved-alert').style.display='flex';
+  document.getElementById('cambios-ind').style.display='inline-block';
+  updateDiff();
+}
+
+function showB(id){document.getElementById(id).style.display='inline';}
+
+function updateDiff(){
+  const da=document.getElementById('diff-area');
+  const campos=[];
+  if(cambiados.has('tab-info')) campos.push({k:'Nombre / Área / Responsable',o:'Valores originales',n:'Modificados'});
+  if(cambiados.has('tab-evaluacion')){const s=probSel*impSel;campos.push({k:'Score de riesgo',o:'20 (Crítico)',n:s+' ('+( s>=17?'Crítico':s>=10?'Alto':s>=5?'Medio':'Bajo')+')'});}
+  if(cambiados.has('tab-causas')) campos.push({k:'Causa raíz / Factores',o:'Texto original',n:'Actualizado'});
+  if(cambiados.has('tab-controles')) campos.push({k:'Controles implementados',o:'4 de 6 activos',n:'Modificado'});
+  if(cambiados.has('tab-estado')) campos.push({k:'Estado / Revisión',o:'Activo · 25/04',n:'Actualizado'});
+  if(campos.length===0){da.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);font-style:italic">Sin cambios registrados aún.</div>';return;}
+  da.innerHTML=campos.map(c=>`<div class="diff-item"><div class="diff-key">${c.k}</div><span class="diff-old">${c.o}</span><span style="color:var(--color-text-secondary);margin:0 4px">→</span><span class="diff-new">${c.n}</span></div>`).join('');
+}
+
+function setEst(est){
+  estSel=est;
+  ['activo','mitig','acept','cerrado'].forEach(k=>document.getElementById('ep-'+k).className='ep');
+  const km={'Activo':'activo','En mitigación':'mitig','Aceptado':'acept','Cerrado':'cerrado'};
+  const sc={'Activo':'sel-activo','En mitigación':'sel-mitig','Aceptado':'sel-acept','Cerrado':'sel-cerrado'};
+  const bc={'Activo':'bgr','En mitigación':'bb','Aceptado':'ba','Cerrado':'bg'};
+  document.getElementById('ep-'+km[est]).className='ep '+sc[est];
+  document.getElementById('estado-badge').textContent=est;
+  document.getElementById('estado-badge').className='badge '+bc[est];
+  document.getElementById('justif-wrap').style.display=(est==='Cerrado'||est==='Aceptado')?'block':'none';
+  mc(null,'tab-estado');
+}
+
+function goTab(el,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['info','evaluacion','causas','controles','estado'].forEach(s=>{
+    document.getElementById('sec-'+s).style.display=s===id?'block':'none';
+  });
+}
+
+function guardar(){
+  document.getElementById('footer-bar').style.display='none';
+  document.getElementById('sw').style.display='block';
+}
+</script>

@@ -1,0 +1,378 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.br{background:#FCEBEB;color:#A32D2D}.ba{background:#FAEEDA;color:#854F0B}
+.bh{background:#FAECE7;color:#993C1D}.bg{background:#EAF3DE;color:#3B6D11}
+.bb{background:#E6F1FB;color:#185FA5}.bgr{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:1rem}
+.met{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.7rem .85rem}
+.mv{font-size:20px;font-weight:500;line-height:1}
+.ml{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+.toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.85rem}
+.fb{font-size:12px;padding:5px 11px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;color:var(--color-text-secondary);font-family:var(--font-sans);transition:all .15s}
+.fb.on{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-secondary)}
+.fsel{font-size:12px;padding:5px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-secondary);font-family:var(--font-sans);cursor:pointer}
+.fsep{width:1px;height:20px;background:var(--color-border-tertiary)}
+.fsrch{font-size:12px;padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);font-family:var(--font-sans);width:170px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:.75rem}
+.tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.tbl th{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-align:left;padding:.5rem .75rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);white-space:nowrap}
+.tbl td{font-size:12px;color:var(--color-text-primary);padding:.6rem .75rem;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.tbl tr.alt td{background:var(--color-background-secondary)}
+.tbl tr.rr{cursor:pointer;transition:background .1s}
+.tbl tr.rr:hover td{background:#E6F1FB!important}
+.tbl tr:last-child td{border-bottom:none}
+.urg-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+.pag{display:flex;align-items:center;justify-content:space-between;padding:.5rem .75rem;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary)}
+.pb{font-size:11px;padding:3px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;font-family:var(--font-sans)}
+.pb.cur{background:var(--color-background-secondary);font-weight:500;color:var(--color-text-primary)}
+/* Panel detalle */
+.panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem;display:none}
+.panel.show{display:block}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:.85rem}
+.tab{font-size:12px;color:var(--color-text-secondary);padding:.45rem .85rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-left:none;border-right:none;border-top:none;white-space:nowrap;font-family:var(--font-sans)}
+.tab.on{color:var(--color-text-primary);font-weight:500;border-bottom-color:#854F0B}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.fl{font-size:11px;color:var(--color-text-secondary);margin-bottom:2px}
+.fv{font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.df{margin-bottom:.6rem}.df:last-child{margin-bottom:0}
+.plan-row{display:flex;align-items:center;gap:8px;padding:.45rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.plan-row:last-child{border-bottom:none}
+.pw{height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden;flex:1}
+.pf{height:100%;border-radius:2px}
+.dest-row{display:flex;align-items:center;gap:8px;padding:.45rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.dest-row:last-child{border-bottom:none}
+.dest-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.tld{display:flex;gap:8px;padding-bottom:10px}
+.tld:last-child{padding-bottom:0}
+.tll{display:flex;flex-direction:column;align-items:center}
+.tldot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.tlln{width:1px;flex:1;background:var(--color-border-tertiary);margin-top:3px}
+.tld:last-child .tlln{display:none}
+.preview-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem;font-size:12px;color:var(--color-text-primary);line-height:1.7;white-space:pre-wrap}
+.respuesta-box{background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:var(--border-radius-md);padding:.75rem 1rem;font-size:12px;color:#2A4A10;line-height:1.6}
+.pendiente-box{background:#FAEEDA;border:0.5px solid #FAC775;border-radius:var(--border-radius-md);padding:.75rem 1rem;font-size:12px;color:#633806}
+</style>
+
+<h2 class="sr-only">Historial de escalamientos de acciones vencidas — Terminal Puerto Principal</h2>
+
+<div class="w">
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:32px;height:32px;border-radius:var(--border-radius-md);background:#854F0B;display:flex;align-items:center;justify-content:center">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polyline points="17 11 22 6 17 1"/><path d="M22 6H11a4 4 0 000 8h1"/><polyline points="7 13 2 18 7 23"/><path d="M2 18h11a4 4 0 000-8h-1"/></svg>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Historial de escalamientos</div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">Acciones vencidas escaladas · Terminal Puerto Principal</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button onclick="sendPrompt('Escalar acciones vencidas PM-029 y PM-027 a gerencia')" style="font-size:12px;padding:5px 12px">+ Nuevo escalamiento ↗</button>
+    <button onclick="sendPrompt('Exportar historial de escalamientos a PDF')" style="font-size:12px;padding:5px 12px">Exportar ↗</button>
+    <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:12px;padding:5px 12px">← Dashboard ↗</button>
+  </div>
+</div>
+
+<!-- MÉTRICAS -->
+<div class="metrics">
+  <div class="met"><div class="mv">12</div><div class="ml">Total 2026</div></div>
+  <div class="met"><div class="mv" style="color:#854F0B">3</div><div class="ml">Pendientes respuesta</div></div>
+  <div class="met"><div class="mv" style="color:#3B6D11">7</div><div class="ml">Respondidos</div></div>
+  <div class="met"><div class="mv" style="color:#A32D2D">1</div><div class="ml">Sin respuesta > 48h</div></div>
+  <div class="met"><div class="mv">1.8d</div><div class="ml">Tiempo resp. promedio</div></div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="fb on" id="f-todos"      onclick="setF(this,'todos')">Todos (12)</button>
+  <button class="fb"    id="f-pendiente"  onclick="setF(this,'Enviado')">Pendientes (3)</button>
+  <button class="fb"    id="f-respondido" onclick="setF(this,'Respondido')">Respondidos (7)</button>
+  <button class="fb"    id="f-cerrado"    onclick="setF(this,'Cerrado')">Cerrados (2)</button>
+  <div class="fsep"></div>
+  <select class="fsel" id="f-urg" onchange="render()">
+    <option value="">Toda urgencia</option>
+    <option>Crítica</option>
+    <option>Alta</option>
+    <option>Normal</option>
+  </select>
+  <select class="fsel" id="f-dest" onchange="render()">
+    <option value="">Todos los destinatarios</option>
+    <option>Gerencia de Operaciones</option>
+    <option>Gerencia General</option>
+    <option>Jef. Seguridad Industrial</option>
+    <option>Jef. Mantenimiento</option>
+  </select>
+  <input class="fsrch" type="text" id="f-q" placeholder="Buscar código, plan..." oninput="render()"/>
+</div>
+
+<!-- TABLA -->
+<div class="card">
+  <div style="overflow-x:auto">
+    <table class="tbl">
+      <colgroup>
+        <col style="width:110px"><col style="width:60px"><col><col style="width:140px">
+        <col style="width:85px"><col style="width:90px"><col style="width:90px">
+      </colgroup>
+      <thead><tr>
+        <th>ID / Fecha</th><th>Urgencia</th><th>Planes escalados</th>
+        <th>Destinatario principal</th><th>Estado</th><th>Resp. en</th><th>Creado por</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="pag">
+    <span id="pag-info">Mostrando 1–10 de 12</span>
+    <div style="display:flex;gap:3px" id="pag-btns"></div>
+  </div>
+</div>
+
+<!-- PANEL DETALLE -->
+<div class="panel" id="detail-panel">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.7rem;border-bottom:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:2px" id="dp-id">ESC-2026-003</div>
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)" id="dp-motivo">—</div>
+      <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap" id="dp-badges"></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button id="dp-btn-resp" style="font-size:12px;padding:5px 12px;display:none">Registrar respuesta ↗</button>
+      <button id="dp-btn-escalar" style="font-size:12px;padding:5px 12px;display:none">Re-escalar ↗</button>
+      <button onclick="closePanel()" style="font-size:12px;padding:5px 10px">Cerrar</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="setTab(this,'resumen')">Resumen</button>
+    <button class="tab" onclick="setTab(this,'planes')">Planes vinculados</button>
+    <button class="tab" onclick="setTab(this,'destinatarios')">Destinatarios</button>
+    <button class="tab" onclick="setTab(this,'notificacion')">Notificación enviada</button>
+    <button class="tab" onclick="setTab(this,'historial')">Historial</button>
+  </div>
+  <div id="tab-resumen">
+    <div class="g2">
+      <div>
+        <div class="df"><div class="fl">Motivo del escalamiento</div><div class="fv" id="dp-motivo2">—</div></div>
+        <div class="df"><div class="fl">Urgencia</div><div class="fv" id="dp-urg">—</div></div>
+        <div class="df"><div class="fl">Contexto para gerencia</div><div class="fv" id="dp-ctx" style="color:var(--color-text-secondary)">—</div></div>
+        <div class="df"><div class="fl">Recursos / Decisión requerida</div><div class="fv" id="dp-rec">—</div></div>
+      </div>
+      <div>
+        <div class="df"><div class="fl">Nueva fecha propuesta</div><div class="fv" id="dp-fecha">—</div></div>
+        <div class="df"><div class="fl">Canal enviado</div><div class="fv" id="dp-canal">—</div></div>
+        <div class="df"><div class="fl">Creado por</div><div class="fv" id="dp-creador">—</div></div>
+        <div class="df"><div class="fl">Fecha de envío</div><div class="fv" id="dp-ts">—</div></div>
+      </div>
+    </div>
+    <div style="margin-top:.75rem" id="dp-resp-wrap"></div>
+  </div>
+  <div id="tab-planes" style="display:none"><div id="dp-planes"></div></div>
+  <div id="tab-destinatarios" style="display:none"><div id="dp-dests"></div></div>
+  <div id="tab-notificacion" style="display:none"><div class="preview-box" id="dp-notif"></div></div>
+  <div id="tab-historial" style="display:none"><div id="dp-hist"></div></div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-top:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;gap:8px">
+  <span style="font-size:11px;color:var(--color-text-secondary)">Terminal Risk Monitor v2.1 · Escalamientos automáticos activos</span>
+  <div style="display:flex;gap:6px">
+    <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:11px;padding:4px 10px">Tablero Kanban ↗</button>
+    <button onclick="sendPrompt('Generar reporte ejecutivo mensual de riesgos')" style="font-size:11px;padding:4px 10px">Reporte ejecutivo ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DATA=[
+  {id:'ESC-2026-003',fecha:'23/04/2026 · 10:20h',urg:'Alta',urgColor:'#854F0B',urgBg:'#FAEEDA',
+   planes:[{id:'PM-027',n:'Mantenimiento correctivo grúa STS-2',p:10,dias:19},{id:'PM-029',n:'Revisión integral plan emergencia portuaria',p:20,dias:15}],
+   dest:'Gerencia de Operaciones',estado:'Enviado',estadoCls:'ba',respEn:'—',creador:'Sistema TRM (auto)',
+   motivo:'Incumplimiento de fecha límite sin justificación',
+   ctx:'Las acciones PM-027 y PM-029 están vinculadas a riesgos críticos de nivel 20 en el área de Muelle. La grúa STS-2 operando sin mantenimiento correctivo aumenta el riesgo de falla durante operación de buque.',
+   rec:'Presupuesto extraordinario y asignación de técnico externo',nuevaFecha:'30/04/2026',canal:'Email + Registro TRM',
+   dests:[{nombre:'Gerencia de Operaciones',av:'GO',color:'#185FA5',oblig:true,estado:'Enviado'},
+          {nombre:'Jef. Seguridad Industrial',av:'SI',color:'#993C1D',oblig:false,estado:'Enviado'},
+          {nombre:'Jef. Mantenimiento',av:'JM',color:'#534AB7',oblig:false,estado:'Enviado'}],
+   hist:[{a:'Escalamiento generado automáticamente',d:'Sistema detectó PM-027 y PM-029 sin respuesta por más de 48h',t:'23/04/2026 · 10:20h',c:'#EF9F27'},
+         {a:'Notificación enviada a 3 destinatarios',d:'Email enviado a Gerencia Ops, Jef. Seg. Industrial y Jef. Mantenimiento',t:'23/04/2026 · 10:21h',c:'#185FA5'}]},
+
+  {id:'ESC-2026-002',fecha:'15/04/2026 · 08:45h',urg:'Alta',urgColor:'#854F0B',urgBg:'#FAEEDA',
+   planes:[{id:'PM-022',n:'Instalación barreras peatonales patio sur',p:100,dias:3}],
+   dest:'Gerencia de Operaciones',estado:'Respondido',estadoCls:'bg',respEn:'16/04/2026',creador:'M. Torres',
+   motivo:'Falta de recursos para ejecutar la acción',
+   ctx:'El plan de instalación de barreras requería presupuesto adicional no incluido en el plan operativo mensual.',
+   rec:'Aprobación de $4,200 para adquisición e instalación de barreras',nuevaFecha:'22/04/2026',canal:'Email',
+   respuesta:{autor:'A. Mendoza — Gerencia Ops',fecha:'16/04/2026 · 11:30h',texto:'Aprobado el presupuesto solicitado. Contactar a proveedor CercoMar para cotización definitiva. Plazo extendido al 22/04.'},
+   dests:[{nombre:'Gerencia de Operaciones',av:'GO',color:'#185FA5',oblig:true,estado:'Respondido'}],
+   hist:[{a:'Escalamiento creado por M. Torres',d:'Plan PM-022 vencido 3 días. Recursos insuficientes.',t:'15/04/2026 · 08:45h',c:'#185FA5'},
+         {a:'Respuesta recibida de Gerencia Ops',d:'Presupuesto aprobado. Plazo extendido.',t:'16/04/2026 · 11:30h',c:'#3B6D11'},
+         {a:'Escalamiento cerrado',d:'Plan PM-022 reactivado con nuevo presupuesto',t:'16/04/2026 · 14:00h',c:'#3B6D11'}]},
+
+  {id:'ESC-2026-001',fecha:'02/04/2026 · 16:30h',urg:'Crítica',urgColor:'#A32D2D',urgBg:'#FCEBEB',
+   planes:[{id:'PM-015',n:'Actualización protocolo IMDG clase 3',p:100,dias:7}],
+   dest:'Gerencia General',estado:'Cerrado',estadoCls:'bgr',respEn:'03/04/2026',creador:'P. Vera',
+   motivo:'Riesgo que se ha materializado parcialmente',
+   ctx:'El incidente INC-2026-006 (carga IMDG sin etiquetado) evidenció que el protocolo desactualizado contribuyó directamente al evento.',
+   rec:'Decisión inmediata sobre actualización del POE y capacitación emergente',nuevaFecha:'10/04/2026',canal:'Email + SMS',
+   respuesta:{autor:'Dir. General — R. Alvarado',fecha:'03/04/2026 · 09:00h',texto:'Autorizado el proceso de actualización urgente del protocolo IMDG. Se designa a Seg. Industrial como líder. Capacitación a todo el personal antes del 10/04.'},
+   dests:[{nombre:'Gerencia General',av:'GG',color:'#3B6D11',oblig:true,estado:'Respondido'},
+          {nombre:'Gerencia de Operaciones',av:'GO',color:'#185FA5',oblig:true,estado:'Respondido'}],
+   hist:[{a:'Escalamiento crítico creado',d:'Incidente IMDG materializó el riesgo. Escala directo a Gerencia General.',t:'02/04/2026 · 16:30h',c:'#E24B4A'},
+         {a:'SMS enviado a Gerencia General',d:'Notificación urgente por canal SMS',t:'02/04/2026 · 16:31h',c:'#EF9F27'},
+         {a:'Respuesta de Dirección General',d:'Aprobación inmediata y designación de responsable.',t:'03/04/2026 · 09:00h',c:'#3B6D11'},
+         {a:'Plan PM-015 reactivado',d:'Protocolo IMDG actualizado y capacitación completada al 100%',t:'09/04/2026 · 17:00h',c:'#3B6D11'},
+         {a:'Escalamiento cerrado',d:'Objetivo cumplido dentro del plazo extendido.',t:'10/04/2026 · 08:30h',c:'#5F5E5A'}]},
+];
+
+// Rellenar datos con más registros similares para completar 12
+const extra=[
+  {id:'ESC-2026-004',fecha:'18/04/2026 · 09:10h',urg:'Normal',urgColor:'#3B6D11',urgBg:'#EAF3DE',planes:[{id:'PM-031',n:'Calibración sensores perimetrales ISPS',p:40,dias:5}],dest:'Jef. Seguridad ISPS',estado:'Respondido',estadoCls:'bg',respEn:'19/04/2026',creador:'R. Castro',motivo:'Incumplimiento de fecha límite sin justificación',ctx:'',rec:'',nuevaFecha:'25/04/2026',canal:'Email',dests:[{nombre:'Jef. Seguridad ISPS',av:'JS',color:'#E24B4A',oblig:true,estado:'Respondido'}],respuesta:{autor:'Jef. Seg. ISPS',fecha:'19/04/2026',texto:'Se reprogramó con técnico disponible el 20/04.'},hist:[]},
+  {id:'ESC-2026-005',fecha:'10/04/2026 · 14:00h',urg:'Alta',urgColor:'#854F0B',urgBg:'#FAEEDA',planes:[{id:'PM-025',n:'Revisión EPP operadores turno noche',p:60,dias:4}],dest:'Gerencia de Operaciones',estado:'Respondido',estadoCls:'bg',respEn:'11/04/2026',creador:'M. Torres',motivo:'Falta de recursos para ejecutar la acción',ctx:'',rec:'',nuevaFecha:'18/04/2026',canal:'Email',dests:[{nombre:'Gerencia de Operaciones',av:'GO',color:'#185FA5',oblig:true,estado:'Respondido'}],respuesta:{autor:'Gerencia Ops',fecha:'11/04/2026',texto:'Presupuesto de EPP aprobado por $1,800.'},hist:[]},
+  {id:'ESC-2026-006',fecha:'08/04/2026 · 11:30h',urg:'Normal',urgColor:'#3B6D11',urgBg:'#EAF3DE',planes:[{id:'PM-023',n:'Demarcación zonas peatonales bloque B',p:100,dias:2}],dest:'Sup. Patio',estado:'Cerrado',estadoCls:'bgr',respEn:'09/04/2026',creador:'P. Vera',motivo:'Incumplimiento de fecha límite sin justificación',ctx:'',rec:'',nuevaFecha:'12/04/2026',canal:'Email',dests:[{nombre:'Supervisión de Patio',av:'SP',color:'#EF9F27',oblig:true,estado:'Respondido'}],hist:[]},
+  {id:'ESC-2026-007',fecha:'20/04/2026 · 17:00h',urg:'Alta',urgColor:'#854F0B',urgBg:'#FAEEDA',planes:[{id:'PM-033',n:'Contratación técnico especialista grúas STS',p:0,dias:6}],dest:'RRHH',estado:'Enviado',estadoCls:'ba',respEn:'—',creador:'A. Mendoza',motivo:'Bloqueo por decisión que requiere autoridad superior',ctx:'',rec:'',nuevaFecha:'05/05/2026',canal:'Email',dests:[{nombre:'RRHH',av:'RH',color:'#534AB7',oblig:true,estado:'Enviado'},{nombre:'Gerencia de Operaciones',av:'GO',color:'#185FA5',oblig:false,estado:'Enviado'}],hist:[]},
+  {id:'ESC-2026-008',fecha:'21/04/2026 · 08:00h',urg:'Crítica',urgColor:'#A32D2D',urgBg:'#FCEBEB',planes:[{id:'PM-035',n:'Actualizar plan de emergencia portuaria',p:15,dias:8}],dest:'Gerencia General',estado:'Enviado',estadoCls:'ba',respEn:'—',creador:'Sistema TRM (auto)',motivo:'Incumplimiento de fecha límite sin justificación',ctx:'',rec:'',nuevaFecha:'30/04/2026',canal:'Email + SMS',dests:[{nombre:'Gerencia General',av:'GG',color:'#3B6D11',oblig:true,estado:'Enviado'},{nombre:'Gerencia de Operaciones',av:'GO',color:'#185FA5',oblig:true,estado:'Enviado'}],hist:[]},
+  {id:'ESC-2026-009',fecha:'25/03/2026 · 10:00h',urg:'Normal',urgColor:'#3B6D11',urgBg:'#EAF3DE',planes:[{id:'PM-018',n:'Actualizar POE de operaciones nocturnas',p:100,dias:1}],dest:'Sup. Patio',estado:'Cerrado',estadoCls:'bgr',respEn:'26/03/2026',creador:'P. Vera',motivo:'Incumplimiento de fecha límite sin justificación',ctx:'',rec:'',nuevaFecha:'28/03/2026',canal:'Email',dests:[{nombre:'Supervisión de Patio',av:'SP',color:'#EF9F27',oblig:true,estado:'Respondido'}],hist:[]},
+];
+
+const ALL_DATA=[...DATA,...extra];
+
+let filtEstado='todos', PAGE=1, PER=8;
+
+function setF(btn,est){
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  filtEstado=est; PAGE=1; render(); closePanel();
+}
+
+function getRows(){
+  const q=(document.getElementById('f-q').value||'').toLowerCase();
+  const urg=document.getElementById('f-urg').value;
+  return ALL_DATA.filter(r=>{
+    if(filtEstado!=='todos' && r.estado!==filtEstado) return false;
+    if(urg && r.urg!==urg) return false;
+    if(q && !r.id.toLowerCase().includes(q) && !r.planes.map(p=>p.id).join(' ').toLowerCase().includes(q) && !r.dest.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function render(){
+  const rows=getRows();
+  const total=rows.length;
+  const pages=Math.max(1,Math.ceil(total/PER));
+  if(PAGE>pages) PAGE=1;
+  const s=(PAGE-1)*PER, e=Math.min(s+PER,total);
+  const tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  rows.slice(s,e).forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.className='rr'+(i%2===1?' alt':'');
+    tr.onclick=()=>openPanel(r);
+    const planLabel=r.planes.map(p=>`<div style="font-size:11px"><span style="color:#185FA5;font-weight:500">${p.id}</span> <span style="color:var(--color-text-secondary)">${p.n.slice(0,32)}…</span></div>`).join('');
+    tr.innerHTML=`
+      <td><div style="font-size:12px;font-weight:500;color:#185FA5">${r.id}</div><div style="font-size:11px;color:var(--color-text-secondary)">${r.fecha}</div></td>
+      <td><span class="badge" style="background:${r.urgBg};color:${r.urgColor};font-size:10px">${r.urg}</span></td>
+      <td>${planLabel}</td>
+      <td><div style="font-size:12px">${r.dest}</div><div style="font-size:11px;color:var(--color-text-secondary)">${r.creador}</div></td>
+      <td><span class="badge ${r.estadoCls}" style="font-size:10px">${r.estado}</span></td>
+      <td style="font-size:12px;color:var(--color-text-secondary)">${r.respEn}</td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${r.creador}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('pag-info').textContent=`Mostrando ${total===0?0:s+1}–${e} de ${total} escalamientos`;
+  const pb=document.getElementById('pag-btns');
+  pb.innerHTML='';
+  if(PAGE>1){const b=document.createElement('button');b.className='pb';b.textContent='←';b.onclick=()=>{PAGE--;render();};pb.appendChild(b);}
+  for(let p=1;p<=pages;p++){const b=document.createElement('button');b.className='pb'+(p===PAGE?' cur':'');b.textContent=p;b.onclick=(pp=>()=>{PAGE=pp;render();})(p);pb.appendChild(b);}
+  if(PAGE<pages){const b=document.createElement('button');b.className='pb';b.textContent='→';b.onclick=()=>{PAGE++;render();};pb.appendChild(b);}
+}
+
+function openPanel(r){
+  document.getElementById('dp-id').textContent=r.id;
+  document.getElementById('dp-motivo').textContent=r.motivo;
+  document.getElementById('dp-motivo2').textContent=r.motivo;
+  document.getElementById('dp-badges').innerHTML=`<span class="badge" style="background:${r.urgBg};color:${r.urgColor}">${r.urg}</span><span class="badge ${r.estadoCls}">${r.estado}</span>`;
+  document.getElementById('dp-urg').innerHTML=`<span class="badge" style="background:${r.urgBg};color:${r.urgColor}">${r.urg}</span>`;
+  document.getElementById('dp-ctx').textContent=r.ctx||'—';
+  document.getElementById('dp-rec').textContent=r.rec||'—';
+  document.getElementById('dp-fecha').textContent=r.nuevaFecha||'—';
+  document.getElementById('dp-canal').textContent=r.canal;
+  document.getElementById('dp-creador').textContent=r.creador;
+  document.getElementById('dp-ts').textContent=r.fecha;
+
+  const rw=document.getElementById('dp-resp-wrap');
+  if(r.respuesta){
+    rw.innerHTML=`<div class="respuesta-box"><div style="font-size:11px;font-weight:500;margin-bottom:4px">✓ Respuesta de ${r.respuesta.autor} · ${r.respuesta.fecha}</div><div>${r.respuesta.texto}</div></div>`;
+  } else if(r.estado==='Enviado'){
+    rw.innerHTML=`<div class="pendiente-box">⏳ Esperando respuesta — Si no hay respuesta en 72h el sistema escalará automáticamente a Gerencia General.</div>`;
+  } else { rw.innerHTML=''; }
+
+  // Planes
+  const pp=document.getElementById('dp-planes');
+  pp.innerHTML=r.planes.map(p=>{
+    const bc=p.dias>10?'br':p.dias>5?'ba':'ba';
+    return `<div class="plan-row"><span style="font-size:12px;font-weight:500;color:#185FA5;min-width:60px">${p.id}</span><div style="flex:1"><div style="font-size:12px">${p.n}</div><div class="pw" style="margin-top:4px"><div class="pf" style="width:${p.p}%;background:${p.p===100?'#639922':p.p<30?'#E24B4A':'#378ADD'}"></div></div></div><span class="badge ${bc}" style="font-size:10px">${p.dias}d vencida</span><span class="badge bgr" style="font-size:10px">${p.p}%</span></div>`;
+  }).join('');
+
+  // Destinatarios
+  const dp=document.getElementById('dp-dests');
+  dp.innerHTML=r.dests.map(d=>{
+    const sc=d.estado==='Respondido'?'bg':'ba';
+    return `<div class="dest-row"><div class="dest-av" style="background:${d.color}22;border:0.5px solid ${d.color}44;color:${d.color}">${d.av}</div><div style="flex:1"><div style="font-size:12px;font-weight:500">${d.nombre}</div>${d.oblig?'<span class="badge br" style="font-size:10px">Obligatorio</span>':''}</div><span class="badge ${sc}" style="font-size:10px">${d.estado}</span></div>`;
+  }).join('');
+
+  // Notificación
+  document.getElementById('dp-notif').textContent=`ESCALAMIENTO FORMAL — ${r.id}
+Fecha: ${r.fecha}
+
+Estimada ${r.dest},
+
+Se notifica formalmente el vencimiento sin resolución de las siguientes acciones:
+
+${r.planes.map(p=>`· ${p.id} — ${p.n}\n  Días de retraso: ${p.dias} · Avance: ${p.p}%`).join('\n\n')}
+
+Motivo: ${r.motivo}
+Urgencia: ${r.urg}
+
+${r.ctx?'Contexto:\n'+r.ctx+'\n\n':''}${r.rec?'Se solicita: '+r.rec+'\n\n':''}Nueva fecha propuesta: ${r.nuevaFecha}
+
+— Terminal Risk Monitor · Escalamiento ${r.estado==='Enviado'?'automático':'manual'}`;
+
+  // Historial
+  const hc=document.getElementById('dp-hist');
+  if(r.hist&&r.hist.length>0){
+    hc.innerHTML=r.hist.map(h=>`<div class="tld"><div class="tll"><div class="tldot" style="background:${h.c}"></div><div class="tlln"></div></div><div style="flex:1;padding-bottom:10px"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">${h.a}</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px;line-height:1.4">${h.d}</div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">${h.t}</div></div></div>`).join('');
+  } else {
+    hc.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);font-style:italic">Sin eventos registrados.</div>';
+  }
+
+  document.getElementById('dp-btn-resp').style.display=r.estado==='Enviado'?'block':'none';
+  document.getElementById('dp-btn-escalar').style.display=r.estado==='Enviado'?'block':'none';
+  document.getElementById('dp-btn-resp').onclick=()=>sendPrompt('Registrar respuesta al escalamiento '+r.id);
+  document.getElementById('dp-btn-escalar').onclick=()=>sendPrompt('Re-escalar el escalamiento '+r.id+' a un nivel superior');
+
+  // Reset tabs
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelector('.tab').classList.add('on');
+  ['resumen','planes','destinatarios','notificacion','historial'].forEach(s=>{
+    document.getElementById('tab-'+s).style.display=s==='resumen'?'block':'none';
+  });
+
+  document.getElementById('detail-panel').classList.add('show');
+  document.getElementById('detail-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closePanel(){document.getElementById('detail-panel').classList.remove('show');}
+
+function setTab(el,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['resumen','planes','destinatarios','notificacion','historial'].forEach(s=>{
+    document.getElementById('tab-'+s).style.display=s===id?'block':'none';
+  });
+}
+
+render();
+</script>

@@ -1,0 +1,534 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem;font-family:var(--font-sans)}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.back-btn{font-size:12px;color:var(--color-text-secondary);cursor:pointer;background:none;border:none;padding:0}
+.steps{display:flex;align-items:center;margin-bottom:1.5rem}
+.step{display:flex;align-items:center;gap:6px}
+.step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.step.done .step-num{background:#185FA5;color:white}
+.step.active .step-num{background:#185FA5;color:white}
+.step.pending .step-num{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.step.done .step-label,.step.pending .step-label{font-size:12px;color:var(--color-text-secondary)}
+.step.active .step-label{font-size:12px;color:var(--color-text-primary);font-weight:500}
+.step-line{flex:1;height:1px;background:var(--color-border-tertiary);margin:0 8px}
+.step-line.done{background:#185FA5}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem}
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;display:block}
+.req{color:#E24B4A}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+textarea{resize:vertical;min-height:68px}
+.sev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.sev-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem .5rem;text-align:center;cursor:pointer;transition:border-color .15s}
+.sev-card.sel-verde{border:2px solid #3B6D11;background:#EAF3DE}
+.sev-card.sel-amber{border:2px solid #854F0B;background:#FAEEDA}
+.sev-card.sel-high{border:2px solid #993C1D;background:#FAECE7}
+.sev-card.sel-rojo{border:2px solid #A32D2D;background:#FCEBEB}
+.sev-icon{width:28px;height:28px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center}
+.sev-title{font-size:12px;font-weight:500}
+.sev-sub{font-size:10px;margin-top:2px}
+.badge{display:inline-block;padding:3px 9px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-high{background:#FAECE7;color:#993C1D}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:.5rem}
+.afect-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:.5rem .75rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md)}
+.afect-row input[type=checkbox]{width:auto;margin:0}
+.afect-label{font-size:12px;color:var(--color-text-primary);flex:1}
+.timeline-item{display:flex;gap:10px;margin-bottom:10px}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:#185FA5;margin-top:4px;flex-shrink:0}
+.tl-content{flex:1;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tl-content:last-of-type{border-bottom:none}
+.tl-time{font-size:11px;color:var(--color-text-secondary)}
+.tl-text{font-size:12px;color:var(--color-text-primary)}
+.summary-row{display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.summary-row:last-child{border-bottom:none}
+.summary-key{color:var(--color-text-secondary);min-width:150px}
+.summary-val{color:var(--color-text-primary);font-weight:500;text-align:right}
+.success-icon{width:48px;height:48px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.alert-box{padding:.75rem 1rem;border-radius:var(--border-radius-md);border:0.5px solid;margin-bottom:1rem;font-size:12px;display:flex;gap:8px;align-items:flex-start}
+.alert-danger{background:#FCEBEB;border-color:#F09595;color:#791F1F}
+.alert-warn{background:#FAEEDA;border-color:#FAC775;color:#633806}
+</style>
+
+<h2 class="sr-only">Formulario de registro de nuevo incidente operacional en el terminal de contenedores</h2>
+
+<div class="wrap">
+
+  <div class="header">
+    <button class="back-btn" onclick="sendPrompt('Volver al dashboard de riesgos')">← Volver al dashboard</button>
+    <span style="font-size:11px;color:var(--color-text-secondary)">INC-2026-018 · <span id="ts"></span></span>
+  </div>
+
+  <div class="steps" id="steps-bar">
+    <div class="step active" id="s1"><div class="step-num">1</div><div class="step-label">Ocurrencia</div></div>
+    <div class="step-line" id="l1"></div>
+    <div class="step pending" id="s2"><div class="step-num">2</div><div class="step-label">Afectados</div></div>
+    <div class="step-line" id="l2"></div>
+    <div class="step pending" id="s3"><div class="step-num">3</div><div class="step-label">Análisis</div></div>
+    <div class="step-line" id="l3"></div>
+    <div class="step pending" id="s4"><div class="step-num">4</div><div class="step-label">Acciones</div></div>
+    <div class="step-line" id="l4"></div>
+    <div class="step pending" id="s5"><div class="step-num">5</div><div class="step-label">Revisión</div></div>
+  </div>
+
+  <div id="step1">
+    <div id="alert-crit" class="alert-box alert-danger" style="display:none">
+      Incidente crítico detectado — se notificará automáticamente a Gerencia y Seguridad Industrial.
+    </div>
+    <div class="card">
+      <div class="section-title">¿Qué ocurrió?</div>
+      <div class="field">
+        <label class="label">Título del incidente <span class="req">*</span></label>
+        <input type="text" id="f-titulo" placeholder="Ej: Fallo hidráulico en RTG-03 durante operación de apilamiento" />
+      </div>
+      <div class="field">
+        <label class="label">Descripción detallada del evento <span class="req">*</span></label>
+        <textarea id="f-desc" placeholder="Narre cronológicamente lo sucedido: qué pasó, cómo, en qué secuencia de hechos..."></textarea>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Fecha del incidente <span class="req">*</span></label>
+          <input type="date" id="f-fecha" />
+        </div>
+        <div class="field">
+          <label class="label">Hora exacta <span class="req">*</span></label>
+          <input type="time" id="f-hora" />
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="field">
+          <label class="label">Área operacional <span class="req">*</span></label>
+          <select id="f-area">
+            <option value="">Seleccionar...</option>
+            <option>Muelle / Operaciones de buque</option>
+            <option>Patio de contenedores</option>
+            <option>Gate / Portería</option>
+            <option>Taller y equipos</option>
+            <option>Seguridad ISPS / BASC</option>
+            <option>Carga peligrosa IMDG</option>
+            <option>Sistemas TOS / IT</option>
+            <option>Salud ocupacional</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Turno</label>
+          <select id="f-turno">
+            <option>Turno día (06:00–18:00)</option>
+            <option>Turno noche (18:00–06:00)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Equipo involucrado</label>
+          <select id="f-equipo">
+            <option value="">Ninguno / N/A</option>
+            <option>Grúa STS (Ship-to-Shore)</option>
+            <option>RTG (Rubber Tyred Gantry)</option>
+            <option>RMG (Rail Mounted Gantry)</option>
+            <option>Reach stacker</option>
+            <option>Tractor de patio</option>
+            <option>Montacargas</option>
+            <option>Vehículo liviano</option>
+            <option>Sistema TOS</option>
+            <option>Otro equipo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Nivel de severidad <span class="req">*</span></div>
+      <div class="sev-grid" id="sev-grid">
+        <div class="sev-card" id="sev1" onclick="setSev(1)">
+          <div class="sev-icon" style="background:#EAF3DE"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+          <div class="sev-title" style="color:#3B6D11">Leve</div>
+          <div class="sev-sub" style="color:#639922">Sin lesiones · daño menor</div>
+        </div>
+        <div class="sev-card" id="sev2" onclick="setSev(2)">
+          <div class="sev-icon" style="background:#FAEEDA"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="sev-title" style="color:#854F0B">Moderado</div>
+          <div class="sev-sub" style="color:#BA7517">Primeros auxilios · baja operativa</div>
+        </div>
+        <div class="sev-card" id="sev3" onclick="setSev(3)">
+          <div class="sev-icon" style="background:#FAECE7"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#993C1D" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="sev-title" style="color:#993C1D">Grave</div>
+          <div class="sev-sub" style="color:#D85A30">Lesión con baja · daño mayor</div>
+        </div>
+        <div class="sev-card" id="sev4" onclick="setSev(4)">
+          <div class="sev-icon" style="background:#FCEBEB"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A32D2D" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="sev-title" style="color:#A32D2D">Crítico</div>
+          <div class="sev-sub" style="color:#E24B4A">Fatalidad · emergencia mayor</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 1 de 5</span>
+      <button onclick="goStep(2)" style="font-size:13px;padding:7px 20px">Siguiente → Afectados</button>
+    </div>
+  </div>
+
+  <div id="step2" style="display:none">
+    <div class="card">
+      <div class="section-title">Personas afectadas</div>
+      <div class="grid3">
+        <div class="field">
+          <label class="label">¿Hubo lesionados?</label>
+          <select id="f-lesion" onchange="toggleLesion()">
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Número de personas</label>
+          <input type="number" id="f-npersonas" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label class="label">Tipo de lesión</label>
+          <select id="f-tlesion" disabled>
+            <option>N/A</option>
+            <option>Golpe / contusión</option>
+            <option>Laceración / corte</option>
+            <option>Fractura</option>
+            <option>Quemadura</option>
+            <option>Intoxicación</option>
+            <option>Politraumatismo</option>
+            <option>Fallecimiento</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="lesion-detail" style="display:none">
+        <label class="label">Nombre(s) del afectado(s) y cargo</label>
+        <textarea id="f-afectados" placeholder="Ej: Juan Pérez, Operador RTG — Mario Gómez, Supervisor Patio" style="min-height:52px"></textarea>
+      </div>
+      <div class="field">
+        <label class="label">¿Se brindó atención médica?</label>
+        <select id="f-medica">
+          <option>No fue necesaria</option>
+          <option>Primeros auxilios en sitio</option>
+          <option>Traslado a clínica / hospital</option>
+          <option>Atención de emergencia</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Daños materiales y operacionales</div>
+      <div style="margin-bottom:.75rem">
+        <div class="label" style="margin-bottom:8px">¿Qué se vio afectado? (selecciona todo lo que aplica)</div>
+        <div id="afect-list"></div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Estimación de daño económico</label>
+          <select id="f-costo">
+            <option>Sin daño económico</option>
+            <option>Menor ($0 – $1,000)</option>
+            <option>Moderado ($1,000 – $10,000)</option>
+            <option>Significativo ($10,000 – $100,000)</option>
+            <option>Mayor (más de $100,000)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Impacto en operación</label>
+          <select id="f-impop">
+            <option>Sin interrupción</option>
+            <option>Retraso menor (menos de 1h)</option>
+            <option>Interrupción parcial (1–4h)</option>
+            <option>Paralización total (más de 4h)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">¿Hubo impacto ambiental?</label>
+        <select id="f-ambiental">
+          <option>No</option>
+          <option>Derrame menor contenido en área</option>
+          <option>Derrame con alcance externo</option>
+          <option>Emisión de gases / contaminantes</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button onclick="goStep(1)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 2 de 5</span>
+      <button onclick="goStep(3)" style="font-size:13px;padding:7px 20px">Siguiente → Análisis</button>
+    </div>
+  </div>
+
+  <div id="step3" style="display:none">
+    <div class="card">
+      <div class="section-title">Análisis de causa raíz</div>
+      <div class="field">
+        <label class="label">Metodología de análisis</label>
+        <select id="f-metodo">
+          <option>5 Porqués</option>
+          <option>Diagrama Ishikawa (causa-efecto)</option>
+          <option>Árbol de fallas (FTA)</option>
+          <option>Análisis simplificado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Causa inmediata (lo que directamente provocó el incidente)</label>
+        <textarea id="f-cimediata" placeholder="Ej: Fallo del sistema hidráulico del RTG-03 durante operación de apilamiento de contenedor 40'"></textarea>
+      </div>
+      <div class="field">
+        <label class="label">Causa básica / raíz (por qué ocurrió la causa inmediata)</label>
+        <textarea id="f-craiz" placeholder="Ej: Mantenimiento preventivo vencido hace 3 semanas por escasez de repuestos y alta demanda operacional"></textarea>
+      </div>
+      <div class="field">
+        <label class="label">Factores contribuyentes</label>
+        <div id="factores-list" style="margin-top:6px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Testigos y evidencia</div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Testigos presentes</label>
+          <textarea id="f-testigos" placeholder="Nombre y cargo de personas que presenciaron el evento" style="min-height:52px"></textarea>
+        </div>
+        <div class="field">
+          <label class="label">Evidencia recopilada</label>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:2px" id="evid-list"></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(2)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 3 de 5</span>
+      <button onclick="goStep(4)" style="font-size:13px;padding:7px 20px">Siguiente → Acciones</button>
+    </div>
+  </div>
+
+  <div id="step4" style="display:none">
+    <div class="card">
+      <div class="section-title">Acciones inmediatas tomadas</div>
+      <div class="field">
+        <label class="label">¿Qué se hizo en el momento?</label>
+        <textarea id="f-inmediatas" placeholder="Ej: Se detuvo la operación del RTG-03, se activó protocolo de emergencia, se notificó a supervisor de turno y jefatura de mantenimiento..."></textarea>
+      </div>
+      <div class="field">
+        <label class="label">¿Se notificó a autoridades externas?</label>
+        <select id="f-autoridades">
+          <option>No fue necesario</option>
+          <option>Autoridad portuaria</option>
+          <option>Cuerpo de bomberos</option>
+          <option>Policía / Fuerzas del orden</option>
+          <option>Ministerio de Trabajo</option>
+          <option>Entidad ambiental</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Plan de acción correctiva</div>
+      <div id="acciones-correctivas">
+        <div class="accion-item" style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.75rem;margin-bottom:8px">
+          <div class="grid3" style="margin-bottom:8px">
+            <div class="field" style="margin-bottom:0">
+              <label class="label">Acción <span class="req">*</span></label>
+              <input type="text" placeholder="Descripción de la acción" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="label">Responsable</label>
+              <input type="text" placeholder="Cargo o nombre" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="label">Fecha límite</label>
+              <input type="date" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <button onclick="addAccion()" style="font-size:12px;padding:5px 14px;margin-top:4px">+ Agregar acción</button>
+    </div>
+    <div class="card">
+      <div class="section-title">Lecciones aprendidas</div>
+      <div class="field">
+        <label class="label">¿Qué aprendizaje deja este incidente?</label>
+        <textarea id="f-lecciones" placeholder="Ej: Es crítico mantener los ciclos de mantenimiento preventivo del RTG aunque haya alta demanda operacional. Se debe crear un protocolo de sustitución de equipo cuando el mantenimiento esté vencido más de 1 semana."></textarea>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">¿Este incidente podría repetirse?</label>
+          <select id="f-recurrencia">
+            <option>Sí, sin las acciones correctivas</option>
+            <option>Poco probable con los controles actuales</option>
+            <option>No, fue un evento aislado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">¿Requiere actualizar algún procedimiento?</label>
+          <select id="f-proc">
+            <option>No</option>
+            <option>Sí — POE de mantenimiento</option>
+            <option>Sí — Plan de emergencia</option>
+            <option>Sí — Procedimiento operativo</option>
+            <option>Sí — Política de seguridad</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(3)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 4 de 5</span>
+      <button onclick="goStep(5)" style="font-size:13px;padding:7px 20px">Siguiente → Revisar</button>
+    </div>
+  </div>
+
+  <div id="step5" style="display:none">
+    <div class="card">
+      <div class="section-title">Revisión final del incidente</div>
+      <div id="summary-content"></div>
+    </div>
+    <div class="card" style="padding:.85rem 1.25rem">
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="conf-check" style="width:auto" onchange="toggleSubmit()">
+        <label for="conf-check" style="font-size:12px;color:var(--color-text-secondary);cursor:pointer">Confirmo que la información es verídica y completa. Entiendo que este registro quedará en el historial oficial del terminal.</label>
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(4)" style="font-size:13px;padding:7px 16px">← Editar</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 5 de 5</span>
+      <button id="submit-btn" onclick="submitForm()" disabled style="font-size:13px;padding:7px 22px;opacity:.4">Registrar incidente</button>
+    </div>
+  </div>
+
+  <div id="step6" style="display:none">
+    <div class="card" style="text-align:center;padding:2rem 1rem">
+      <div class="success-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Incidente registrado exitosamente</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:4px">ID asignado: <strong>INC-2026-018</strong></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1.5rem">Notificaciones enviadas al supervisor de turno y a Seguridad Industrial</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button onclick="sendPrompt('Ver el detalle del incidente INC-2026-018')" style="font-size:13px;padding:7px 16px">Ver incidente ↗</button>
+        <button onclick="sendPrompt('Vincular este incidente a un riesgo existente en el sistema')" style="font-size:13px;padding:7px 16px">Vincular a riesgo ↗</button>
+        <button onclick="sendPrompt('Generar reporte ejecutivo del incidente INC-2026-018')" style="font-size:13px;padding:7px 16px">Generar reporte ↗</button>
+        <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:13px;padding:7px 16px">Dashboard ↗</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const now=new Date();
+document.getElementById('ts').textContent=now.toLocaleString('es-EC',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+document.getElementById('f-fecha').value=now.toISOString().split('T')[0];
+document.getElementById('f-hora').value=now.toTimeString().slice(0,5);
+
+const afectados=['Contenedor(es)','Equipo pesado (RTG/STS/Reach)','Vehículo liviano','Infraestructura del terminal','Sistema TOS / Software','Carga del cliente','Medio ambiente'];
+const al=document.getElementById('afect-list');
+afectados.forEach((a,i)=>{
+  al.innerHTML+=`<div class="afect-row"><input type="checkbox" id="af${i}"><label class="afect-label" for="af${i}">${a}</label></div>`;
+});
+
+const factores=['Fallo de equipo / maquinaria','Error humano / falta de atención','Falta de capacitación','Procedimiento no seguido','Condiciones climáticas adversas','Fatiga del operador','Comunicación deficiente','Herramientas / EPP inadecuados'];
+const fl=document.getElementById('factores-list');
+factores.forEach((f,i)=>{
+  fl.innerHTML+=`<div class="afect-row"><input type="checkbox" id="fc${i}"><label class="afect-label" for="fc${i}">${f}</label></div>`;
+});
+
+const evidencias=['Fotografías del sitio','Video de cámara de seguridad','Informe del operador','Bitácora de turno','Reporte de mantenimiento','Ficha técnica del equipo'];
+const el=document.getElementById('evid-list');
+evidencias.forEach((e,i)=>{
+  el.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" id="ev${i}" style="width:auto"><label for="ev${i}">${e}</label></div>`;
+});
+
+let sevSelected=0;
+function setSev(n){
+  sevSelected=n;
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('sev'+i).className='sev-card';
+  });
+  const cls=['','sel-verde','sel-amber','sel-high','sel-rojo'][n];
+  document.getElementById('sev'+n).classList.add(cls);
+  document.getElementById('alert-crit').style.display=n===4?'flex':'none';
+}
+
+function toggleLesion(){
+  const v=document.getElementById('f-lesion').value;
+  document.getElementById('f-tlesion').disabled=v==='no';
+  document.getElementById('lesion-detail').style.display=v==='si'?'block':'none';
+}
+
+let accionCount=1;
+function addAccion(){
+  accionCount++;
+  const div=document.createElement('div');
+  div.className='accion-item';
+  div.style.cssText='border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.75rem;margin-bottom:8px';
+  div.innerHTML=`<div class="grid3"><div class="field" style="margin-bottom:0"><label class="label">Acción ${accionCount} <span class="req">*</span></label><input type="text" placeholder="Descripción de la acción"/></div><div class="field" style="margin-bottom:0"><label class="label">Responsable</label><input type="text" placeholder="Cargo o nombre"/></div><div class="field" style="margin-bottom:0"><label class="label">Fecha límite</label><input type="date"/></div></div>`;
+  document.getElementById('acciones-correctivas').appendChild(div);
+}
+
+function goStep(n){
+  for(let i=1;i<=6;i++){
+    const el=document.getElementById('step'+i);
+    if(el) el.style.display=i===n?'block':'none';
+  }
+  for(let i=1;i<=5;i++){
+    const s=document.getElementById('s'+i);
+    if(!s) continue;
+    s.className='step '+(i<n?'done':i===n?'active':'pending');
+    const l=document.getElementById('l'+i);
+    if(l) l.className='step-line '+(i<n?'done':'');
+  }
+  if(n===5) buildSummary();
+}
+
+function buildSummary(){
+  const sevLabels=['','Leve','Moderado','Grave','Crítico'];
+  const sevBadges=['','badge-green','badge-amber','badge-high','badge-red'];
+  const rows=[
+    ['Título del incidente', document.getElementById('f-titulo').value||'—'],
+    ['Fecha y hora', (document.getElementById('f-fecha').value||'—')+' '+( document.getElementById('f-hora').value||'')],
+    ['Área operacional', document.getElementById('f-area').value||'—'],
+    ['Turno', document.getElementById('f-turno').value],
+    ['Equipo involucrado', document.getElementById('f-equipo').value||'N/A'],
+    ['Severidad', sevSelected?`<span class="badge ${sevBadges[sevSelected]}">${sevLabels[sevSelected]}</span>`:'—'],
+    ['Lesionados', document.getElementById('f-lesion').value==='si'?(document.getElementById('f-npersonas').value+' persona(s)'):'No'],
+    ['Atención médica', document.getElementById('f-medica').value],
+    ['Daño económico estimado', document.getElementById('f-costo').value],
+    ['Impacto en operación', document.getElementById('f-impop').value],
+    ['Causa inmediata', document.getElementById('f-cimediata').value||'—'],
+    ['Causa raíz', document.getElementById('f-craiz').value||'—'],
+    ['Recurrencia probable', document.getElementById('f-recurrencia').value],
+    ['Actualización de procedimiento', document.getElementById('f-proc').value],
+  ];
+  let html='';
+  rows.forEach(r=>{
+    html+=`<div class="summary-row"><div class="summary-key">${r[0]}</div><div class="summary-val">${r[1]}</div></div>`;
+  });
+  document.getElementById('summary-content').innerHTML=html;
+}
+
+function toggleSubmit(){
+  const btn=document.getElementById('submit-btn');
+  const checked=document.getElementById('conf-check').checked;
+  btn.disabled=!checked;
+  btn.style.opacity=checked?'1':'0.4';
+  if(checked){
+    btn.style.background='#185FA5';
+    btn.style.color='white';
+    btn.style.borderColor='#185FA5';
+  } else {
+    btn.style.background='';
+    btn.style.color='';
+    btn.style.borderColor='';
+  }
+}
+
+function submitForm(){goStep(6);}
+</script>

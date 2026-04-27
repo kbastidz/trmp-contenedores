@@ -1,0 +1,254 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.page{padding:1.5rem;font-family:var(--font-sans);max-width:900px;margin:0 auto}
+.rpt-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:0.5px solid var(--color-border-tertiary)}
+.rpt-logo{display:flex;align-items:center;gap:10px}
+.logo-box{width:36px;height:36px;border-radius:var(--border-radius-md);background:#185FA5;display:flex;align-items:center;justify-content:center}
+.logo-box svg{width:20px;height:20px;fill:white}
+.rpt-brand{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.rpt-brand span{font-size:12px;color:var(--color-text-secondary);font-weight:400;display:block}
+.rpt-meta{text-align:right}
+.rpt-meta-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.rpt-meta-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-high{background:#FAECE7;color:#993C1D}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.section{margin-bottom:1.5rem}
+.section-heading{font-size:13px;font-weight:500;color:var(--color-text-primary);padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:1.5rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.85rem .9rem}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:5px}
+.metric-value{font-size:20px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.metric-delta{font-size:11px;margin-top:4px}
+.delta-up{color:#A32D2D}
+.delta-down{color:#3B6D11}
+.delta-flat{color:var(--color-text-secondary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.1rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.risk-row{display:flex;align-items:center;gap:8px;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.risk-row:last-child{border-bottom:none}
+.risk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.risk-name{font-size:12px;color:var(--color-text-primary);flex:1}
+.risk-area{font-size:11px;color:var(--color-text-secondary);width:90px;text-align:right}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-label{font-size:12px;color:var(--color-text-primary);min-width:120px}
+.bar-wrap{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.bar-val{font-size:12px;font-weight:500;min-width:28px;text-align:right}
+.inc-row{display:grid;grid-template-columns:1fr 80px 70px 70px;gap:8px;align-items:center;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.inc-row:last-child{border-bottom:none}
+.inc-header{font-size:11px;color:var(--color-text-secondary);font-weight:500}
+.kri-row{display:flex;align-items:center;gap:8px;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.kri-row:last-child{border-bottom:none}
+.kri-name{font-size:12px;color:var(--color-text-primary);flex:1}
+.kri-bar-wrap{width:80px;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.kri-bar{height:100%;border-radius:3px}
+.kri-val{font-size:12px;font-weight:500;min-width:36px;text-align:right}
+.kri-status{font-size:11px;min-width:52px;text-align:right}
+.trend-item{display:flex;align-items:flex-start;gap:8px;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.trend-item:last-child{border-bottom:none}
+.trend-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.trend-text{font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.rec-item{display:flex;gap:10px;padding:.6rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.rec-item:last-child{border-bottom:none}
+.rec-num{font-size:11px;font-weight:500;color:var(--color-text-secondary);width:18px;flex-shrink:0;padding-top:1px}
+.rec-text{font-size:12px;color:var(--color-text-primary);line-height:1.5;flex:1}
+.rec-badge{flex-shrink:0;margin-top:1px}
+.footer-bar{display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary)}
+.footer-text{font-size:11px;color:var(--color-text-secondary)}
+.print-btn{font-size:12px;padding:6px 14px;display:flex;align-items:center;gap:5px}
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:40px}
+.bar-mini{border-radius:2px 2px 0 0;min-width:12px;flex:1}
+.semaforo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sem-card{border-radius:var(--border-radius-md);padding:.65rem .75rem;text-align:center}
+.sem-val{font-size:20px;font-weight:500}
+.sem-lbl{font-size:10px;margin-top:2px}
+</style>
+
+<h2 class="sr-only">Reporte ejecutivo mensual de gestión de riesgos operacionales — Terminal de contenedores, abril 2026</h2>
+
+<div class="page">
+
+  <div class="rpt-header">
+    <div class="rpt-logo">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm2 4h14v2H5zm3 4h8v2H8z"/></svg></div>
+      <div>
+        <div class="rpt-brand">Terminal Risk Monitor <span>Puerto Principal · Guayaquil</span></div>
+      </div>
+    </div>
+    <div class="rpt-meta">
+      <div class="rpt-meta-title">Reporte ejecutivo de riesgos</div>
+      <div class="rpt-meta-sub">Período: Abril 2026 &nbsp;·&nbsp; Generado: 16/04/2026</div>
+      <div style="margin-top:5px"><span class="badge badge-amber">Nivel de riesgo global: Medio-Alto</span></div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Riesgos activos</div>
+      <div class="metric-value">24</div>
+      <div class="metric-delta delta-up">▲ 2 vs marzo</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Riesgos críticos</div>
+      <div class="metric-value" style="color:#A32D2D">6</div>
+      <div class="metric-delta delta-up">▲ 1 vs marzo</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Incidentes (mes)</div>
+      <div class="metric-value">17</div>
+      <div class="metric-delta delta-up">▲ 3 vs marzo</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Controles efectivos</div>
+      <div class="metric-value">87%</div>
+      <div class="metric-delta delta-down">▼ 2% vs marzo</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Acciones vencidas</div>
+      <div class="metric-value" style="color:#854F0B">2</div>
+      <div class="metric-delta delta-flat">= sin cambio</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-heading">Semáforo de riesgo por área <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">Estado al cierre del período</span></div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px">
+      <div class="card" style="text-align:center;padding:.85rem .5rem">
+        <div style="width:14px;height:14px;border-radius:50%;background:#E24B4A;margin:0 auto 6px"></div>
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Muelle / Buque</div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">5 riesgos · 2 críticos</div>
+        <div style="margin-top:6px"><span class="badge badge-red" style="font-size:10px">Alto</span></div>
+      </div>
+      <div class="card" style="text-align:center;padding:.85rem .5rem">
+        <div style="width:14px;height:14px;border-radius:50%;background:#EF9F27;margin:0 auto 6px"></div>
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Patio / Yard</div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">7 riesgos · 3 críticos</div>
+        <div style="margin-top:6px"><span class="badge badge-amber" style="font-size:10px">Medio-Alto</span></div>
+      </div>
+      <div class="card" style="text-align:center;padding:.85rem .5rem">
+        <div style="width:14px;height:14px;border-radius:50%;background:#378ADD;margin:0 auto 6px"></div>
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Gate / Portería</div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">4 riesgos · 0 críticos</div>
+        <div style="margin-top:6px"><span class="badge badge-blue" style="font-size:10px">Medio</span></div>
+      </div>
+      <div class="card" style="text-align:center;padding:.85rem .5rem">
+        <div style="width:14px;height:14px;border-radius:50%;background:#EF9F27;margin:0 auto 6px"></div>
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Taller / Equipos</div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">5 riesgos · 1 crítico</div>
+        <div style="margin-top:6px"><span class="badge badge-amber" style="font-size:10px">Medio</span></div>
+      </div>
+      <div class="card" style="text-align:center;padding:.85rem .5rem">
+        <div style="width:14px;height:14px;border-radius:50%;background:#639922;margin:0 auto 6px"></div>
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Seg. ISPS / BASC</div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">3 riesgos · 0 críticos</div>
+        <div style="margin-top:6px"><span class="badge badge-green" style="font-size:10px">Bajo</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2 section">
+    <div class="card">
+      <div class="section-heading" style="margin-bottom:.75rem">Top 6 riesgos críticos</div>
+      <div>
+        <div class="risk-row"><div class="risk-dot" style="background:#A32D2D"></div><div class="risk-name">Caída de contenedor en RTG</div><span class="badge badge-red" style="font-size:10px">20</span><div class="risk-area">Patio</div></div>
+        <div class="risk-row"><div class="risk-dot" style="background:#A32D2D"></div><div class="risk-name">Falla grúa STS en buque</div><span class="badge badge-red" style="font-size:10px">20</span><div class="risk-area">Muelle</div></div>
+        <div class="risk-row"><div class="risk-dot" style="background:#993C1D"></div><div class="risk-name">Incendio carga IMDG clase 3</div><span class="badge badge-high" style="font-size:10px">15</span><div class="risk-area">Patio</div></div>
+        <div class="risk-row"><div class="risk-dot" style="background:#993C1D"></div><div class="risk-name">Acceso no autorizado zona ISPS</div><span class="badge badge-high" style="font-size:10px">12</span><div class="risk-area">Seguridad</div></div>
+        <div class="risk-row"><div class="risk-dot" style="background:#993C1D"></div><div class="risk-name">Falla TOS — pérdida trazabilidad</div><span class="badge badge-high" style="font-size:10px">12</span><div class="risk-area">Sistemas</div></div>
+        <div class="risk-row"><div class="risk-dot" style="background:#BA7517"></div><div class="risk-name">Atropello por reach stacker</div><span class="badge badge-amber" style="font-size:10px">10</span><div class="risk-area">Patio</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-heading" style="margin-bottom:.75rem">Incidentes por área <span style="font-size:11px;font-weight:400">17 total</span></div>
+      <div>
+        <div class="bar-row"><div class="bar-label">Patio / Yard</div><div class="bar-wrap"><div class="bar-fill" style="width:47%;background:#E24B4A"></div></div><div class="bar-val" style="color:#A32D2D">8</div></div>
+        <div class="bar-row"><div class="bar-label">Muelle / Buque</div><div class="bar-wrap"><div class="bar-fill" style="width:24%;background:#EF9F27"></div></div><div class="bar-val" style="color:#854F0B">4</div></div>
+        <div class="bar-row"><div class="bar-label">Taller / Equipos</div><div class="bar-wrap"><div class="bar-fill" style="width:18%;background:#EF9F27"></div></div><div class="bar-val" style="color:#854F0B">3</div></div>
+        <div class="bar-row"><div class="bar-label">Gate / Portería</div><div class="bar-wrap"><div class="bar-fill" style="width:12%;background:#378ADD"></div></div><div class="bar-val" style="color:#185FA5">2</div></div>
+        <div class="bar-row"><div class="bar-label">Seg. ISPS</div><div class="bar-wrap"><div class="bar-fill" style="width:6%;background:#639922"></div></div><div class="bar-val" style="color:#3B6D11">1</div></div>
+      </div>
+      <div style="border-top:0.5px solid var(--color-border-tertiary);margin-top:.75rem;padding-top:.75rem">
+        <div class="section-heading" style="margin-bottom:.6rem;border:none;padding:0">Por severidad</div>
+        <div class="semaforo">
+          <div class="sem-card" style="background:#FCEBEB"><div class="sem-val" style="color:#A32D2D">2</div><div class="sem-lbl" style="color:#791F1F">Críticos</div></div>
+          <div class="sem-card" style="background:#FAECE7"><div class="sem-val" style="color:#993C1D">5</div><div class="sem-lbl" style="color:#712B13">Graves</div></div>
+          <div class="sem-card" style="background:#EAF3DE"><div class="sem-val" style="color:#3B6D11">10</div><div class="sem-lbl" style="color:#27500A">Leves</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-heading">Indicadores clave de riesgo (KRI) — estado del mes</div>
+    <div class="card">
+      <div class="inc-row inc-header" style="border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:.4rem;margin-bottom:.1rem">
+        <div>Indicador</div><div style="text-align:center">Valor actual</div><div style="text-align:center">Umbral</div><div style="text-align:right">Estado</div>
+      </div>
+      <div class="inc-row"><div class="kri-name">Movimientos/hora (promedio grúas)</div><div style="text-align:center;font-size:12px;font-weight:500">23.4 mov/h</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">≥ 20</div><div style="text-align:right"><span class="badge badge-green">OK</span></div></div>
+      <div class="inc-row"><div class="kri-name">Tasa de incidentes (por 100k mov.)</div><div style="text-align:center;font-size:12px;font-weight:500;color:#854F0B">4.2</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">≤ 3.0</div><div style="text-align:right"><span class="badge badge-amber">Alerta</span></div></div>
+      <div class="inc-row"><div class="kri-name">Disponibilidad de equipos críticos</div><div style="text-align:center;font-size:12px;font-weight:500">91%</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">≥ 93%</div><div style="text-align:right"><span class="badge badge-amber">Alerta</span></div></div>
+      <div class="inc-row"><div class="kri-name">Tiempo promedio respuesta emergencia</div><div style="text-align:center;font-size:12px;font-weight:500">4.5 min</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">≤ 5 min</div><div style="text-align:right"><span class="badge badge-green">OK</span></div></div>
+      <div class="inc-row"><div class="kri-name">Cumplimiento mantenimiento preventivo</div><div style="text-align:center;font-size:12px;font-weight:500;color:#A32D2D">74%</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">≥ 90%</div><div style="text-align:right"><span class="badge badge-red">Crítico</span></div></div>
+      <div class="inc-row"><div class="kri-name">Capacitaciones completadas (% plan)</div><div style="text-align:center;font-size:12px;font-weight:500">88%</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">≥ 85%</div><div style="text-align:right"><span class="badge badge-green">OK</span></div></div>
+      <div class="inc-row" style="border-bottom:none"><div class="kri-name">Riesgos sin control asignado</div><div style="text-align:center;font-size:12px;font-weight:500;color:#993C1D">3</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">= 0</div><div style="text-align:right"><span class="badge badge-high">Alto</span></div></div>
+    </div>
+  </div>
+
+  <div class="grid2 section">
+    <div class="card">
+      <div class="section-heading" style="margin-bottom:.75rem">Tendencias observadas</div>
+      <div>
+        <div class="trend-item"><div class="trend-dot" style="background:#E24B4A"></div><div class="trend-text">Aumento de incidentes en patio de contenedores, concentrado en operaciones nocturnas del RTG — posible relación con fatiga de operadores.</div></div>
+        <div class="trend-item"><div class="trend-dot" style="background:#E24B4A"></div><div class="trend-text">Cumplimiento de mantenimiento preventivo cayó a 74%, el nivel más bajo en 6 meses, correlacionado con incremento de fallas de equipos.</div></div>
+        <div class="trend-item"><div class="trend-dot" style="background:#EF9F27"></div><div class="trend-text">Disponibilidad de grúas STS por debajo del umbral mínimo por segundo mes consecutivo — requiere plan de acción inmediato.</div></div>
+        <div class="trend-item"><div class="trend-dot" style="background:#639922"></div><div class="trend-text">Tiempo de respuesta a emergencias se mantiene dentro del umbral aceptable (4.5 min promedio vs límite de 5 min).</div></div>
+        <div class="trend-item" style="border:none"><div class="trend-dot" style="background:#639922"></div><div class="trend-text">Área ISPS/BASC sin incidentes críticos por tercer mes consecutivo — controles de acceso funcionan correctamente.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-heading" style="margin-bottom:.75rem">Recomendaciones ejecutivas</div>
+      <div>
+        <div class="rec-item"><div class="rec-num">01</div><div class="rec-text">Priorizar plan de recuperación del mantenimiento preventivo de RTG con cronograma de choque para mayo, asignando presupuesto extraordinario.</div><div class="rec-badge"><span class="badge badge-red" style="font-size:10px">Urgente</span></div></div>
+        <div class="rec-item"><div class="rec-num">02</div><div class="rec-text">Implementar rotación de turnos o pausas obligatorias para operadores nocturnos de patio, evaluando impacto en tasa de incidentes.</div><div class="rec-badge"><span class="badge badge-high" style="font-size:10px">Alta</span></div></div>
+        <div class="rec-item"><div class="rec-num">03</div><div class="rec-text">Asignar responsables y controles a los 3 riesgos actualmente sin cobertura antes del cierre de abril.</div><div class="rec-badge"><span class="badge badge-high" style="font-size:10px">Alta</span></div></div>
+        <div class="rec-item"><div class="rec-num">04</div><div class="rec-text">Revisar disponibilidad contractual de grúas STS con proveedor; analizar si se requiere equipo de respaldo temporal.</div><div class="rec-badge"><span class="badge badge-amber" style="font-size:10px">Media</span></div></div>
+        <div class="rec-item" style="border:none"><div class="rec-num">05</div><div class="rec-text">Programar simulacro de respuesta a incidente IMDG (carga peligrosa) para Q2 — último simulacro fue hace más de 6 meses.</div><div class="rec-badge"><span class="badge badge-amber" style="font-size:10px">Media</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-heading">Estado de acciones correctivas del mes anterior</div>
+    <div class="card">
+      <div class="inc-row inc-header" style="grid-template-columns:1fr 100px 80px 80px;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:.4rem">
+        <div>Acción</div><div style="text-align:center">Responsable</div><div style="text-align:center">Vence</div><div style="text-align:right">Estado</div>
+      </div>
+      <div class="inc-row" style="grid-template-columns:1fr 100px 80px 80px"><div style="font-size:12px">Instalar sensor de carga en gancho RTG-03</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">Jef. Mtto.</div><div style="text-align:center;font-size:12px">15/04</div><div style="text-align:right"><span class="badge badge-green">Cerrado</span></div></div>
+      <div class="inc-row" style="grid-template-columns:1fr 100px 80px 80px"><div style="font-size:12px">Actualizar POE de operaciones nocturnas</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">Sup. Patio</div><div style="text-align:center;font-size:12px">10/04</div><div style="text-align:right"><span class="badge badge-green">Cerrado</span></div></div>
+      <div class="inc-row" style="grid-template-columns:1fr 100px 80px 80px"><div style="font-size:12px">Capacitar operadores en IMDG clase 3</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">RRHH</div><div style="text-align:center;font-size:12px">30/04</div><div style="text-align:right"><span class="badge badge-blue">En curso</span></div></div>
+      <div class="inc-row" style="grid-template-columns:1fr 100px 80px 80px"><div style="font-size:12px">Revisión integral del plan de emergencia portuaria</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">Seg. Ind.</div><div style="text-align:center;font-size:12px">05/04</div><div style="text-align:right"><span class="badge badge-red">Vencida</span></div></div>
+      <div class="inc-row" style="grid-template-columns:1fr 100px 80px 80px;border-bottom:none"><div style="font-size:12px">Mantenimiento correctivo grúa STS-2</div><div style="text-align:center;font-size:12px;color:var(--color-text-secondary)">Jef. Mtto.</div><div style="text-align:center;font-size:12px">01/04</div><div style="text-align:right"><span class="badge badge-red">Vencida</span></div></div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <div>
+      <div class="footer-text">Elaborado por: Sistema Terminal Risk Monitor &nbsp;·&nbsp; Aprobado por: Gerencia de Operaciones</div>
+      <div class="footer-text" style="margin-top:3px">Próximo reporte: 16/05/2026 &nbsp;·&nbsp; Distribución: Gerencia General, Ops, SSOMA, Seguridad</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="print-btn" onclick="sendPrompt('Exportar reporte ejecutivo de abril 2026 a PDF')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar PDF ↗
+      </button>
+      <button class="print-btn" onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')">Plan de mitigación ↗</button>
+    </div>
+  </div>
+
+</div>

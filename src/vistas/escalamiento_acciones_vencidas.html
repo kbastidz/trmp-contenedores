@@ -1,0 +1,347 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem;font-family:var(--font-sans)}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.back-btn{font-size:12px;color:var(--color-text-secondary);background:none;border:none;cursor:pointer;padding:0}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.1rem 1.25rem;margin-bottom:1rem}
+.card-danger{border-color:#F09595;background:#FCEBEB}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:.9rem}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-high{background:#FAECE7;color:#993C1D}
+.plan-block{border:0.5px solid #F09595;border-radius:var(--border-radius-md);padding:.85rem 1rem;margin-bottom:8px;background:var(--color-background-primary)}
+.plan-block:last-child{margin-bottom:0}
+.plan-id{font-size:11px;color:#A32D2D;font-weight:500;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.plan-name{font-size:13px;color:var(--color-text-primary);font-weight:500;margin-bottom:6px}
+.plan-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.prog-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.prog-wrap{flex:1;height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;background:#E24B4A}
+.prog-val{font-size:11px;color:#A32D2D;font-weight:500}
+.field{margin-bottom:.9rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;display:block}
+.req{color:#E24B4A}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+textarea{resize:vertical;min-height:72px}
+.dest-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem .85rem;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:6px}
+.dest-card:last-child{margin-bottom:0}
+.dest-card:hover{background:var(--color-background-secondary)}
+.dest-card.selected{border:2px solid #185FA5;background:#E6F1FB}
+.dest-card input[type=checkbox]{width:auto;margin:0;flex-shrink:0}
+.dest-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.dest-name{font-size:12px;color:var(--color-text-primary);font-weight:500}
+.dest-role{font-size:11px;color:var(--color-text-secondary)}
+.preview-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);padding:.85rem 1rem;font-size:12px;color:var(--color-text-primary);line-height:1.7}
+.preview-box strong{font-weight:500}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:.5rem}
+.step-indicator{font-size:12px;color:var(--color-text-secondary)}
+.alert-bar{display:flex;align-items:flex-start;gap:10px;padding:.75rem 1rem;border-radius:var(--border-radius-md);background:#FAEEDA;border:0.5px solid #FAC775;margin-bottom:1rem;font-size:12px;color:#633806}
+.summary-row{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.summary-row:last-child{border-bottom:none}
+.summary-key{color:var(--color-text-secondary)}
+.summary-val{color:var(--color-text-primary);font-weight:500;text-align:right}
+.success-icon{width:48px;height:48px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.notif-item{display:flex;align-items:center;gap:10px;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.notif-item:last-child{border-bottom:none}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+</style>
+
+<h2 class="sr-only">Módulo de escalamiento de acciones vencidas PM-029 y PM-027 a gerencia</h2>
+
+<div class="wrap">
+
+  <div class="header">
+    <button class="back-btn" onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')">← Volver a planes de mitigación</button>
+    <span style="font-size:11px;color:var(--color-text-secondary)">Escalamiento · ESC-2026-003</span>
+  </div>
+
+  <!-- PASO 1 -->
+  <div id="step1">
+
+    <div class="alert-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      2 acciones vinculadas a riesgos críticos llevan más de 10 días vencidas sin avance significativo. Se requiere escalamiento formal a Gerencia de Operaciones.
+    </div>
+
+    <div class="card">
+      <div class="section-title">Acciones a escalar</div>
+
+      <div class="plan-block">
+        <div class="plan-id">PM-029 <span class="badge badge-red">15 días vencida</span></div>
+        <div class="plan-name">Revisión integral del plan de emergencia portuaria</div>
+        <div class="plan-meta">
+          <span class="badge badge-red">Crítico</span>
+          <span class="badge badge-blue">Muelle / Buque</span>
+          <span style="font-size:11px;color:var(--color-text-secondary)">Resp: Seg. Industrial · Venció 05/04</span>
+        </div>
+        <div class="prog-row">
+          <div class="prog-wrap"><div class="prog-fill" style="width:20%"></div></div>
+          <span class="prog-val">20% completado</span>
+        </div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;line-height:1.5">Último movimiento registrado: 02/04/2026 — Sin actualizaciones en 14 días</div>
+      </div>
+
+      <div class="plan-block">
+        <div class="plan-id">PM-027 <span class="badge badge-red">19 días vencida</span></div>
+        <div class="plan-name">Mantenimiento correctivo grúa STS-2</div>
+        <div class="plan-meta">
+          <span class="badge badge-red">Crítico</span>
+          <span class="badge badge-blue">Muelle / Buque</span>
+          <span style="font-size:11px;color:var(--color-text-secondary)">Resp: Jef. Mantenimiento · Venció 01/04</span>
+        </div>
+        <div class="prog-row">
+          <div class="prog-wrap"><div class="prog-fill" style="width:10%"></div></div>
+          <span class="prog-val">10% completado</span>
+        </div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;line-height:1.5">Último movimiento registrado: 29/03/2026 — Sin actualizaciones en 18 días</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Motivo y urgencia del escalamiento</div>
+      <div class="field">
+        <label class="label">Motivo del escalamiento <span class="req">*</span></label>
+        <select id="f-motivo">
+          <option>Incumplimiento de fecha límite sin justificación</option>
+          <option>Falta de recursos para ejecutar la acción</option>
+          <option>Bloqueo por decisión que requiere autoridad superior</option>
+          <option>Riesgo que se ha materializado parcialmente</option>
+          <option>Responsable no disponible / cambio de cargo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Nivel de urgencia <span class="req">*</span></label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="urgencia-grid">
+          <div class="dest-card" id="urg1" onclick="setUrg(1)" style="flex-direction:column;text-align:center;gap:4px">
+            <div style="font-size:18px;font-weight:500;color:#3B6D11">48h</div>
+            <div style="font-size:11px;color:#3B6D11;font-weight:500">Normal</div>
+            <div style="font-size:10px;color:var(--color-text-secondary)">Atención en 2 días</div>
+          </div>
+          <div class="dest-card selected" id="urg2" onclick="setUrg(2)" style="flex-direction:column;text-align:center;gap:4px">
+            <div style="font-size:18px;font-weight:500;color:#854F0B">24h</div>
+            <div style="font-size:11px;color:#854F0B;font-weight:500">Alta</div>
+            <div style="font-size:10px;color:var(--color-text-secondary)">Respuesta hoy</div>
+          </div>
+          <div class="dest-card" id="urg3" onclick="setUrg(3)" style="flex-direction:column;text-align:center;gap:4px">
+            <div style="font-size:18px;font-weight:500;color:#A32D2D">Inmediata</div>
+            <div style="font-size:11px;color:#A32D2D;font-weight:500">Crítica</div>
+            <div style="font-size:10px;color:var(--color-text-secondary)">Acción ahora</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Contexto adicional para gerencia <span class="req">*</span></label>
+        <textarea id="f-contexto" placeholder="Explique brevemente el impacto de no ejecutar estas acciones y qué se necesita de gerencia para desbloquear la situación...">Las acciones PM-027 y PM-029 están vinculadas a riesgos críticos de nivel 20 en el área de Muelle. La grúa STS-2 operando sin mantenimiento correctivo aumenta el riesgo de falla durante operación de buque, y la ausencia de un plan de emergencia actualizado deja al terminal sin protocolo vigente ante un incidente mayor. Se requiere decisión sobre presupuesto extraordinario y asignación de recursos adicionales.</textarea>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Nueva fecha límite propuesta</label>
+          <input type="date" id="f-nueva-fecha"/>
+        </div>
+        <div class="field">
+          <label class="label">Recursos o decisión requerida</label>
+          <input type="text" id="f-recursos" placeholder="Ej: Presupuesto $15,000 para técnico externo"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Destinatarios del escalamiento</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.75rem">Selecciona a quién se enviará la notificación formal</div>
+      <div id="dest-list">
+        <div class="dest-card selected" id="dc1" onclick="toggleDest('dc1')">
+          <input type="checkbox" checked onchange="void(0)">
+          <div class="dest-avatar" style="background:#E6F1FB;color:#185FA5">GO</div>
+          <div><div class="dest-name">Gerencia de Operaciones</div><div class="dest-role">Responsable directo de área · Aprobador nivel 1</div></div>
+          <span class="badge badge-red" style="margin-left:auto;flex-shrink:0">Obligatorio</span>
+        </div>
+        <div class="dest-card selected" id="dc2" onclick="toggleDest('dc2')">
+          <input type="checkbox" id="chk2" checked>
+          <div class="dest-avatar" style="background:#FAECE7;color:#993C1D">SI</div>
+          <div><div class="dest-name">Jefatura de Seguridad Industrial</div><div class="dest-role">Supervisora de PM-029 · SSOMA</div></div>
+        </div>
+        <div class="dest-card selected" id="dc3" onclick="toggleDest('dc3')">
+          <input type="checkbox" id="chk3" checked>
+          <div class="dest-avatar" style="background:#EEEDFE;color:#534AB7">JM</div>
+          <div><div class="dest-name">Jefatura de Mantenimiento</div><div class="dest-role">Responsable de PM-027</div></div>
+        </div>
+        <div class="dest-card" id="dc4" onclick="toggleDest('dc4')">
+          <input type="checkbox" id="chk4">
+          <div class="dest-avatar" style="background:#EAF3DE;color:#3B6D11">GG</div>
+          <div><div class="dest-name">Gerencia General</div><div class="dest-role">Escalamiento máximo · Solo si es crítico</div></div>
+        </div>
+        <div class="dest-card" id="dc5" onclick="toggleDest('dc5')">
+          <input type="checkbox" id="chk5">
+          <div class="dest-avatar" style="background:#FAEEDA;color:#854F0B">AP</div>
+          <div><div class="dest-name">Autoridad Portuaria</div><div class="dest-role">Notificación regulatoria si aplica</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="step-indicator">Paso 1 de 2 — Configuración</span>
+      <button onclick="goStep2()" style="font-size:13px;padding:7px 20px">Siguiente → Previsualizar notificación</button>
+    </div>
+  </div>
+
+  <!-- PASO 2: PREVIEW -->
+  <div id="step2" style="display:none">
+
+    <div class="card">
+      <div class="section-title">Vista previa de la notificación</div>
+      <div class="preview-box" id="preview-content"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Canal de notificación</div>
+      <div class="grid3">
+        <div class="dest-card selected" style="flex-direction:column;text-align:center;gap:4px;cursor:default">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <div style="font-size:11px;font-weight:500;color:#185FA5">Correo electrónico</div>
+          <div style="font-size:10px;color:var(--color-text-secondary)">Notificación formal</div>
+        </div>
+        <div class="dest-card" style="flex-direction:column;text-align:center;gap:4px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">Mensaje interno</div>
+          <div style="font-size:10px;color:var(--color-text-secondary)">Sistema TRM</div>
+        </div>
+        <div class="dest-card" style="flex-direction:column;text-align:center;gap:4px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.12 1.18 2 2 0 012.1 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+          <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">SMS / WhatsApp</div>
+          <div style="font-size:10px;color:var(--color-text-secondary)">Solo urgencia crítica</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Resumen del escalamiento</div>
+      <div id="resumen-content"></div>
+    </div>
+
+    <div class="footer">
+      <button onclick="document.getElementById('step1').style.display='block';document.getElementById('step2').style.display='none';" style="font-size:13px;padding:7px 16px">← Editar</button>
+      <span class="step-indicator">Paso 2 de 2 — Confirmación</span>
+      <button onclick="submitEsc()" style="font-size:13px;padding:7px 22px;background:#A32D2D;color:white;border-color:#A32D2D">Enviar escalamiento</button>
+    </div>
+  </div>
+
+  <!-- ÉXITO -->
+  <div id="step3" style="display:none">
+    <div class="card" style="text-align:center;padding:2rem 1rem">
+      <div class="success-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Escalamiento enviado exitosamente</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:.5rem">Referencia: <strong>ESC-2026-003</strong></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1.5rem">Los destinatarios recibirán la notificación formal. El sistema registrará la respuesta automáticamente.</div>
+
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.85rem 1rem;margin-bottom:1.25rem;text-align:left">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.6rem">Notificaciones enviadas a:</div>
+        <div class="notif-item"><div class="notif-dot" style="background:#3B6D11"></div><span style="color:var(--color-text-primary)">Gerencia de Operaciones</span><span style="margin-left:auto;font-size:11px;color:#3B6D11">Enviado</span></div>
+        <div class="notif-item"><div class="notif-dot" style="background:#3B6D11"></div><span style="color:var(--color-text-primary)">Jefatura de Seguridad Industrial</span><span style="margin-left:auto;font-size:11px;color:#3B6D11">Enviado</span></div>
+        <div class="notif-item"><div class="notif-dot" style="background:#3B6D11"></div><span style="color:var(--color-text-primary)">Jefatura de Mantenimiento</span><span style="margin-left:auto;font-size:11px;color:#3B6D11">Enviado</span></div>
+        <div class="notif-item" style="border:none"><div class="notif-dot" style="background:#185FA5"></div><span style="color:var(--color-text-primary)">Sistema TRM — Registro automático</span><span style="margin-left:auto;font-size:11px;color:#185FA5">Registrado</span></div>
+      </div>
+
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1.25rem">
+        Tiempo de respuesta esperado: <strong>24 horas</strong> · Si no hay respuesta, el sistema escalará automáticamente a Gerencia General.
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:13px;padding:7px 16px">Tablero de planes ↗</button>
+        <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:13px;padding:7px 16px">Dashboard ↗</button>
+        <button onclick="sendPrompt('Generar reporte ejecutivo mensual de riesgos')" style="font-size:13px;padding:7px 16px">Reporte ejecutivo ↗</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const now=new Date();
+const fechaStr=now.toLocaleDateString('es-EC',{day:'2-digit',month:'2-digit',year:'numeric'});
+const horaStr=now.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});
+
+// Default nueva fecha = +7 días
+const nf=new Date(now);nf.setDate(nf.getDate()+7);
+document.getElementById('f-nueva-fecha').value=nf.toISOString().split('T')[0];
+
+let urgSelected=2;
+function setUrg(n){
+  urgSelected=n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('urg'+i).classList.toggle('selected',i===n);
+  });
+}
+
+function toggleDest(id){
+  const card=document.getElementById(id);
+  if(id==='dc1') return; // obligatorio
+  card.classList.toggle('selected');
+  const chk=card.querySelector('input[type=checkbox]');
+  if(chk) chk.checked=!chk.checked;
+}
+
+function getUrgLabel(){return['','Normal (48h)','Alta (24h)','Crítica — Inmediata'][urgSelected];}
+function getUrgColor(){return['','#3B6D11','#854F0B','#A32D2D'][urgSelected];}
+
+function goStep2(){
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+
+  const nfVal=document.getElementById('f-nueva-fecha').value||'Por definir';
+  const recurso=document.getElementById('f-recursos').value||'Por especificar';
+  const contexto=document.getElementById('f-contexto').value;
+  const motivo=document.getElementById('f-motivo').value;
+
+  document.getElementById('preview-content').innerHTML=`
+<strong>ESCALAMIENTO FORMAL DE ACCIONES VENCIDAS</strong><br>
+Ref: ESC-2026-003 &nbsp;·&nbsp; Fecha: ${fechaStr} ${horaStr}<br><br>
+<strong>Estimada Gerencia de Operaciones,</strong><br><br>
+Por medio del presente se notifica formalmente el vencimiento sin resolución de las siguientes acciones de mitigación críticas, requiriendo su intervención:<br><br>
+<strong>· PM-027</strong> — Mantenimiento correctivo grúa STS-2<br>
+&nbsp;&nbsp;Vencida: 01/04/2026 · Avance actual: 10% · Días de retraso: 19<br><br>
+<strong>· PM-029</strong> — Revisión integral del plan de emergencia portuaria<br>
+&nbsp;&nbsp;Vencida: 05/04/2026 · Avance actual: 20% · Días de retraso: 15<br><br>
+<strong>Motivo:</strong> ${motivo}<br>
+<strong>Urgencia:</strong> <span style="color:${getUrgColor()};font-weight:500">${getUrgLabel()}</span><br><br>
+<strong>Contexto:</strong><br>${contexto}<br><br>
+<strong>Se solicita:</strong><br>
+· Decisión sobre nueva fecha límite: ${nfVal}<br>
+· Recursos / decisión requerida: ${recurso}<br><br>
+Por favor confirme recepción y comunique resolución al sistema TRM.<br><br>
+— Terminal Risk Monitor · Sistema automatizado de escalamiento
+  `;
+
+  const dests=[];
+  if(document.getElementById('dc1').classList.contains('selected')) dests.push('Gerencia de Operaciones');
+  if(document.getElementById('dc2').classList.contains('selected')) dests.push('Jef. Seguridad Industrial');
+  if(document.getElementById('dc3').classList.contains('selected')) dests.push('Jef. Mantenimiento');
+  if(document.getElementById('dc4').classList.contains('selected')) dests.push('Gerencia General');
+  if(document.getElementById('dc5').classList.contains('selected')) dests.push('Autoridad Portuaria');
+
+  const rows=[
+    ['Acciones escaladas','PM-027 · PM-029'],
+    ['Motivo',motivo],
+    ['Urgencia',getUrgLabel()],
+    ['Nueva fecha propuesta',nfVal],
+    ['Destinatarios',dests.join(' · ')],
+    ['Canal','Correo electrónico + Registro TRM'],
+    ['Generado por','Sistema Terminal Risk Monitor'],
+    ['Fecha y hora',fechaStr+' · '+horaStr],
+  ];
+  document.getElementById('resumen-content').innerHTML=rows.map(r=>`<div class="summary-row"><div class="summary-key">${r[0]}</div><div class="summary-val">${r[1]}</div></div>`).join('');
+}
+
+function submitEsc(){
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='block';
+}
+</script>

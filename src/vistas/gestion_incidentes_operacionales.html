@@ -1,0 +1,320 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.title-block{display:flex;align-items:center;gap:10px}
+.logo-box{width:32px;height:32px;border-radius:var(--border-radius-md);background:#993C1D;display:flex;align-items:center;justify-content:center}
+.logo-box svg{width:17px;height:17px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round}
+.page-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.page-sub{font-size:12px;color:var(--color-text-secondary)}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:1.25rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.8rem .9rem}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.metric-value{font-size:20px;font-weight:500}
+.metric-sub{font-size:11px;margin-top:3px;color:var(--color-text-secondary)}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-high{background:#FAECE7;color:#993C1D}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.filter-btn{font-size:12px;padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;color:var(--color-text-secondary);transition:all .15s;font-family:var(--font-sans)}
+.filter-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-secondary)}
+.sep{width:1px;height:20px;background:var(--color-border-tertiary)}
+select.fsel{font-size:12px;padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-secondary);font-family:var(--font-sans);width:auto;cursor:pointer}
+input.fsearch{font-size:12px;padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);width:180px;font-family:var(--font-sans)}
+.table-wrap{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem}
+.inc-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.inc-table th{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-align:left;padding:.6rem .9rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);white-space:nowrap}
+.inc-table td{font-size:12px;color:var(--color-text-primary);padding:.6rem .9rem;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.inc-table tr:last-child td{border-bottom:none}
+.inc-table tr.clickable{cursor:pointer;transition:background .12s}
+.inc-table tr.clickable:hover{background:var(--color-background-secondary)}
+.sev-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0}
+.detail-panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.1rem 1.25rem;margin-bottom:1rem;display:none}
+.tab-row{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1rem}
+.tab{font-size:12px;color:var(--color-text-secondary);padding:.5rem .85rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--font-sans);background:none;border-left:none;border-right:none;border-top:none}
+.tab.active{color:var(--color-text-primary);font-weight:500;border-bottom-color:#993C1D}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.field-val{font-size:13px;color:var(--color-text-primary);line-height:1.5}
+.df{margin-bottom:.75rem}
+.df:last-child{margin-bottom:0}
+.tl-item{display:flex;gap:10px;padding-bottom:12px}
+.tl-item:last-child{padding-bottom:0}
+.tl-left{display:flex;flex-direction:column;align-items:center}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.tl-line{width:1px;flex:1;background:var(--color-border-tertiary);margin-top:3px}
+.tl-item:last-child .tl-line{display:none}
+.tl-action{font-size:12px;color:var(--color-text-primary);font-weight:500}
+.tl-detail{font-size:11px;color:var(--color-text-secondary);margin-top:1px;line-height:1.4}
+.tl-time{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.rca-row{display:flex;gap:8px;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.rca-row:last-child{border-bottom:none}
+.rca-key{color:var(--color-text-secondary);min-width:130px;flex-shrink:0}
+.rca-val{color:var(--color-text-primary)}
+.action-row{display:grid;grid-template-columns:1fr 90px 80px 70px;gap:8px;align-items:center;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.action-row:last-child{border-bottom:none}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;font-size:12px;color:var(--color-text-secondary)}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{font-size:11px;padding:3px 9px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;font-family:var(--font-sans)}
+.pag-btn.active-page{background:var(--color-background-secondary);font-weight:500;color:var(--color-text-primary)}
+.stat-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.stat-label{font-size:12px;color:var(--color-text-primary);min-width:130px}
+.stat-wrap{flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.stat-fill{height:100%;border-radius:3px}
+.stat-val{font-size:12px;font-weight:500;min-width:20px;text-align:right}
+</style>
+
+<h2 class="sr-only">Módulo de gestión de incidentes operacionales del terminal de contenedores</h2>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="title-block">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div>
+        <div class="page-title">Gestión de incidentes</div>
+        <div class="page-sub">Registro histórico y seguimiento · Terminal Puerto Principal</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="sendPrompt('Registrar un nuevo incidente operacional')" style="font-size:12px;padding:5px 14px">+ Nuevo incidente ↗</button>
+      <button onclick="sendPrompt('Exportar listado de incidentes a Excel o PDF')" style="font-size:12px;padding:5px 14px">Exportar ↗</button>
+      <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:12px;padding:5px 14px">← Dashboard ↗</button>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total incidentes (2026)</div><div class="metric-value" style="color:var(--color-text-primary)">63</div><div class="metric-sub">Ene – Abr</div></div>
+    <div class="metric"><div class="metric-label">Este mes (Abril)</div><div class="metric-value" style="color:#854F0B">17</div><div class="metric-sub">▲ 3 vs marzo</div></div>
+    <div class="metric"><div class="metric-label">Críticos / Graves</div><div class="metric-value" style="color:#A32D2D">7</div><div class="metric-sub">11% del total</div></div>
+    <div class="metric"><div class="metric-label">Cerrados con RCA</div><div class="metric-value" style="color:#3B6D11">48</div><div class="metric-sub">76% del total</div></div>
+    <div class="metric"><div class="metric-label">Días sin accidentes</div><div class="metric-value" style="color:#185FA5">4</div><div class="metric-sub">Último: 12/04</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem">
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem">Incidentes por área (2026)</div>
+      <div id="area-stats"></div>
+    </div>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem">Por severidad &amp; estado</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Severidad</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#A32D2D;display:inline-block"></span>Crítico</span><span class="badge badge-red">2</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#993C1D;display:inline-block"></span>Grave</span><span class="badge badge-high">5</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#EF9F27;display:inline-block"></span>Moderado</span><span class="badge badge-amber">6</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#639922;display:inline-block"></span>Leve</span><span class="badge badge-green">4</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Estado</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Abierto</span><span class="badge badge-red">3</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>En análisis</span><span class="badge badge-amber">5</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Con plan</span><span class="badge badge-blue">4</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Cerrado</span><span class="badge badge-green">5</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="filter-btn active" onclick="setF(this,'todos')">Todos (17)</button>
+    <button class="filter-btn" onclick="setF(this,'abierto')">Abiertos</button>
+    <button class="filter-btn" onclick="setF(this,'critico')">Críticos / Graves</button>
+    <button class="filter-btn" onclick="setF(this,'sin-rca')">Sin RCA</button>
+    <div class="sep"></div>
+    <select class="fsel"><option>Todas las áreas</option><option>Patio / Yard</option><option>Muelle / Buque</option><option>Taller / Equipos</option><option>Gate / Portería</option><option>Seg. ISPS</option></select>
+    <select class="fsel"><option>Todos los turnos</option><option>Turno día</option><option>Turno noche</option></select>
+    <input class="fsearch" type="text" placeholder="Buscar incidente..." />
+  </div>
+
+  <div class="table-wrap">
+    <table class="inc-table">
+      <colgroup>
+        <col style="width:80px"><col style="width:44px"><col><col style="width:110px"><col style="width:70px"><col style="width:80px"><col style="width:90px"><col style="width:90px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ID</th><th>Sev.</th><th>Descripción</th><th>Área</th><th>Fecha</th><th>Turno</th><th>Estado</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="incidents-tbody"></tbody>
+    </table>
+    <div class="pagination">
+      <span id="pag-info">Mostrando 1–10 de 17 incidentes</span>
+      <div class="pag-btns">
+        <button class="pag-btn active-page">1</button>
+        <button class="pag-btn">2</button>
+        <button class="pag-btn">→</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-panel" id="detail-panel">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:3px" id="d-id-label">INC-2026-018</div>
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)" id="d-title">Acceso no autorizado — zona restringida ISPS sector norte</div>
+        <div style="display:flex;gap:6px;margin-top:6px" id="d-badges"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;margin-left:12px">
+        <button onclick="sendPrompt('Crear plan de mitigación para el incidente INC-2026-018')" style="font-size:11px;padding:4px 10px">Crear plan ↗</button>
+        <button onclick="sendPrompt('Generar reporte del incidente INC-2026-018')" style="font-size:11px;padding:4px 10px">Reporte ↗</button>
+        <button onclick="closeDetail()" style="font-size:11px;padding:4px 10px">Cerrar</button>
+      </div>
+    </div>
+    <div class="tab-row">
+      <button class="tab active" onclick="setTab(this,'resumen')">Resumen</button>
+      <button class="tab" onclick="setTab(this,'rca')">Causa raíz</button>
+      <button class="tab" onclick="setTab(this,'acciones')">Acciones</button>
+      <button class="tab" onclick="setTab(this,'historial')">Historial</button>
+    </div>
+    <div id="tab-resumen">
+      <div class="detail-grid">
+        <div>
+          <div class="df"><div class="field-label">Descripción del evento</div><div class="field-val" id="d-desc">Persona no identificada intentó ingresar al área de almacenamiento de carga de alto valor a través de sector norte a las 02:34h. Detectado por sensor perimetral y confirmado por cámara C-07.</div></div>
+          <div class="df"><div class="field-label">Área / Equipo</div><div class="field-val" id="d-area">Seg. ISPS / BASC · Sin equipo involucrado</div></div>
+          <div class="df"><div class="field-label">Turno y fecha</div><div class="field-val" id="d-fecha">Turno noche · 16/04/2026 · 02:34h</div></div>
+          <div class="df"><div class="field-label">Reportado por</div><div class="field-val">Central de monitoreo — operador Carlos Vera</div></div>
+        </div>
+        <div>
+          <div class="df"><div class="field-label">Lesionados</div><div class="field-val">Ninguno</div></div>
+          <div class="df"><div class="field-label">Daño económico estimado</div><div class="field-val">Sin daño económico directo</div></div>
+          <div class="df"><div class="field-label">Impacto operacional</div><div class="field-val">Sin interrupción operativa</div></div>
+          <div class="df"><div class="field-label">Impacto ambiental</div><div class="field-val">Ninguno</div></div>
+          <div class="df"><div class="field-label">Notificación externa</div><div class="field-val">Policía portuaria notificada · 02:41h</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-rca" style="display:none">
+      <div class="rca-row"><div class="rca-key">Metodología</div><div class="rca-val">5 Porqués</div></div>
+      <div class="rca-row"><div class="rca-key">Causa inmediata</div><div class="rca-val">Sensor perimetral sector norte con cobertura parcial — área ciega de 4m sin detección</div></div>
+      <div class="rca-row"><div class="rca-key">Causa raíz</div><div class="rca-val">Presupuesto de actualización de infraestructura ISPS no fue aprobado en Q1. Los sensores instalados datan de 2019.</div></div>
+      <div class="rca-row"><div class="rca-key">Factores contribuyentes</div><div class="rca-val">Turno nocturno con menor dotación de vigilantes · Zona norte sin ronda programada entre 01:00–03:00h</div></div>
+      <div class="rca-row"><div class="rca-key">¿Podría repetirse?</div><div class="rca-val">Sí, sin corrección de cobertura perimetral</div></div>
+      <div class="rca-row"><div class="rca-key">Lecciones aprendidas</div><div class="rca-val">Necesario realizar auditoría de cobertura de todos los sensores perimetrales y programar rondas obligatorias en horas de menor actividad</div></div>
+    </div>
+    <div id="tab-acciones" style="display:none">
+      <div style="margin-bottom:.75rem">
+        <div class="action-row" style="font-size:11px;color:var(--color-text-secondary);font-weight:500;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:.4rem">
+          <div>Acción correctiva</div><div>Responsable</div><div>Fecha</div><div style="text-align:right">Estado</div>
+        </div>
+        <div class="action-row"><div>Auditoría completa cobertura sensores perimetrales</div><div style="color:var(--color-text-secondary)">Jef. Seg. ISPS</div><div style="color:var(--color-text-secondary)">20/04</div><div style="text-align:right"><span class="badge badge-blue">En curso</span></div></div>
+        <div class="action-row"><div>Programar rondas nocturnas 01:00–03:00h sector norte</div><div style="color:var(--color-text-secondary)">Sup. Turno</div><div style="color:var(--color-text-secondary)">18/04</div><div style="text-align:right"><span class="badge badge-green">Cerrada</span></div></div>
+        <div class="action-row"><div>Solicitud presupuesto actualización sensores Q2</div><div style="color:var(--color-text-secondary)">Gerencia Ops</div><div style="color:var(--color-text-secondary)">30/04</div><div style="text-align:right"><span class="badge badge-amber">Pendiente</span></div></div>
+        <div class="action-row" style="border-bottom:none"><div>Reporte formal a autoridad portuaria ISPS</div><div style="color:var(--color-text-secondary)">Jef. Seg. ISPS</div><div style="color:var(--color-text-secondary)">17/04</div><div style="text-align:right"><span class="badge badge-green">Cerrada</span></div></div>
+      </div>
+      <button onclick="sendPrompt('Agregar nueva acción correctiva al incidente INC-2026-018')" style="font-size:12px;padding:5px 12px">+ Agregar acción ↗</button>
+    </div>
+    <div id="tab-historial" style="display:none">
+      <div id="historial-content"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-top:0.5px solid var(--color-border-tertiary)">
+    <div style="font-size:11px;color:var(--color-text-secondary)">Terminal Risk Monitor · Módulo de incidentes v2.1</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:12px;padding:5px 12px">Planes de mitigación ↗</button>
+      <button onclick="sendPrompt('Generar reporte ejecutivo mensual de riesgos')" style="font-size:12px;padding:5px 12px">Reporte ejecutivo ↗</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const areaStats=[
+  {label:'Patio / Yard',val:8,max:17,color:'#E24B4A'},
+  {label:'Muelle / Buque',val:4,max:17,color:'#EF9F27'},
+  {label:'Taller / Equipos',val:3,max:17,color:'#EF9F27'},
+  {label:'Gate / Portería',val:2,max:17,color:'#378ADD'},
+  {label:'Seg. ISPS',val:1,max:17,color:'#639922'},
+];
+const as=document.getElementById('area-stats');
+areaStats.forEach(a=>{
+  as.innerHTML+=`<div class="stat-bar"><div class="stat-label">${a.label}</div><div class="stat-wrap"><div class="stat-fill" style="width:${Math.round(a.val/a.max*100)}%;background:${a.color}"></div></div><div class="stat-val">${a.val}</div></div>`;
+});
+
+const incidents=[
+  {id:'INC-2026-018',sev:'critico',sevColor:'#A32D2D',desc:'Intento acceso no autorizado zona ISPS norte',area:'Seg. ISPS',fecha:'16/04',turno:'Noche',estado:'En análisis',estBadge:'badge-amber'},
+  {id:'INC-2026-017',sev:'grave',sevColor:'#993C1D',desc:'Fallo hidráulico RTG-03 durante apilamiento 40\'',area:'Patio',fecha:'15/04',turno:'Día',estado:'Con plan',estBadge:'badge-blue'},
+  {id:'INC-2026-016',sev:'moderado',sevColor:'#EF9F27',desc:'Retraso operacional por viento > 45 km/h grúa STS',area:'Muelle',fecha:'14/04',turno:'Día',estado:'Cerrado',estBadge:'badge-green'},
+  {id:'INC-2026-015',sev:'leve',sevColor:'#639922',desc:'Contenedor con daño estructural detectado en gate',area:'Gate',fecha:'13/04',turno:'Día',estado:'Cerrado',estBadge:'badge-green'},
+  {id:'INC-2026-014',sev:'grave',sevColor:'#993C1D',desc:'Derrame de lubricante hidráulico en taller equipos',area:'Taller',fecha:'12/04',turno:'Noche',estado:'Cerrado',estBadge:'badge-green'},
+  {id:'INC-2026-013',sev:'moderado',sevColor:'#EF9F27',desc:'Falla de lector RFID en gate — congestión de camiones',area:'Gate',fecha:'11/04',turno:'Día',estado:'Cerrado',estBadge:'badge-green'},
+  {id:'INC-2026-012',sev:'critico',sevColor:'#A32D2D',desc:'Near miss — reach stacker casi atropella a peatón',area:'Patio',fecha:'10/04',turno:'Noche',estado:'Con plan',estBadge:'badge-blue'},
+  {id:'INC-2026-011',sev:'grave',sevColor:'#993C1D',desc:'Detención no planificada grúa STS-2 por recalentamiento',area:'Muelle',fecha:'09/04',turno:'Día',estado:'Con plan',estBadge:'badge-blue'},
+  {id:'INC-2026-010',sev:'leve',sevColor:'#639922',desc:'EPP inadecuado detectado en inspección de patio',area:'Patio',fecha:'08/04',turno:'Día',estado:'Cerrado',estBadge:'badge-green'},
+  {id:'INC-2026-009',sev:'moderado',sevColor:'#EF9F27',desc:'Contenedor apilado incorrectamente bloque B-12',area:'Patio',fecha:'07/04',turno:'Noche',estado:'Abierto',estBadge:'badge-red'},
+];
+
+const tbody=document.getElementById('incidents-tbody');
+incidents.forEach(inc=>{
+  const tr=document.createElement('tr');
+  tr.className='clickable';
+  tr.onclick=()=>openDetail(inc);
+  tr.innerHTML=`
+    <td style="font-size:11px;color:var(--color-text-secondary)">${inc.id}</td>
+    <td><span class="sev-dot" style="background:${inc.sevColor}"></span></td>
+    <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${inc.desc}</td>
+    <td style="font-size:11px;color:var(--color-text-secondary)">${inc.area}</td>
+    <td style="font-size:11px">${inc.fecha}</td>
+    <td style="font-size:11px;color:var(--color-text-secondary)">${inc.turno}</td>
+    <td><span class="badge ${inc.estBadge}" style="font-size:10px">${inc.estado}</span></td>
+    <td style="font-size:11px;color:#185FA5;cursor:pointer">Ver detalle</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+const historialData=[
+  {action:'Incidente registrado en sistema',detail:'Registro inicial por operador de turno Carlos Vera',time:'16/04/2026 · 02:41h',color:'#185FA5'},
+  {action:'Policía portuaria notificada',detail:'Se activó protocolo ISPS nivel 2. Unidad llegó a las 03:05h',time:'16/04/2026 · 02:41h',color:'#E24B4A'},
+  {action:'Área asegurada y evidencia recopilada',detail:'Fotografías, registros de cámara C-07 y sensor capturados',time:'16/04/2026 · 03:20h',color:'#185FA5'},
+  {action:'Análisis de causa raíz iniciado',detail:'Jefe de Seguridad ISPS inicia investigación formal',time:'16/04/2026 · 08:00h',color:'#EF9F27'},
+  {action:'Ronda nocturna sector norte reprogramada',detail:'Acción correctiva inmediata ejecutada. Rondas 01:00–03:00h activas',time:'16/04/2026 · 09:30h',color:'#639922'},
+  {action:'Auditoría de sensores iniciada',detail:'Técnico externo contratado. Estimado de finalización: 20/04',time:'17/04/2026 · 10:00h',color:'#185FA5'},
+];
+const hc=document.getElementById('historial-content');
+historialData.forEach(h=>{
+  hc.innerHTML+=`<div class="tl-item"><div class="tl-left"><div class="tl-dot" style="background:${h.color}"></div><div class="tl-line"></div></div><div style="flex:1;padding-bottom:12px"><div class="tl-action">${h.action}</div><div class="tl-detail">${h.detail}</div><div class="tl-time">${h.time}</div></div></div>`;
+});
+
+function openDetail(inc){
+  const panel=document.getElementById('detail-panel');
+  panel.style.display='block';
+  document.getElementById('d-id-label').textContent=inc.id;
+  document.getElementById('d-title').textContent=inc.desc;
+  document.getElementById('d-area').textContent=inc.area;
+  document.getElementById('d-fecha').textContent='Turno '+inc.turno+' · '+inc.fecha+'/2026';
+  const sevLabel={critico:'Crítico',grave:'Grave',moderado:'Moderado',leve:'Leve'}[inc.sev];
+  const sevBadge={critico:'badge-red',grave:'badge-high',moderado:'badge-amber',leve:'badge-green'}[inc.sev];
+  document.getElementById('d-badges').innerHTML=`<span class="badge ${sevBadge}">${sevLabel}</span><span class="badge ${inc.estBadge}">${inc.estado}</span><span class="badge badge-blue">${inc.area}</span>`;
+  setTab(document.querySelector('.tab.active'),'resumen');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tab').classList.add('active');
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function closeDetail(){document.getElementById('detail-panel').style.display='none';}
+
+function setTab(el,tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['resumen','rca','acciones','historial'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+}
+
+function setF(btn,f){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>

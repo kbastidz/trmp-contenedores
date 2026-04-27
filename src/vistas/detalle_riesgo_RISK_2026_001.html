@@ -1,0 +1,279 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;flex-wrap:wrap;gap:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.br{background:#FCEBEB;color:#A32D2D}
+.ba{background:#FAEEDA;color:#854F0B}
+.bh{background:#FAECE7;color:#993C1D}
+.bg{background:#EAF3DE;color:#3B6D11}
+.bb{background:#E6F1FB;color:#185FA5}
+.bgr{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.9rem 1rem;margin-bottom:.75rem}
+.hero{background:var(--color-background-primary);border:0.5px solid #F09595;border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.st{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.7rem;display:flex;align-items:center;justify-content:space-between}
+.fl{font-size:11px;color:var(--color-text-secondary);margin-bottom:2px}
+.fv{font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.df{margin-bottom:.6rem}
+.df:last-child{margin-bottom:0}
+.met{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.6rem .75rem;text-align:center}
+.mv{font-size:20px;font-weight:500;line-height:1}
+.ml{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+.ms{font-size:10px;margin-top:2px}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:.85rem;overflow-x:auto}
+.tab{font-size:12px;color:var(--color-text-secondary);padding:.45rem .8rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-left:none;border-right:none;border-top:none;white-space:nowrap;font-family:var(--font-sans)}
+.tab.on{color:var(--color-text-primary);font-weight:500;border-bottom-color:#A32D2D}
+.mc{height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500}
+.mc.sel{outline:2.5px solid var(--color-text-primary)}
+.cl{background:#EAF3DE;color:#3B6D11}
+.cm{background:#FAEEDA;color:#854F0B}
+.ch{background:#FAECE7;color:#993C1D}
+.cc{background:#FCEBEB;color:#A32D2D}
+.pw{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:3px}
+.row{display:flex;align-items:center;gap:8px;padding:.45rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.row:last-child{border-bottom:none}
+.tld{display:flex;gap:8px;padding-bottom:10px}
+.tld:last-child{padding-bottom:0}
+.tll{display:flex;flex-direction:column;align-items:center}
+.tldot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.tlln{width:1px;flex:1;background:var(--color-border-tertiary);margin-top:3px}
+.tld:last-child .tlln{display:none}
+.tla{font-size:12px;color:var(--color-text-primary);font-weight:500}
+.tls{font-size:11px;color:var(--color-text-secondary);margin-top:1px;line-height:1.4}
+.tlt{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:56px}
+.bar{border-radius:3px 3px 0 0;flex:1;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:9px;font-weight:500;color:white;min-width:0}
+.kr{display:flex;align-items:center;gap:6px;padding:.4rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.kr:last-child{border-bottom:none}
+.cr{display:flex;align-items:flex-start;gap:8px;padding:.45rem .65rem;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);margin-bottom:5px}
+.cr:last-child{margin-bottom:0}
+.chk{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+</style>
+
+<h2 class="sr-only">Ficha de detalle del riesgo RISK-2026-001 — Caída de contenedor durante operación de RTG</h2>
+
+<div class="w">
+
+<div class="topbar">
+  <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:12px;padding:5px 10px">← Dashboard ↗</button>
+  <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--color-text-secondary)">RISK-2026-001</span>
+    <span class="badge br">Crítico · 20</span>
+    <span class="badge bgr">Activo</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px">
+      <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px">Caída de contenedor durante operación de RTG</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="badge br">Crítico</span>
+        <span class="badge bb">Patio de contenedores</span>
+        <span class="badge ba">Seguridad industrial</span>
+        <span class="badge" style="background:#EEEDFE;color:#3C3489">ISO 45001</span>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">Riesgo de caída de contenedor 20'/40' durante apilamiento o traslado con RTG-01 a RTG-04 en bloques A y B. Agravado por ausencia de sensor de carga y mantenimiento vencido en 2 de 4 equipos.</div>
+    </div>
+    <div class="g2" style="gap:6px;min-width:220px">
+      <div class="met"><div class="mv" style="color:#A32D2D">20</div><div class="ml">Puntaje actual</div><div class="ms"><span class="badge br" style="font-size:9px">Crítico</span></div></div>
+      <div class="met"><div class="mv" style="color:#854F0B">8</div><div class="ml">Puntaje objetivo</div><div class="ms"><span class="badge ba" style="font-size:9px">Medio</span></div></div>
+      <div class="met"><div class="mv">5/5</div><div class="ml">Probabilidad</div><div class="ms" style="color:var(--color-text-secondary)">Casi seguro</div></div>
+      <div class="met"><div class="mv">4/5</div><div class="ml">Impacto</div><div class="ms" style="color:var(--color-text-secondary)">Mayor</div></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:.85rem;padding-top:.75rem;border-top:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;align-items:center">
+    <div class="df" style="margin-bottom:0"><div class="fl">Responsable</div><div class="fv">Jef. Mantenimiento · C. Loor</div></div>
+    <div class="df" style="margin-bottom:0"><div class="fl">Registrado</div><div class="fv">08/01/2026</div></div>
+    <div class="df" style="margin-bottom:0"><div class="fl">Última revisión</div><div class="fv">10/04/2026</div></div>
+    <div class="df" style="margin-bottom:0"><div class="fl">Próxima revisión</div><div class="fv" style="color:#854F0B;font-weight:500">25/04/2026</div></div>
+    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+      <button onclick="sendPrompt('Agregar nuevo plan de mitigación para el riesgo RISK-2026-001')" style="font-size:11px;padding:4px 10px">+ Plan ↗</button>
+      <button onclick="sendPrompt('Registrar un nuevo incidente vinculado al riesgo RISK-2026-001')" style="font-size:11px;padding:4px 10px">+ Incidente ↗</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="st(this,'ev')">Evaluación</button>
+  <button class="tab" onclick="st(this,'ct')">Controles</button>
+  <button class="tab" onclick="st(this,'pl')">Planes</button>
+  <button class="tab" onclick="st(this,'inc')">Incidentes</button>
+  <button class="tab" onclick="st(this,'hs')">Historial</button>
+</div>
+
+<!-- EVALUACIÓN -->
+<div id="ev">
+  <div class="g2" style="gap:10px">
+    <div class="card">
+      <div class="st">Posición en matriz</div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:3px;text-align:center">Impacto →</div>
+          <div id="mx" style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px"></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:2px">
+            <div style="font-size:9px;color:var(--color-text-secondary);text-align:center">1</div><div style="font-size:9px;color:var(--color-text-secondary);text-align:center">2</div><div style="font-size:9px;color:var(--color-text-secondary);text-align:center">3</div><div style="font-size:9px;color:var(--color-text-secondary);text-align:center">4</div><div style="font-size:9px;color:var(--color-text-secondary);text-align:center">5</div>
+          </div>
+        </div>
+        <div style="min-width:90px">
+          <div class="df"><div class="fl">Probabilidad</div><div class="fv" style="font-weight:500">5 — Casi seguro</div></div>
+          <div class="df"><div class="fl">Impacto</div><div class="fv" style="font-weight:500">4 — Mayor</div></div>
+          <div class="df"><div class="fl">Score</div><div class="mv" style="color:#A32D2D;font-size:22px;font-weight:500">20</div></div>
+          <div><div class="fl">Objetivo</div><div class="mv" style="color:#854F0B;font-size:16px;font-weight:500">8</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="st">Evolución del puntaje</div>
+      <div style="display:flex;justify-content:space-around;margin-bottom:5px">
+        <span style="font-size:10px;color:var(--color-text-secondary)">Ene</span><span style="font-size:10px;color:var(--color-text-secondary)">Feb</span><span style="font-size:10px;color:var(--color-text-secondary)">Mar</span><span style="font-size:10px;font-weight:500;color:var(--color-text-primary)">Abr</span><span style="font-size:10px;color:#3B6D11">Meta</span>
+      </div>
+      <div class="bars" id="bars"></div>
+      <div style="margin-top:8px;padding:.55rem .75rem;background:#EAF3DE;border-radius:var(--border-radius-md)">
+        <div style="font-size:11px;color:#3B6D11;font-weight:500">Reducción proyectada al cerrar PM-039</div>
+        <div style="font-size:11px;color:#639922;margin-top:1px">Puntaje estimado post-mitigación: 8</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Causa raíz</div>
+    <div class="g2">
+      <div>
+        <div class="df"><div class="fl">Causa inmediata</div><div class="fv">RTG-03 y RTG-04 sin sensor de carga — sin detección de sobrecarga en tiempo real durante apilamiento.</div></div>
+        <div class="df"><div class="fl">Causa raíz</div><div class="fv">Mantenimiento preventivo vencido en 2 de 4 RTGs por escasez de repuestos y priorización operativa.</div></div>
+      </div>
+      <div>
+        <div class="df"><div class="fl">Factores contribuyentes</div><div class="fv">Turno nocturno con menor supervisión · Alta demanda Q1 · Fatiga acumulada · Preoperacional no ejecutado en 3 turnos.</div></div>
+        <div class="df"><div class="fl">Consecuencias potenciales</div><div class="fv">Fatalidad de operador · Daño total de contenedor · Paralización de patio · Sanción regulatoria.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">KRI vinculados</div>
+    <div id="kril"></div>
+  </div>
+</div>
+
+<!-- CONTROLES -->
+<div id="ct" style="display:none">
+  <div class="card">
+    <div class="st">Controles existentes <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">4 de 6 efectivos</span></div>
+    <div id="ctll"></div>
+  </div>
+  <div class="card">
+    <div class="st">Efectividad global de controles</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:.65rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+          <span style="color:var(--color-text-secondary)">Efectividad actual</span>
+          <span style="font-weight:500;color:#854F0B">67%</span>
+        </div>
+        <div class="pw"><div class="pf" style="width:67%;background:#EF9F27"></div></div>
+      </div>
+      <span class="badge ba">Insuficiente para nivel crítico</span>
+    </div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">Para riesgo crítico se requiere al menos 85%. Los controles de detección (sensores) y corrección (plan de emergencia) están deficientes.</div>
+    <div style="display:flex;gap:6px;margin-top:.75rem">
+      <button onclick="sendPrompt('Agregar nuevo control al riesgo RISK-2026-001')" style="font-size:11px;padding:4px 10px">+ Agregar control ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLANES -->
+<div id="pl" style="display:none">
+  <div class="card">
+    <div class="st">Planes de mitigación vinculados</div>
+    <div id="pll"></div>
+    <button onclick="sendPrompt('Agregar nuevo plan de mitigación para el riesgo RISK-2026-001')" style="font-size:11px;padding:4px 10px;margin-top:.65rem">+ Nuevo plan ↗</button>
+  </div>
+  <div class="card">
+    <div class="st">Reducción de riesgo proyectada</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.65rem">Al ejecutar los planes activos, el puntaje baja de 20 a 8.</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="text-align:center;padding:.4rem .75rem;background:#FCEBEB;border-radius:var(--border-radius-md)"><div style="font-size:18px;font-weight:500;color:#A32D2D">20</div><div style="font-size:10px;color:#A32D2D">Actual</div></div>
+      <span style="color:var(--color-text-secondary)">→</span>
+      <div style="text-align:center;padding:.4rem .75rem;background:#FAEEDA;border-radius:var(--border-radius-md)"><div style="font-size:18px;font-weight:500;color:#854F0B">12</div><div style="font-size:10px;color:#854F0B">Con PM-039</div></div>
+      <span style="color:var(--color-text-secondary)">→</span>
+      <div style="text-align:center;padding:.4rem .75rem;background:#FAEEDA;border-radius:var(--border-radius-md)"><div style="font-size:18px;font-weight:500;color:#854F0B">8</div><div style="font-size:10px;color:#854F0B">PM-039+042</div></div>
+      <span style="color:var(--color-text-secondary)">→</span>
+      <div style="text-align:center;padding:.4rem .75rem;background:#EAF3DE;border-radius:var(--border-radius-md)"><div style="font-size:18px;font-weight:500;color:#3B6D11">4</div><div style="font-size:10px;color:#3B6D11">Objetivo</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INCIDENTES -->
+<div id="inc" style="display:none">
+  <div class="card">
+    <div class="st">Incidentes vinculados <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">3 registros</span></div>
+    <div id="incl"></div>
+    <button onclick="sendPrompt('Registrar nuevo incidente vinculado al riesgo RISK-2026-001')" style="font-size:11px;padding:4px 10px;margin-top:.65rem">+ Vincular incidente ↗</button>
+  </div>
+  <div class="card">
+    <div class="st">Tendencia de ocurrencia</div>
+    <div class="g4">
+      <div class="met"><div class="mv">0</div><div class="ml">Enero</div></div>
+      <div class="met"><div class="mv">1</div><div class="ml">Febrero</div></div>
+      <div class="met"><div class="mv">1</div><div class="ml">Marzo</div></div>
+      <div class="met" style="background:#FAECE7"><div class="mv" style="color:#993C1D">2</div><div class="ml">Abril</div><div class="ms" style="color:#993C1D">▲ en aumento</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div id="hs" style="display:none">
+  <div class="card">
+    <div class="st">Historial de cambios y eventos</div>
+    <div id="hsl"></div>
+  </div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-top:0.5px solid var(--color-border-tertiary);margin-top:.25rem;flex-wrap:wrap;gap:8px">
+  <span style="font-size:11px;color:var(--color-text-secondary)">RISK-2026-001 · Terminal Risk Monitor v2.1</span>
+  <div style="display:flex;gap:6px">
+    <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:11px;padding:4px 10px">Planes ↗</button>
+    <button onclick="sendPrompt('Ver módulo de gestión de incidentes operacionales')" style="font-size:11px;padding:4px 10px">Incidentes ↗</button>
+    <button onclick="sendPrompt('Generar reporte ejecutivo mensual de riesgos')" style="font-size:11px;padding:4px 10px">Reporte ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const mxd=[[1,2,3,4,5],[2,4,6,8,10],[3,6,9,12,15],[4,8,12,16,20],[5,10,15,20,25]];
+const mx=document.getElementById('mx');
+for(let r=4;r>=0;r--){for(let c=0;c<5;c++){const v=mxd[r][c];const d=document.createElement('div');const cls=v<=4?'cl':v<=9?'cm':v<=16?'ch':'cc';d.className='mc '+cls;if(r===4&&c===3){d.innerHTML='★';d.classList.add('sel');}mx.appendChild(d);}}
+
+const sc=[20,20,20,20,8],bc=['#E24B4A','#E24B4A','#E24B4A','#E24B4A','#639922'];
+const barsEl=document.getElementById('bars');
+sc.forEach((s,i)=>{const h=Math.round((s/25)*52)+4;const b=document.createElement('div');b.className='bar';b.style.height=h+'px';b.style.background=bc[i];b.style.opacity=i===4?'0.55':'1';b.style.border=i===4?'1.5px dashed #3B6D11':'none';b.innerHTML=s;barsEl.appendChild(b);});
+
+const kris=[{n:'Cumplimiento mtto. preventivo RTG',v:74,c:'#E24B4A',s:'Crítico',b:'br'},{n:'Disponibilidad equipos RTG',v:78,c:'#EF9F27',s:'Alerta',b:'ba'},{n:'Inspecciones preoperacionales',v:61,c:'#E24B4A',s:'Crítico',b:'br'},{n:'Operadores certificados',v:92,c:'#639922',s:'OK',b:'bg'}];
+const kl=document.getElementById('kril');
+kris.forEach(k=>{kl.innerHTML+=`<div class="kr"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">${k.n}</div><div style="width:70px;height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden"><div style="height:100%;width:${k.v}%;background:${k.c};border-radius:2px"></div></div><div style="font-size:11px;font-weight:500;color:${k.c};min-width:34px;text-align:right">${k.v}%</div><span class="badge ${k.b}" style="font-size:10px;margin-left:4px">${k.s}</span></div>`;});
+
+const ctrls=[{n:'Inspección preoperacional RTGs (diaria)',t:'Preventivo',ok:false,nota:'Incumplida en 3 turnos recientes'},{n:'POE de apilamiento de contenedores',t:'Preventivo',ok:true,nota:'Vigente y actualizado'},{n:'Capacitación operadores manejo RTG',t:'Preventivo',ok:true,nota:'88% del equipo certificado'},{n:'Sensor de carga en gancho RTG',t:'Detectivo',ok:false,nota:'Ausente en RTG-03 y RTG-04'},{n:'Ronda de supervisión por turno',t:'Detectivo',ok:true,nota:'Ejecutada en turnos diurnos'},{n:'Plan de emergencia ante caída',t:'Correctivo',ok:false,nota:'Plan vencido — revisión pendiente PM-029'}];
+const cl2=document.getElementById('ctll');
+ctrls.forEach(c=>{cl2.innerHTML+=`<div class="cr"><div class="chk" style="background:${c.ok?'#EAF3DE':'#FCEBEB'};border:0.5px solid ${c.ok?'#97C459':'#F09595'}"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="${c.ok?'#3B6D11':'#A32D2D'}" stroke-width="2.5">${c.ok?'<polyline points="10 3 5 8 2 5"/>':'<line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/>'}</svg></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">${c.n}</div><div style="font-size:11px;color:${c.ok?'var(--color-text-secondary)':'#A32D2D'};margin-top:1px">${c.nota}</div></div><span style="font-size:10px;color:var(--color-text-secondary)">${c.t}</span></div>`;});
+
+const planes=[{id:'PM-039',n:'Recuperación mantenimiento preventivo RTG',p:45,e:'En progreso',v:'20/04/2026',b:'ba'},{id:'PM-042',n:'Instalación sensor de carga RTG-03 y RTG-04',p:0,e:'Pendiente',v:'15/05/2026',b:'bb'}];
+const pl2=document.getElementById('pll');
+planes.forEach(p=>{pl2.innerHTML+=`<div class="row" style="cursor:pointer" onclick="sendPrompt('Ver detalle del plan ${p.id}')"><div style="flex:1"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:2px">${p.id} · Vence: ${p.v}</div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">${p.n}</div><div class="pw" style="max-width:160px"><div class="pf" style="width:${p.p}%;background:${p.p===0?'#B4B2A9':p.p<50?'#E24B4A':'#378ADD'}"></div></div></div><div style="text-align:right"><span class="badge ${p.b}" style="font-size:10px">${p.e}</span><div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px">${p.p}%</div></div></div>`;});
+
+const incs=[{id:'INC-2026-017',d:"Fallo hidráulico RTG-03 durante apilamiento 40'",f:'15/04/2026',s:'Grave',c:'#993C1D',bg:'#FAECE7'},{id:'INC-2026-012',d:'Near miss — reach stacker zona patio sur',f:'10/04/2026',s:'Crítico',c:'#A32D2D',bg:'#FCEBEB'},{id:'INC-2026-004',d:'Interrupción energía eléctrica zona RTG norte',f:'02/04/2026',s:'Moderado',c:'#854F0B',bg:'#FAEEDA'}];
+const il=document.getElementById('incl');
+incs.forEach(i=>{il.innerHTML+=`<div class="row" style="cursor:pointer" onclick="sendPrompt('Ver detalle del incidente ${i.id}')"><div style="width:7px;height:7px;border-radius:50%;background:${i.c};flex-shrink:0"></div><div style="flex:1"><div style="font-size:12px;color:var(--color-text-primary)">${i.d}</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">${i.id} · ${i.f}</div></div><span class="badge" style="background:${i.bg};color:${i.c};font-size:10px">${i.s}</span></div>`;});
+
+const hist=[{a:'Riesgo creado y evaluado',d:'Registrado por Jef. Seguridad Industrial. Puntaje inicial: 20 — Crítico',t:'08/01/2026 · 09:00h',c:'#185FA5'},{a:'Plan PM-039 asignado',d:'Plan de recuperación de mantenimiento preventivo RTG vinculado',t:'01/04/2026 · 08:30h',c:'#185FA5'},{a:'Incidente INC-2026-004 vinculado',d:'Interrupción energética confirmó vulnerabilidad del riesgo',t:'02/04/2026 · 22:15h',c:'#EF9F27'},{a:'Incidente INC-2026-012 vinculado',d:'Near miss eleva urgencia — escalamiento solicitado',t:'10/04/2026 · 02:34h',c:'#E24B4A'},{a:'Revisión periódica ejecutada',d:'Puntaje confirmado en 20. Sin reducción por planes en progreso.',t:'10/04/2026 · 08:00h',c:'#185FA5'},{a:'Plan PM-042 creado',d:'Instalación de sensores de carga en RTG-03 y RTG-04',t:'16/04/2026 · 11:20h',c:'#639922'},{a:'Incidente INC-2026-017 vinculado',d:'Fallo hidráulico RTG-03 reafirma riesgo crítico activo',t:'15/04/2026 · 14:45h',c:'#E24B4A'}];
+const hl=document.getElementById('hsl');
+hist.forEach(h=>{hl.innerHTML+=`<div class="tld"><div class="tll"><div class="tldot" style="background:${h.c}"></div><div class="tlln"></div></div><div style="flex:1;padding-bottom:10px"><div class="tla">${h.a}</div><div class="tls">${h.d}</div><div class="tlt">${h.t}</div></div></div>`;});
+
+function st(el,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['ev','ct','pl','inc','hs'].forEach(s=>{document.getElementById(s).style.display=s===id?'block':'none';});
+}
+</script>

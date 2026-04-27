@@ -1,0 +1,329 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;flex-wrap:wrap;gap:8px}
+.title-block{display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;border-radius:var(--border-radius-md);background:#A32D2D;display:flex;align-items:center;justify-content:center}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.br{background:#FCEBEB;color:#A32D2D}
+.ba{background:#FAEEDA;color:#854F0B}
+.bh{background:#FAECE7;color:#993C1D}
+.bg{background:#EAF3DE;color:#3B6D11}
+.bb{background:#E6F1FB;color:#185FA5}
+.bgr{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:1rem}
+.met{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.7rem .85rem}
+.mv{font-size:20px;font-weight:500;line-height:1}
+.ml{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+.ms{font-size:11px;margin-top:2px}
+.toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.85rem}
+.fb{font-size:12px;padding:5px 11px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;color:var(--color-text-secondary);font-family:var(--font-sans);transition:all .15s}
+.fb.on{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-secondary)}
+.fsel{font-size:12px;padding:5px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-secondary);font-family:var(--font-sans);cursor:pointer}
+.fsep{width:1px;height:20px;background:var(--color-border-tertiary)}
+.fsrch{font-size:12px;padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);font-family:var(--font-sans);width:180px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:.75rem}
+.tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.tbl th{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-align:left;padding:.5rem .75rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);white-space:nowrap;cursor:pointer;user-select:none}
+.tbl th:hover{color:var(--color-text-primary)}
+.tbl td{font-size:12px;color:var(--color-text-primary);padding:.6rem .75rem;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.tbl tr.alt td{background:var(--color-background-secondary)}
+.tbl tr.rr{cursor:pointer;transition:background .1s}
+.tbl tr.rr:hover td{background:#E6F1FB!important}
+.pw{height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:2px}
+.score-pill{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:500}
+.pag{display:flex;align-items:center;justify-content:space-between;padding:.5rem .75rem;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary)}
+.pb{font-size:11px;padding:3px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;font-family:var(--font-sans)}
+.pb.cur{background:var(--color-background-secondary);font-weight:500;color:var(--color-text-primary)}
+/* Panel lateral detalle rápido */
+.side-panel{display:none;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem}
+.side-panel.show{display:block}
+.fl{font-size:11px;color:var(--color-text-secondary);margin-bottom:2px}
+.fv{font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.df{margin-bottom:.6rem}
+.df:last-child{margin-bottom:0}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.mini-matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.mc{height:24px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500}
+.mc.sel{outline:2.5px solid var(--color-text-primary)}
+.cl{background:#EAF3DE;color:#3B6D11}
+.cm{background:#FAEEDA;color:#854F0B}
+.ch{background:#FAECE7;color:#993C1D}
+.cc{background:#FCEBEB;color:#A32D2D}
+.plan-mini{display:flex;align-items:center;gap:6px;padding:.35rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.plan-mini:last-child{border-bottom:none}
+.pp{height:3px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden;flex:1}
+.ppf{height:100%;border-radius:2px}
+</style>
+
+<h2 class="sr-only">Módulo de gestión y listado de riesgos operacionales — Terminal Puerto Principal</h2>
+
+<div class="w">
+
+<div class="topbar">
+  <div class="title-block">
+    <div class="logo">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Gestión de riesgos</div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">Registro activo · Terminal Puerto Principal</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button onclick="sendPrompt('Agregar un nuevo riesgo operacional al sistema')" style="font-size:12px;padding:5px 12px">+ Nuevo riesgo ↗</button>
+    <button onclick="sendPrompt('Exportar listado de riesgos a Excel o PDF')" style="font-size:12px;padding:5px 12px">Exportar ↗</button>
+    <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:12px;padding:5px 12px">← Dashboard ↗</button>
+  </div>
+</div>
+
+<!-- MÉTRICAS -->
+<div class="metrics">
+  <div class="met"><div class="mv">24</div><div class="ml">Total activos</div></div>
+  <div class="met"><div class="mv" style="color:#A32D2D">6</div><div class="ml">Críticos</div><div class="ms"><span class="badge br" style="font-size:10px">Score ≥ 17</span></div></div>
+  <div class="met"><div class="mv" style="color:#993C1D">7</div><div class="ml">Altos</div><div class="ms"><span class="badge bh" style="font-size:10px">Score 10–16</span></div></div>
+  <div class="met"><div class="mv" style="color:#854F0B">8</div><div class="ml">Medios</div><div class="ms"><span class="badge ba" style="font-size:10px">Score 5–9</span></div></div>
+  <div class="met"><div class="mv" style="color:#3B6D11">3</div><div class="ml">Bajos</div><div class="ms"><span class="badge bg" style="font-size:10px">Score 1–4</span></div></div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="fb on" id="fn-todos"     onclick="setNivel(this,'todos')">Todos (24)</button>
+  <button class="fb"    id="fn-critico"   onclick="setNivel(this,'Crítico')">Críticos (6)</button>
+  <button class="fb"    id="fn-alto"      onclick="setNivel(this,'Alto')">Altos (7)</button>
+  <button class="fb"    id="fn-medio"     onclick="setNivel(this,'Medio')">Medios (8)</button>
+  <button class="fb"    id="fn-bajo"      onclick="setNivel(this,'Bajo')">Bajos (3)</button>
+  <button class="fb"    id="fn-sin-plan"  onclick="setNivel(this,'sin-plan')">Sin plan</button>
+  <div class="fsep"></div>
+  <select class="fsel" id="f-area" onchange="render()">
+    <option value="">Todas las áreas</option>
+    <option>Muelle / Buque</option>
+    <option>Patio de contenedores</option>
+    <option>Gate / Portería</option>
+    <option>Taller y equipos</option>
+    <option>Seg. ISPS / BASC</option>
+    <option>Carga peligrosa IMDG</option>
+    <option>Sistemas TOS / IT</option>
+  </select>
+  <select class="fsel" id="f-estado" onchange="render()">
+    <option value="">Todos los estados</option>
+    <option>Activo</option>
+    <option>En mitigación</option>
+    <option>Aceptado</option>
+    <option>Cerrado</option>
+  </select>
+  <input class="fsrch" type="text" id="f-q" placeholder="Buscar riesgo..." oninput="render()"/>
+</div>
+
+<!-- TABLA -->
+<div class="card">
+  <div style="overflow-x:auto">
+    <table class="tbl">
+      <colgroup>
+        <col style="width:110px"><col style="width:38px"><col><col style="width:130px">
+        <col style="width:72px"><col style="width:72px"><col style="width:100px">
+        <col style="width:110px"><col style="width:80px">
+      </colgroup>
+      <thead><tr id="thead-row">
+        <th onclick="sortBy('codigo')">ID ↕</th>
+        <th>Niv.</th>
+        <th onclick="sortBy('nombre')">Riesgo ↕</th>
+        <th onclick="sortBy('area')">Área ↕</th>
+        <th onclick="sortBy('prob')" style="text-align:center">Prob.</th>
+        <th onclick="sortBy('imp')" style="text-align:center">Imp.</th>
+        <th onclick="sortBy('score')" style="text-align:center">Score ↕</th>
+        <th>Plan activo</th>
+        <th onclick="sortBy('estado')" style="text-align:center">Estado ↕</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="pag">
+    <span id="pag-info">Mostrando 1–10 de 24 riesgos</span>
+    <div style="display:flex;gap:4px" id="pag-btns"></div>
+  </div>
+</div>
+
+<!-- PANEL DETALLE RÁPIDO (vista previa lateral) -->
+<div class="side-panel" id="side-panel">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.7rem;border-bottom:0.5px solid var(--color-border-tertiary)">
+    <div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:2px" id="sp-codigo">RISK-2026-001</div>
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)" id="sp-nombre">—</div>
+      <div style="display:flex;gap:5px;margin-top:5px" id="sp-badges"></div>
+    </div>
+    <div style="display:flex;gap:5px;flex-shrink:0;margin-left:10px">
+      <button id="sp-btn-detalle" style="font-size:12px;padding:5px 12px;background:#185FA5;color:white;border-color:#185FA5">Ver ficha completa ↗</button>
+      <button onclick="closePanel()" style="font-size:12px;padding:5px 10px">✕</button>
+    </div>
+  </div>
+  <div class="g2" style="gap:12px">
+    <div>
+      <div class="df"><div class="fl">Descripción</div><div class="fv" id="sp-desc">—</div></div>
+      <div class="df"><div class="fl">Causa raíz</div><div class="fv" id="sp-causa">—</div></div>
+      <div class="df"><div class="fl">Responsable</div><div class="fv" id="sp-resp">—</div></div>
+      <div class="df"><div class="fl">Última revisión</div><div class="fv" id="sp-rev">—</div></div>
+    </div>
+    <div>
+      <div class="df">
+        <div class="fl" style="margin-bottom:5px">Posición en matriz</div>
+        <div class="mini-matrix" id="sp-matrix"></div>
+      </div>
+      <div class="df" style="margin-top:8px">
+        <div class="fl" style="margin-bottom:5px">Planes de mitigación</div>
+        <div id="sp-planes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-top:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;gap:8px">
+  <span style="font-size:11px;color:var(--color-text-secondary)">Terminal Risk Monitor v2.1 · Última actualización: hoy</span>
+  <div style="display:flex;gap:6px">
+    <button onclick="sendPrompt('Ver mapa interactivo del terminal con zonas de riesgo')" style="font-size:11px;padding:4px 10px">Mapa de riesgos ↗</button>
+    <button onclick="sendPrompt('Generar reporte ejecutivo mensual de riesgos')" style="font-size:11px;padding:4px 10px">Reporte ejecutivo ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const NIVEL_META={
+  'Crítico':{cls:'br',color:'#A32D2D',bg:'#FCEBEB'},
+  'Alto':   {cls:'bh',color:'#993C1D',bg:'#FAECE7'},
+  'Medio':  {cls:'ba',color:'#854F0B',bg:'#FAEEDA'},
+  'Bajo':   {cls:'bg',color:'#3B6D11',bg:'#EAF3DE'},
+};
+const ESTADO_META={
+  'Activo':        {cls:'br'},
+  'En mitigación': {cls:'bb'},
+  'Aceptado':      {cls:'ba'},
+  'Cerrado':       {cls:'bg'},
+};
+
+const DATA=[
+  {codigo:'RISK-2026-001',nombre:'Caída de contenedor durante operación de RTG',area:'Patio de contenedores',tipo:'Seguridad industrial',prob:5,imp:4,nivel:'Crítico',estado:'Activo',responsable:'Jef. Mantenimiento',revision:'10/04/2026',planes:[{id:'PM-039',p:45,e:'En progreso'},{id:'PM-042',p:0,e:'Pendiente'}],desc:'Riesgo de caída de contenedor 20\'/40\' durante apilamiento en bloques A y B.',causa:'Mantenimiento preventivo vencido en 2 de 4 RTGs'},
+  {codigo:'RISK-2026-002',nombre:'Falla de grúa STS durante operación de buque',area:'Muelle / Buque',tipo:'Operacional / Proceso',prob:5,imp:4,nivel:'Crítico',estado:'Activo',responsable:'Jef. Mantenimiento',revision:'08/04/2026',planes:[{id:'PM-027',p:10,e:'Vencido'}],desc:'Falla mecánica o eléctrica de grúa STS durante carga/descarga de buque.',causa:'Mantenimiento correctivo vencido 19 días'},
+  {codigo:'RISK-2026-003',nombre:'Incendio en área de carga peligrosa IMDG clase 3',area:'Carga peligrosa IMDG',tipo:'Seguridad industrial',prob:3,imp:5,nivel:'Crítico',estado:'Activo',responsable:'Sup. Patio',revision:'05/04/2026',planes:[],desc:'Inflamación de carga IMDG clase 3 en zona de almacenamiento.',causa:'Sin protocolo específico de manejo en patio abierto'},
+  {codigo:'RISK-2026-004',nombre:'Acceso no autorizado a zona restringida ISPS',area:'Seg. ISPS / BASC',tipo:'Seguridad física',prob:4,imp:3,nivel:'Alto',estado:'En mitigación',responsable:'Jef. Seguridad ISPS',revision:'16/04/2026',planes:[{id:'PM-044',p:30,e:'En progreso'}],desc:'Intrusión de personas no autorizadas a zonas restringidas.',causa:'Cobertura perimetral incompleta en sector norte'},
+  {codigo:'RISK-2026-005',nombre:'Falla del TOS — pérdida de trazabilidad',area:'Sistemas TOS / IT',tipo:'Tecnológico',prob:3,imp:4,nivel:'Alto',estado:'Activo',responsable:'Jef. Sistemas',revision:'01/04/2026',planes:[],desc:'Caída del sistema TOS con pérdida de trazabilidad de contenedores.',causa:'Sin plan de contingencia documentado para caída del TOS'},
+  {codigo:'RISK-2026-006',nombre:'Atropello por reach stacker en zona de patio',area:'Patio de contenedores',tipo:'Seguridad industrial',prob:2,imp:5,nivel:'Alto',estado:'En mitigación',responsable:'Sup. Patio',revision:'12/04/2026',planes:[{id:'PM-034',p:85,e:'En progreso'}],desc:'Atropello de peatón u operador por reach stacker en zonas sin barrera.',causa:'Ausencia de barreras físicas entre zonas peatonales y de tránsito'},
+  {codigo:'RISK-2026-007',nombre:'Derrame de lubricante hidráulico en taller',area:'Taller y equipos',tipo:'Ambiental',prob:4,imp:2,nivel:'Medio',estado:'Activo',responsable:'Jef. Mantenimiento',revision:'03/04/2026',planes:[],desc:'Derrame de lubricantes sin contención en taller de mantenimiento.',causa:'Sin bandeja de contención en almacén de lubricantes'},
+  {codigo:'RISK-2026-008',nombre:'Fatiga de operadores turno nocturno',area:'Patio de contenedores',tipo:'Humano / Fatiga',prob:5,imp:3,nivel:'Crítico',estado:'En mitigación',responsable:'RRHH',revision:'14/04/2026',planes:[{id:'PM-037',p:70,e:'En progreso'}],desc:'Errores operativos por fatiga acumulada en turnos nocturnos de más de 10h.',causa:'Sin política de rotación ni pausas obligatorias en turno nocturno'},
+  {codigo:'RISK-2026-009',nombre:'Contenedor mal apilado — bloque colapso',area:'Patio de contenedores',tipo:'Operacional / Proceso',prob:3,imp:3,nivel:'Medio',estado:'Activo',responsable:'Sup. Patio',revision:'07/04/2026',planes:[],desc:'Apilamiento incorrecto que puede generar colapso de bloque.',causa:'Falta de supervisión y sistema de verificación de altura de pila'},
+  {codigo:'RISK-2026-010',nombre:'Marejada extrema — paralización de muelle',area:'Muelle / Buque',tipo:'Externo / Climático',prob:2,imp:4,nivel:'Medio',estado:'Aceptado',responsable:'Sup. Muelle',revision:'20/03/2026',planes:[],desc:'Marejadas con olas >3m que impiden operación de grúas STS.',causa:'Condición climática externa no controlable'},
+  {codigo:'RISK-2026-011',nombre:'Falla lector RFID en gate',area:'Gate / Portería',tipo:'Tecnológico',prob:4,imp:2,nivel:'Medio',estado:'Activo',responsable:'Jef. Sistemas',revision:'11/04/2026',planes:[],desc:'Falla del sistema RFID genera congestión en horas pico.',causa:'Equipos con más de 5 años sin reemplazo'},
+  {codigo:'RISK-2026-012',nombre:'Ingreso de carga peligrosa sin documentación IMDG',area:'Gate / Portería',tipo:'Legal / Regulatorio',prob:3,imp:4,nivel:'Alto',estado:'Activo',responsable:'Sup. Gate',revision:'06/04/2026',planes:[],desc:'Ingreso de carga IMDG sin DGD (Dangerous Goods Declaration).',causa:'Proceso de inspección manual sin validación digital'},
+  {codigo:'RISK-2026-013',nombre:'Corte eléctrico zona RTG norte',area:'Patio de contenedores',tipo:'Operacional / Proceso',prob:2,imp:3,nivel:'Medio',estado:'Activo',responsable:'Jef. Mantenimiento',revision:'02/04/2026',planes:[],desc:'Corte de suministro eléctrico paraliza operación de RTGs en patio norte.',causa:'Transformador con sobredemanda en horas pico sin redundancia'},
+  {codigo:'RISK-2026-014',nombre:'Fuga de combustible en área de maquinaria',area:'Taller y equipos',tipo:'Ambiental',prob:3,imp:3,nivel:'Medio',estado:'Activo',responsable:'Jef. Mantenimiento',revision:'09/04/2026',planes:[],desc:'Fuga de combustible diesel que puede causar incendio o derrame.',causa:'Mangueras hidráulicas con más de 3 años sin revisión'},
+  {codigo:'RISK-2026-015',nombre:'Acceso de vehículo no autorizado a zona operativa',area:'Seg. ISPS / BASC',tipo:'Seguridad física',prob:2,imp:3,nivel:'Medio',estado:'Activo',responsable:'Jef. Seguridad ISPS',revision:'15/04/2026',planes:[],desc:'Vehículo sin credencial accede a zona operativa por fallo de barrera.',causa:'Barreras automáticas con falla intermitente en gate secundario'},
+];
+
+let filtNivel='todos', sortCol='score', sortDir=-1, PAGE=1, PER=10;
+
+function setNivel(btn,niv){
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  filtNivel=niv; PAGE=1; render(); closePanel();
+}
+
+function sortBy(col){
+  if(sortCol===col) sortDir*=-1; else {sortCol=col;sortDir=-1;}
+  render();
+}
+
+function getRows(){
+  const q=(document.getElementById('f-q').value||'').toLowerCase();
+  const a=document.getElementById('f-area').value;
+  const e=document.getElementById('f-estado').value;
+  return DATA.filter(r=>{
+    if(filtNivel!=='todos' && filtNivel!=='sin-plan'){
+      if(r.nivel!==filtNivel) return false;
+    }
+    if(filtNivel==='sin-plan' && r.planes.length>0) return false;
+    if(a && r.area!==a) return false;
+    if(e && r.estado!==e) return false;
+    if(q && !r.nombre.toLowerCase().includes(q) && !r.codigo.toLowerCase().includes(q) && !r.area.toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b)=>{
+    const map={codigo:'codigo',nombre:'nombre',area:'area',prob:'prob',imp:'imp',score:r=>r.prob*r.imp,estado:'estado'};
+    let av=typeof map[sortCol]==='function'?map[sortCol](a):a[sortCol];
+    let bv=typeof map[sortCol]==='function'?map[sortCol](b):b[sortCol];
+    if(typeof av==='string') av=av.toLowerCase(), bv=bv.toLowerCase();
+    return av<bv?-sortDir:av>bv?sortDir:0;
+  });
+}
+
+function render(){
+  const rows=getRows();
+  const total=rows.length;
+  const pages=Math.max(1,Math.ceil(total/PER));
+  if(PAGE>pages) PAGE=1;
+  const s=(PAGE-1)*PER, e2=Math.min(s+PER,total);
+  const slice=rows.slice(s,e2);
+  const tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  slice.forEach((r,i)=>{
+    const score=r.prob*r.imp;
+    const nm=NIVEL_META[r.nivel]||{cls:'bgr',color:'#5F5E5A',bg:'#F1EFE8'};
+    const em=ESTADO_META[r.estado]||{cls:'bgr'};
+    const planLabel=r.planes.length===0
+      ? `<span style="font-size:11px;color:var(--color-text-secondary)">Sin plan</span>`
+      : r.planes.map(p=>`<div style="font-size:11px;color:var(--color-text-secondary)">${p.id}<div class="pp"><div class="ppf" style="width:${p.p}%;background:${p.e==='Vencido'?'#E24B4A':p.p===0?'#B4B2A9':'#378ADD'}"></div></div></div>`).join('');
+    const tr=document.createElement('tr');
+    tr.className='rr'+(i%2===1?' alt':'');
+    tr.onclick=()=>openPanel(r);
+    tr.innerHTML=`
+      <td style="font-size:11px;color:#185FA5;font-weight:500">${r.codigo}</td>
+      <td><div style="width:10px;height:10px;border-radius:50%;background:${nm.color};margin:0 auto"></div></td>
+      <td style="word-break:break-word">${r.nombre}</td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${r.area}</td>
+      <td style="text-align:center;font-size:12px;font-weight:500">${r.prob}/5</td>
+      <td style="text-align:center;font-size:12px;font-weight:500">${r.imp}/5</td>
+      <td style="text-align:center">
+        <div class="score-pill" style="background:${nm.bg};color:${nm.color};margin:0 auto">${score}</div>
+        <div style="font-size:10px;color:${nm.color};margin-top:2px">${r.nivel}</div>
+      </td>
+      <td>${planLabel}</td>
+      <td style="text-align:center"><span class="badge ${em.cls}" style="font-size:10px">${r.estado}</span></td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('pag-info').textContent=`Mostrando ${total===0?0:s+1}–${e2} de ${total} riesgos`;
+  const pb=document.getElementById('pag-btns');
+  pb.innerHTML='';
+  if(PAGE>1){const b=document.createElement('button');b.className='pb';b.textContent='←';b.onclick=()=>{PAGE--;render();};pb.appendChild(b);}
+  for(let p=1;p<=pages;p++){const b=document.createElement('button');b.className='pb'+(p===PAGE?' cur':'');b.textContent=p;b.onclick=(pp=>()=>{PAGE=pp;render();})(p);pb.appendChild(b);}
+  if(PAGE<pages){const b=document.createElement('button');b.className='pb';b.textContent='→';b.onclick=()=>{PAGE++;render();};pb.appendChild(b);}
+}
+
+function openPanel(r){
+  const score=r.prob*r.imp;
+  const nm=NIVEL_META[r.nivel]||{cls:'bgr',color:'#5F5E5A',bg:'#F1EFE8'};
+  const em=ESTADO_META[r.estado]||{cls:'bgr'};
+  document.getElementById('sp-codigo').textContent=r.codigo;
+  document.getElementById('sp-nombre').textContent=r.nombre;
+  document.getElementById('sp-badges').innerHTML=`<span class="badge ${nm.cls}">${r.nivel} · ${score}</span><span class="badge bb">${r.area}</span><span class="badge ${em.cls}">${r.estado}</span>`;
+  document.getElementById('sp-desc').textContent=r.desc;
+  document.getElementById('sp-causa').textContent=r.causa;
+  document.getElementById('sp-resp').textContent=r.responsable;
+  document.getElementById('sp-rev').textContent=r.revision;
+  document.getElementById('sp-btn-detalle').onclick=()=>sendPrompt('Ver ficha completa del riesgo '+r.codigo+': '+r.nombre);
+  // Mini matriz
+  const mxd=[[1,2,3,4,5],[2,4,6,8,10],[3,6,9,12,15],[4,8,12,16,20],[5,10,15,20,25]];
+  const mx=document.getElementById('sp-matrix');
+  mx.innerHTML='';
+  for(let row=4;row>=0;row--){for(let col=0;col<5;col++){const v=mxd[row][col];const d=document.createElement('div');const cls=v<=4?'cl':v<=9?'cm':v<=16?'ch':'cc';d.className='mc '+cls;if(row===r.prob-1&&col===r.imp-1){d.innerHTML='★';d.classList.add('sel');}mx.appendChild(d);}}
+  // Planes
+  const pl=document.getElementById('sp-planes');
+  if(r.planes.length===0){pl.innerHTML='<span style="font-size:11px;color:var(--color-text-secondary)">Sin planes asignados</span>';}
+  else{pl.innerHTML=r.planes.map(p=>{const pc=p.e==='Vencido'?'br':p.e==='Pendiente'?'bgr':'bb';return`<div class="plan-mini"><span style="font-size:11px;color:#185FA5;font-weight:500">${p.id}</span><div class="pp"><div class="ppf" style="width:${p.p}%;background:${p.e==='Vencido'?'#E24B4A':p.p===0?'#B4B2A9':'#378ADD'}"></div></div><span style="font-size:10px;font-weight:500;color:var(--color-text-secondary)">${p.p}%</span><span class="badge ${pc}" style="font-size:10px">${p.e}</span></div>`}).join('');}
+  document.getElementById('side-panel').classList.add('show');
+  document.getElementById('side-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closePanel(){document.getElementById('side-panel').classList.remove('show');}
+
+render();
+</script>

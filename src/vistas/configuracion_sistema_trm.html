@@ -1,0 +1,534 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.logo-box{width:32px;height:32px;border-radius:var(--border-radius-md);background:#5F5E5A;display:flex;align-items:center;justify-content:center}
+.logo-box svg{width:17px;height:17px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round}
+.page-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.page-sub{font-size:12px;color:var(--color-text-secondary)}
+.layout{display:grid;grid-template-columns:200px 1fr;gap:10px}
+.sidenav{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.75rem;align-self:start}
+.nav-section{font-size:10px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;padding:.4rem .6rem;margin-top:.5rem}
+.nav-section:first-child{margin-top:0}
+.nav-item{display:flex;align-items:center;gap:8px;padding:.5rem .6rem;border-radius:var(--border-radius-md);cursor:pointer;font-size:12px;color:var(--color-text-secondary);transition:all .15s}
+.nav-item:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nav-item.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+.nav-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.content{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.1rem}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:.85rem;display:flex;align-items:center;justify-content:space-between}
+.field{margin-bottom:.85rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;display:block}
+.label-hint{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+textarea{resize:vertical;min-height:60px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:12px;color:var(--color-text-primary)}
+.toggle-sub{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.toggle{width:36px;height:20px;border-radius:10px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:#185FA5}
+.toggle.off{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary)}
+.toggle-thumb{width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:2px;transition:left .2s}
+.toggle.on .toggle-thumb{left:18px}
+.toggle.off .toggle-thumb{left:2px}
+.area-row{display:flex;align-items:center;gap:8px;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.area-row:last-child{border-bottom:none}
+.area-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.area-name{font-size:12px;color:var(--color-text-primary);flex:1}
+.kri-config-row{display:grid;grid-template-columns:1fr 80px 80px 80px;gap:8px;align-items:center;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.kri-config-row:last-child{border-bottom:none}
+.kri-config-head{font-size:11px;color:var(--color-text-secondary);font-weight:500}
+.notif-row{display:flex;align-items:flex-start;gap:10px;padding:.6rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.notif-row:last-child{border-bottom:none}
+.notif-icon{width:28px;height:28px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.save-bar{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.unsaved{font-size:12px;color:#854F0B;display:none}
+.unsaved.show{display:block}
+</style>
+
+<h2 class="sr-only">Módulo de configuración del sistema Terminal Risk Monitor</h2>
+
+<div class="wrap">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+      <div>
+        <div class="page-title">Configuración del sistema</div>
+        <div class="page-sub">Terminal Risk Monitor · Puerto Principal</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:12px;padding:5px 12px">← Dashboard ↗</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDENAV -->
+    <div class="sidenav">
+      <div class="nav-section">General</div>
+      <div class="nav-item active" id="nav-terminal" onclick="showSection('terminal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Terminal
+      </div>
+      <div class="nav-item" id="nav-areas" onclick="showSection('areas')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Áreas y zonas
+      </div>
+      <div class="nav-item" id="nav-equipos" onclick="showSection('equipos')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16M12 7v4"/></svg>
+        Equipos
+      </div>
+      <div class="nav-section">Riesgos</div>
+      <div class="nav-item" id="nav-matriz" onclick="showSection('matriz')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Matriz de riesgo
+      </div>
+      <div class="nav-item" id="nav-kri" onclick="showSection('kri')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Umbrales KRI
+      </div>
+      <div class="nav-section">Notificaciones</div>
+      <div class="nav-item" id="nav-alertas" onclick="showSection('alertas')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Alertas
+      </div>
+      <div class="nav-item" id="nav-canales" onclick="showSection('canales')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Canales
+      </div>
+      <div class="nav-section">Sistema</div>
+      <div class="nav-item" id="nav-auditoria" onclick="showSection('auditoria')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Auditoría
+      </div>
+      <div class="nav-item" id="nav-integraciones" onclick="showSection('integraciones')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Integraciones
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- TERMINAL -->
+      <div id="sec-terminal">
+        <div class="card">
+          <div class="section-title">Información del terminal</div>
+          <div class="grid2">
+            <div class="field"><label class="label">Nombre del terminal</label><input type="text" value="Terminal Puerto Principal"/></div>
+            <div class="field"><label class="label">Puerto / Ciudad</label><input type="text" value="Puerto Principal · Guayaquil, EC"/></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label class="label">Código ISPS</label><input type="text" value="ECGYE-TRM-001"/></div>
+            <div class="field"><label class="label">Código BASC</label><input type="text" value="BASC-EC-2024-0042"/></div>
+          </div>
+          <div class="grid3">
+            <div class="field"><label class="label">Capacidad (TEUs/año)</label><input type="number" value="420000"/></div>
+            <div class="field"><label class="label">Berths operativos</label><input type="number" value="4"/></div>
+            <div class="field"><label class="label">Turnos por día</label><select><option>2 turnos (12h)</option><option selected>3 turnos (8h)</option></select></div>
+          </div>
+          <div class="field"><label class="label">Zona horaria</label>
+            <select><option selected>America/Guayaquil (UTC-5)</option><option>America/Bogota (UTC-5)</option><option>America/Lima (UTC-5)</option></select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">Preferencias del sistema</div>
+          <div class="grid2">
+            <div class="field"><label class="label">Idioma de la interfaz</label><select><option selected>Español</option><option>English</option></select></div>
+            <div class="field"><label class="label">Formato de fecha</label><select><option selected>DD/MM/YYYY</option><option>MM/DD/YYYY</option><option>YYYY-MM-DD</option></select></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label class="label">Moneda</label><select><option selected>USD — Dólar americano</option><option>EUR — Euro</option></select></div>
+            <div class="field"><label class="label">Frecuencia de reporte automático</label><select><option selected>Mensual</option><option>Quincenal</option><option>Semanal</option></select></div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Modo oscuro automático</div><div class="toggle-sub">Adapta la interfaz al sistema operativo</div></div>
+            <div class="toggle on" onclick="tog(this)"><div class="toggle-thumb"></div></div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Actualizaciones en tiempo real</div><div class="toggle-sub">Refresca el dashboard cada 60 segundos</div></div>
+            <div class="toggle on" onclick="tog(this)"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÁREAS -->
+      <div id="sec-areas" style="display:none">
+        <div class="card">
+          <div class="section-title">Áreas operacionales <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">8 configuradas</span></div>
+          <div id="areas-list"></div>
+          <button style="font-size:12px;padding:5px 14px;margin-top:.75rem">+ Agregar área</button>
+        </div>
+        <div class="card">
+          <div class="section-title">Tipos de riesgo</div>
+          <div class="grid2">
+            <div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Tipos activos</div>
+              <div id="tipos-list"></div>
+            </div>
+            <div class="field">
+              <label class="label">Agregar nuevo tipo</label>
+              <input type="text" placeholder="Nombre del tipo de riesgo"/>
+              <div class="label-hint">Ej: Ciberseguridad, Reputacional</div>
+              <button style="font-size:12px;padding:4px 12px;margin-top:8px">+ Agregar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EQUIPOS -->
+      <div id="sec-equipos" style="display:none">
+        <div class="card">
+          <div class="section-title">Registro de equipos críticos <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">12 equipos</span></div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead><tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+                <th style="text-align:left;padding:.5rem .75rem;font-size:11px;color:var(--color-text-secondary);font-weight:500">Código</th>
+                <th style="text-align:left;padding:.5rem .75rem;font-size:11px;color:var(--color-text-secondary);font-weight:500">Equipo</th>
+                <th style="text-align:left;padding:.5rem .75rem;font-size:11px;color:var(--color-text-secondary);font-weight:500">Área</th>
+                <th style="text-align:center;padding:.5rem .75rem;font-size:11px;color:var(--color-text-secondary);font-weight:500">Mtto. (días)</th>
+                <th style="text-align:center;padding:.5rem .75rem;font-size:11px;color:var(--color-text-secondary);font-weight:500">Estado</th>
+              </tr></thead>
+              <tbody id="equipos-tbody"></tbody>
+            </table>
+          </div>
+          <button style="font-size:12px;padding:5px 14px;margin-top:.75rem">+ Agregar equipo</button>
+        </div>
+      </div>
+
+      <!-- MATRIZ -->
+      <div id="sec-matriz" style="display:none">
+        <div class="card">
+          <div class="section-title">Umbrales de la matriz de riesgo</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.85rem">Define los rangos de puntuación para cada nivel de riesgo (Probabilidad × Impacto, escala 1–25)</div>
+          <div id="matrix-thresholds"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">Etiquetas de probabilidad e impacto</div>
+          <div class="grid2" style="gap:16px">
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.6rem">Probabilidad</div>
+              <div id="prob-labels"></div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.6rem">Impacto</div>
+              <div id="imp-labels"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">Configuración de revisiones periódicas</div>
+          <div class="grid3">
+            <div class="field"><label class="label">Riesgos críticos — cada</label><select><option>7 días</option><option selected>15 días</option><option>30 días</option></select></div>
+            <div class="field"><label class="label">Riesgos altos — cada</label><select><option>15 días</option><option selected>30 días</option><option>60 días</option></select></div>
+            <div class="field"><label class="label">Riesgos medios/bajos — cada</label><select><option>30 días</option><option selected>60 días</option><option>90 días</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KRI -->
+      <div id="sec-kri" style="display:none">
+        <div class="card">
+          <div class="section-title">Umbrales de indicadores KRI</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.85rem">Configura los valores mínimos y máximos aceptables para cada indicador. Al superar el umbral se generará una alerta automática.</div>
+          <div class="kri-config-row" style="padding-bottom:.5rem;margin-bottom:4px">
+            <div class="kri-config-head">Indicador</div>
+            <div class="kri-config-head" style="text-align:center">Alerta</div>
+            <div class="kri-config-head" style="text-align:center">Crítico</div>
+            <div class="kri-config-head" style="text-align:center">Unidad</div>
+          </div>
+          <div id="kri-config-list"></div>
+          <button style="font-size:12px;padding:5px 14px;margin-top:.75rem">+ Agregar KRI</button>
+        </div>
+      </div>
+
+      <!-- ALERTAS -->
+      <div id="sec-alertas" style="display:none">
+        <div class="card">
+          <div class="section-title">Reglas de alerta automática</div>
+          <div id="alertas-list"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">Escalamiento automático</div>
+          <div class="grid2">
+            <div class="field"><label class="label">Escalar a gerencia si acción vence sin respuesta en</label>
+              <select><option>24 horas</option><option selected>48 horas</option><option>72 horas</option></select>
+            </div>
+            <div class="field"><label class="label">Escalar a gerencia general si no hay respuesta en</label>
+              <select><option selected>72 horas</option><option>5 días</option><option>7 días</option></select>
+            </div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Escalamiento automático activo</div><div class="toggle-sub">El sistema escala sin intervención manual si no hay respuesta</div></div>
+            <div class="toggle on" onclick="tog(this)"><div class="toggle-thumb"></div></div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Notificar a autoridad portuaria en incidentes críticos</div><div class="toggle-sub">Envío automático de notificación regulatoria</div></div>
+            <div class="toggle off" onclick="tog(this)"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CANALES -->
+      <div id="sec-canales" style="display:none">
+        <div class="card">
+          <div class="section-title">Canales de notificación</div>
+          <div id="canales-list"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">Destinatarios por nivel de alerta</div>
+          <div class="grid2">
+            <div class="field"><label class="label">Alerta crítica — notificar a</label><textarea placeholder="gerencia@terminal.com; seguridad@terminal.com" style="min-height:52px">gerencia@terminal.com; ssoma@terminal.com; mantenimiento@terminal.com</textarea></div>
+            <div class="field"><label class="label">Alerta alta — notificar a</label><textarea placeholder="jefaturas@terminal.com" style="min-height:52px">jefaturas@terminal.com; supervisores@terminal.com</textarea></div>
+          </div>
+          <div class="field"><label class="label">Reporte ejecutivo mensual — distribuir a</label>
+            <textarea>gerenciageneral@terminal.com; gerenciaoperaciones@terminal.com; auditoria@terminal.com</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDITORÍA -->
+      <div id="sec-auditoria" style="display:none">
+        <div class="card">
+          <div class="section-title">Configuración de auditoría</div>
+          <div class="toggle-row"><div><div class="toggle-label">Registro de auditoría activo</div><div class="toggle-sub">Guarda cada cambio con usuario, fecha y acción</div></div><div class="toggle on" onclick="tog(this)"><div class="toggle-thumb"></div></div></div>
+          <div class="toggle-row"><div><div class="toggle-label">Registrar accesos al sistema</div><div class="toggle-sub">Loguea cada inicio y cierre de sesión</div></div><div class="toggle on" onclick="tog(this)"><div class="toggle-thumb"></div></div></div>
+          <div class="toggle-row"><div><div class="toggle-label">Registrar exportaciones de datos</div><div class="toggle-sub">Audita descargas de Excel y PDF</div></div><div class="toggle off" onclick="tog(this)"><div class="toggle-thumb"></div></div></div>
+          <div class="grid2" style="margin-top:.85rem">
+            <div class="field"><label class="label">Retención de logs</label><select><option>6 meses</option><option selected>1 año</option><option>2 años</option><option>Indefinido</option></select></div>
+            <div class="field"><label class="label">Exportar logs de auditoría</label><select><option>Último mes</option><option>Últimos 3 meses</option><option selected>Último año</option></select></div>
+          </div>
+          <button onclick="sendPrompt('Exportar log de auditoría del sistema')" style="font-size:12px;padding:5px 14px">Exportar log ↗</button>
+        </div>
+      </div>
+
+      <!-- INTEGRACIONES -->
+      <div id="sec-integraciones" style="display:none">
+        <div class="card">
+          <div class="section-title">Integraciones disponibles</div>
+          <div id="integ-list"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">API del sistema</div>
+          <div class="field"><label class="label">API Key</label>
+            <div style="display:flex;gap:8px"><input type="password" value="trm_live_sk_xxxxxxxxxxxxxxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px"/><button style="font-size:12px;padding:5px 12px;white-space:nowrap">Regenerar</button></div>
+            <div class="label-hint">Nunca compartas tu API Key. Se usa para conectar sistemas externos al TRM.</div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label class="label">Webhook URL (incidentes)</label><input type="text" placeholder="https://tu-sistema.com/webhook/incidentes"/></div>
+            <div class="field"><label class="label">Webhook URL (alertas)</label><input type="text" placeholder="https://tu-sistema.com/webhook/alertas"/></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVE BAR -->
+      <div class="save-bar">
+        <div class="unsaved" id="unsaved-msg">Tienes cambios sin guardar</div>
+        <div style="display:flex;gap:8px;margin-left:auto">
+          <button onclick="resetChanges()" style="font-size:12px;padding:5px 14px">Descartar cambios</button>
+          <button onclick="saveChanges()" style="font-size:12px;padding:5px 14px;background:#185FA5;color:white;border-color:#185FA5">Guardar configuración</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const areas=[
+  {name:'Muelle / Operaciones de buque',color:'#378ADD',equipos:6,riesgos:5},
+  {name:'Patio de contenedores (Yard)',color:'#EF9F27',equipos:8,riesgos:7},
+  {name:'Gate / Portería',color:'#185FA5',equipos:3,riesgos:4},
+  {name:'Taller y equipos',color:'#534AB7',equipos:4,riesgos:5},
+  {name:'Seguridad ISPS / BASC',color:'#E24B4A',equipos:2,riesgos:3},
+  {name:'Carga peligrosa IMDG',color:'#D85A30',equipos:1,riesgos:2},
+  {name:'Sistemas TOS / IT',color:'#1D9E75',equipos:5,riesgos:2},
+  {name:'Salud ocupacional / SSOMA',color:'#639922',equipos:0,riesgos:1},
+];
+const al=document.getElementById('areas-list');
+areas.forEach(a=>{
+  al.innerHTML+=`<div class="area-row">
+    <div class="area-dot" style="background:${a.color}"></div>
+    <div class="area-name">${a.name}</div>
+    <span style="font-size:11px;color:var(--color-text-secondary);margin-right:8px">${a.equipos} equipos · ${a.riesgos} riesgos</span>
+    <button style="font-size:11px;padding:3px 8px">Editar</button>
+  </div>`;
+});
+
+const tipos=['Seguridad industrial','Operacional / Proceso','Seguridad física','Ambiental','Tecnológico','Humano / Fatiga','Externo / Climático','Legal / Regulatorio'];
+const tl=document.getElementById('tipos-list');
+tipos.forEach(t=>{
+  tl.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;padding:.35rem 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+    <div style="width:7px;height:7px;border-radius:50%;background:#185FA5;flex-shrink:0"></div>
+    <span style="font-size:12px;flex:1">${t}</span>
+    <button style="font-size:10px;padding:1px 6px;color:var(--color-text-secondary)">✕</button>
+  </div>`;
+});
+
+const equipos=[
+  {cod:'STS-1',name:'Grúa Ship-to-Shore 1',area:'Muelle',mtto:30,est:'OK'},
+  {cod:'STS-2',name:'Grúa Ship-to-Shore 2',area:'Muelle',mtto:30,est:'Vencido'},
+  {cod:'RTG-01',name:'RTG Gantry 01',area:'Patio Norte',mtto:15,est:'OK'},
+  {cod:'RTG-02',name:'RTG Gantry 02',area:'Patio Norte',mtto:15,est:'OK'},
+  {cod:'RTG-03',name:'RTG Gantry 03',area:'Patio Norte',mtto:15,est:'Vencido'},
+  {cod:'RTG-04',name:'RTG Gantry 04',area:'Patio Sur',mtto:15,est:'Alerta'},
+];
+const tb=document.getElementById('equipos-tbody');
+equipos.forEach((e,i)=>{
+  const bg=i%2===0?'var(--color-background-primary)':'var(--color-background-secondary)';
+  const estColor=e.est==='OK'?'badge-green':e.est==='Alerta'?'badge-amber':'badge-red';
+  tb.innerHTML+=`<tr style="background:${bg}">
+    <td style="padding:.5rem .75rem;font-size:12px;font-weight:500;color:#185FA5">${e.cod}</td>
+    <td style="padding:.5rem .75rem;font-size:12px">${e.name}</td>
+    <td style="padding:.5rem .75rem;font-size:12px;color:var(--color-text-secondary)">${e.area}</td>
+    <td style="padding:.5rem .75rem;font-size:12px;text-align:center">${e.mtto}d</td>
+    <td style="padding:.5rem .75rem;text-align:center"><span class="badge ${estColor}" style="font-size:10px">${e.est}</span></td>
+  </tr>`;
+});
+
+const thresholds=[
+  {nivel:'Crítico',min:17,max:25,color:'#A32D2D',bg:'#FCEBEB'},
+  {nivel:'Alto',min:10,max:16,color:'#993C1D',bg:'#FAECE7'},
+  {nivel:'Medio',min:5,max:9,color:'#854F0B',bg:'#FAEEDA'},
+  {nivel:'Bajo',min:1,max:4,color:'#3B6D11',bg:'#EAF3DE'},
+];
+const mt=document.getElementById('matrix-thresholds');
+thresholds.forEach(t=>{
+  mt.innerHTML+=`<div style="display:flex;align-items:center;gap:10px;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+    <div style="width:80px;padding:3px 8px;background:${t.bg};border-radius:var(--border-radius-md);text-align:center;font-size:12px;font-weight:500;color:${t.color}">${t.nivel}</div>
+    <span style="font-size:12px;color:var(--color-text-secondary)">Puntaje mínimo</span>
+    <input type="number" value="${t.min}" style="width:60px;font-size:12px">
+    <span style="font-size:12px;color:var(--color-text-secondary)">máximo</span>
+    <input type="number" value="${t.max}" style="width:60px;font-size:12px">
+  </div>`;
+});
+
+const probLabels=['1 — Raro (menos de 1/año)','2 — Improbable (1 vez/año)','3 — Posible (mensual)','4 — Probable (semanal)','5 — Casi seguro (diario)'];
+const impLabels=['1 — Insignificante (sin lesiones)','2 — Menor (primeros auxilios)','3 — Moderado (lesión con baja)','4 — Mayor (lesión grave)','5 — Catastrófico (fatalidad)'];
+const pl=document.getElementById('prob-labels');
+const il2=document.getElementById('imp-labels');
+probLabels.forEach((l,i)=>{
+  pl.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;padding:.3rem 0;font-size:12px;border-bottom:0.5px solid var(--color-border-tertiary)">
+    <span style="width:16px;font-weight:500;color:#185FA5">${i+1}</span><input type="text" value="${l.split('— ')[1]}" style="flex:1;font-size:12px">
+  </div>`;
+  il2.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;padding:.3rem 0;font-size:12px;border-bottom:0.5px solid var(--color-border-tertiary)">
+    <span style="width:16px;font-weight:500;color:#185FA5">${i+1}</span><input type="text" value="${impLabels[i].split('— ')[1]}" style="flex:1;font-size:12px">
+  </div>`;
+});
+
+const kris=[
+  {name:'Cumplimiento mtto. preventivo',alerta:85,critico:70,unidad:'%'},
+  {name:'Disponibilidad de equipos',alerta:90,critico:80,unidad:'%'},
+  {name:'Tasa de incidentes (por 100k mov.)',alerta:3.5,critico:5.0,unidad:'índice'},
+  {name:'Tiempo respuesta emergencia',alerta:5,critico:8,unidad:'min'},
+  {name:'Inspecciones preoperacionales',alerta:95,critico:85,unidad:'%'},
+  {name:'Capacitaciones completadas',alerta:85,critico:70,unidad:'%'},
+];
+const kl=document.getElementById('kri-config-list');
+kris.forEach(k=>{
+  kl.innerHTML+=`<div class="kri-config-row">
+    <div style="font-size:12px">${k.name}</div>
+    <div><input type="number" value="${k.alerta}" style="width:70px;font-size:12px;text-align:center"></div>
+    <div><input type="number" value="${k.critico}" style="width:70px;font-size:12px;text-align:center"></div>
+    <div style="text-align:center;font-size:11px;color:var(--color-text-secondary)">${k.unidad}</div>
+  </div>`;
+});
+
+const alertas=[
+  {label:'Nuevo riesgo nivel crítico registrado',on:true,canal:'Email + SMS'},
+  {label:'KRI supera umbral de alerta',on:true,canal:'Email'},
+  {label:'Acción de mitigación vencida sin respuesta',on:true,canal:'Email + Sistema'},
+  {label:'Nuevo incidente grave o crítico',on:true,canal:'Email + SMS'},
+  {label:'Plan de emergencia próximo a vencer',on:true,canal:'Email'},
+  {label:'Acceso no autorizado detectado',on:true,canal:'Email + SMS'},
+  {label:'Falla de integración con TOS',on:false,canal:'Email'},
+];
+const artl=document.getElementById('alertas-list');
+alertas.forEach(a=>{
+  artl.innerHTML+=`<div class="toggle-row">
+    <div style="flex:1"><div class="toggle-label">${a.label}</div><div class="toggle-sub">Canal: ${a.canal}</div></div>
+    <div class="toggle ${a.on?'on':'off'}" onclick="tog(this)" style="margin-left:12px"><div class="toggle-thumb"></div></div>
+  </div>`;
+});
+
+const canales=[
+  {name:'Correo electrónico (SMTP)',icon:'#185FA5',st:'Conectado',ok:true},
+  {name:'SMS / Mensajes de texto',icon:'#1D9E75',st:'Conectado',ok:true},
+  {name:'Slack / Microsoft Teams',icon:'#534AB7',st:'No configurado',ok:false},
+  {name:'WhatsApp Business',icon:'#1D9E75',st:'No configurado',ok:false},
+];
+const cnl=document.getElementById('canales-list');
+canales.forEach(c=>{
+  const bc=c.ok?'badge-green':'badge-gray';
+  cnl.innerHTML+=`<div class="notif-row">
+    <div class="notif-icon" style="background:${c.icon}20;border:0.5px solid ${c.icon}40">
+      <div style="width:10px;height:10px;border-radius:50%;background:${c.icon}"></div>
+    </div>
+    <div style="flex:1"><div style="font-size:12px;font-weight:500">${c.name}</div></div>
+    <span class="badge ${bc}" style="font-size:10px">${c.st}</span>
+    <button style="font-size:11px;padding:3px 8px">${c.ok?'Configurar':'Conectar'}</button>
+  </div>`;
+});
+
+const integs=[
+  {name:'TOS — Terminal Operating System',desc:'Sincronización de movimientos y trazabilidad de contenedores',ok:true,color:'#185FA5'},
+  {name:'ERP / SAP',desc:'Integración con sistema financiero y órdenes de trabajo',ok:false,color:'#EF9F27'},
+  {name:'SCADA — Control de equipos',desc:'Datos en tiempo real de grúas y RTGs',ok:false,color:'#534AB7'},
+  {name:'Autoridad Portuaria — API regulatoria',desc:'Reportes automáticos a entidad reguladora',ok:false,color:'#E24B4A'},
+];
+const intl=document.getElementById('integ-list');
+integs.forEach(g=>{
+  intl.innerHTML+=`<div class="notif-row">
+    <div class="notif-icon" style="background:${g.color}20;border:0.5px solid ${g.color}40">
+      <div style="width:10px;height:10px;border-radius:50%;background:${g.color}"></div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;font-weight:500">${g.name}</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">${g.desc}</div>
+    </div>
+    <span class="badge ${g.ok?'badge-green':'badge-gray'}" style="font-size:10px">${g.ok?'Activo':'Sin conectar'}</span>
+    <button style="font-size:11px;padding:3px 8px">${g.ok?'Configurar':'Conectar'}</button>
+  </div>`;
+});
+
+function tog(el){
+  el.classList.toggle('on');el.classList.toggle('off');
+  document.getElementById('unsaved-msg').classList.add('show');
+}
+
+function showSection(sec){
+  ['terminal','areas','equipos','matriz','kri','alertas','canales','auditoria','integraciones'].forEach(s=>{
+    const el=document.getElementById('sec-'+s);
+    if(el) el.style.display=s===sec?'flex':'none';
+    if(el&&s===sec) el.style.flexDirection='column';
+  });
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navEl=document.getElementById('nav-'+sec);
+  if(navEl) navEl.classList.add('active');
+}
+
+function saveChanges(){
+  document.getElementById('unsaved-msg').classList.remove('show');
+  const btn=event.target;
+  btn.textContent='Guardado';btn.style.background='#3B6D11';btn.style.borderColor='#3B6D11';
+  setTimeout(()=>{btn.textContent='Guardar configuración';btn.style.background='#185FA5';btn.style.borderColor='#185FA5';},2000);
+}
+function resetChanges(){
+  document.getElementById('unsaved-msg').classList.remove('show');
+}
+
+document.querySelectorAll('input,select,textarea').forEach(el=>{
+  el.addEventListener('change',()=>document.getElementById('unsaved-msg').classList.add('show'));
+});
+</script>

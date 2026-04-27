@@ -1,0 +1,440 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.br{background:#FCEBEB;color:#A32D2D}.ba{background:#FAEEDA;color:#854F0B}
+.bg{background:#EAF3DE;color:#3B6D11}.bb{background:#E6F1FB;color:#185FA5}
+.bh{background:#FAECE7;color:#993C1D}.bgr{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.alert{display:flex;align-items:flex-start;gap:8px;padding:.6rem .85rem;border-radius:var(--border-radius-md);font-size:12px;margin-bottom:.85rem;line-height:1.5}
+.aw{background:#FAEEDA;border:0.5px solid #FAC775;color:#633806}
+.ai{background:#E6F1FB;border:0.5px solid #B5D4F4;color:#0C447C}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:.85rem;overflow-x:auto}
+.tab{font-size:12px;color:var(--color-text-secondary);padding:.45rem .85rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-left:none;border-right:none;border-top:none;white-space:nowrap;font-family:var(--font-sans)}
+.tab.on{color:var(--color-text-primary);font-weight:500;border-bottom-color:#185FA5}
+.tab.mod::after{content:'●';color:#854F0B;margin-left:4px;font-size:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.9rem 1rem;margin-bottom:.75rem}
+.st{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.field{margin-bottom:.85rem}.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.req{color:#E24B4A;font-size:11px}
+.ctag{font-size:10px;color:#854F0B;font-weight:500;background:#FAEEDA;padding:1px 5px;border-radius:3px}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.g3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+textarea{resize:vertical;min-height:64px}
+input.mod,select.mod,textarea.mod{border-color:#854F0B!important;background:#FAEEDA14}
+/* Progreso */
+.prog-slider{width:100%;margin:8px 0 4px}
+.prog-bar{height:8px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;border-radius:4px;transition:width .3s;background:#378ADD}
+/* Tareas */
+.tarea{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.7rem .85rem;margin-bottom:6px;position:relative}
+.tarea:last-child{margin-bottom:0}
+.tarea-del{position:absolute;top:.5rem;right:.65rem;font-size:10px;color:var(--color-text-secondary);background:none;border:none;cursor:pointer;padding:2px 6px}
+.tarea-del:hover{color:#A32D2D}
+.tcheck{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tcheck input[type=checkbox]{width:auto;margin:0}
+.tcheck-label{font-size:12px;font-weight:500;color:var(--color-text-primary);cursor:pointer}
+.done .tcheck-label{text-decoration:line-through;color:var(--color-text-secondary)}
+/* Estado */
+.estado-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.ep{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.5rem .3rem;font-size:11px;cursor:pointer;transition:all .15s;background:transparent;font-family:var(--font-sans);text-align:center;width:100%}
+.ep:hover{background:var(--color-background-secondary)}
+.ep.sel-pend{border:2px solid #5F5E5A;background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+.ep.sel-prog{border:2px solid #185FA5;background:#E6F1FB;color:#185FA5;font-weight:500}
+.ep.sel-comp{border:2px solid #3B6D11;background:#EAF3DE;color:#3B6D11;font-weight:500}
+.ep.sel-venc{border:2px solid #A32D2D;background:#FCEBEB;color:#A32D2D;font-weight:500}
+.ep.sel-canc{border:2px solid #5F5E5A;background:var(--color-background-secondary);color:var(--color-text-secondary);font-weight:500}
+/* Diff */
+.diff-item{display:flex;gap:8px;padding:.3rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:11px;flex-wrap:wrap}
+.diff-item:last-child{border-bottom:none}
+.dk{color:var(--color-text-secondary);min-width:120px;flex-shrink:0}
+.dold{color:#A32D2D;text-decoration:line-through}
+.dnew{color:#3B6D11;font-weight:500}
+/* Footer */
+.footer-bar{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.sw{display:none;text-align:center;padding:1.5rem 1rem}
+.sico{width:44px;height:44px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem}
+</style>
+
+<h2 class="sr-only">Formulario de edición del plan de mitigación PM-039 — Recuperación mantenimiento preventivo RTG</h2>
+
+<div class="w">
+
+<div class="topbar">
+  <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:12px;padding:5px 10px">← Volver al Kanban</button>
+  <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--color-text-secondary)">PM-039</span>
+    <span class="badge bb" id="estado-badge">En progreso</span>
+    <span class="badge br">Riesgo vinculado: RISK-2026-001</span>
+    <span style="font-size:11px;color:var(--color-text-secondary)">Editando</span>
+  </div>
+</div>
+
+<div class="alert aw" id="unsaved-alert" style="display:none">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  Tienes cambios sin guardar — las pestañas con <strong style="color:#854F0B">●</strong> tienen modificaciones pendientes.
+</div>
+<div class="alert ai">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Los cambios quedarán registrados en el log de auditoría. Actualizar el avance también actualizará la tarjeta en el tablero Kanban.
+</div>
+
+<div class="tabs">
+  <button class="tab on" id="tab-general"  onclick="goTab(this,'general')">General</button>
+  <button class="tab"    id="tab-avance"   onclick="goTab(this,'avance')">Avance y tareas</button>
+  <button class="tab"    id="tab-recursos" onclick="goTab(this,'recursos')">Recursos</button>
+  <button class="tab"    id="tab-estado"   onclick="goTab(this,'estado')">Estado</button>
+</div>
+
+<!-- GENERAL -->
+<div id="sec-general">
+  <div class="card">
+    <div class="st">Información del plan</div>
+    <div class="field">
+      <label class="label">Título del plan <span class="req">*</span></label>
+      <input type="text" id="f-titulo" value="Plan de recuperación del mantenimiento preventivo de flota RTG" oninput="mc(this,'tab-general')"/>
+    </div>
+    <div class="field">
+      <label class="label">Objetivo del plan</label>
+      <textarea id="f-objetivo" oninput="mc(this,'tab-general')">Recuperar el cumplimiento del mantenimiento preventivo al 90% en los 4 RTGs activos antes del cierre de abril 2026, reduciendo el riesgo de falla durante operación de patio.</textarea>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label class="label">Riesgo vinculado</label>
+        <input type="text" value="RISK-2026-001 — Caída de contenedor RTG" readonly style="opacity:.6;cursor:not-allowed"/>
+      </div>
+      <div class="field">
+        <label class="label">Tipo de control <span class="req">*</span></label>
+        <select onchange="mc(this,'tab-general')">
+          <option selected>Preventivo</option><option>Detectivo</option>
+          <option>Correctivo</option><option>Mitigante</option>
+          <option>Transferencia</option><option>Aceptación</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label class="label">Estrategia de reducción</label>
+        <select onchange="mc(this,'tab-general')">
+          <option selected>Reducir probabilidad e impacto</option>
+          <option>Reducir probabilidad</option>
+          <option>Reducir impacto</option>
+          <option>Eliminar el riesgo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Normativa de referencia</label>
+        <select onchange="mc(this,'tab-general')">
+          <option selected>ISO 45001</option><option>ISO 31000</option>
+          <option>Código ISPS</option><option>IMDG</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Indicador de éxito</label>
+      <textarea oninput="mc(this,'tab-general')">Cumplimiento de mantenimiento preventivo RTG ≥ 90%. Cero incidentes por falla hidráulica en 60 días post-cierre del plan.</textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Cronograma</div>
+    <div class="g3">
+      <div class="field">
+        <label class="label">Fecha de inicio</label>
+        <input type="date" value="2026-04-01" onchange="mc(this,'tab-general')"/>
+      </div>
+      <div class="field">
+        <label class="label">Fecha límite <span class="req">*</span> <span class="ctag" id="venc-tag" style="display:none">Vencida</span></label>
+        <input type="date" id="f-fecha" value="2026-04-20" onchange="mc(this,'tab-general');checkVenc()"/>
+      </div>
+      <div class="field">
+        <label class="label">Frecuencia de seguimiento</label>
+        <select onchange="mc(this,'tab-general')">
+          <option>Diaria</option><option selected>Semanal</option>
+          <option>Quincenal</option><option>Mensual</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Fecha de revisión de efectividad</label>
+      <input type="date" value="2026-05-20" onchange="mc(this,'tab-general')"/>
+    </div>
+    <div id="venc-alert" style="margin-top:.5rem;padding:.5rem .75rem;background:#FCEBEB;border-radius:var(--border-radius-md);font-size:12px;color:#A32D2D;display:none">
+      ⚠ La fecha límite ya venció. Si vas a extenderla, justifícalo en la pestaña Estado.
+    </div>
+  </div>
+</div>
+
+<!-- AVANCE Y TAREAS -->
+<div id="sec-avance" style="display:none">
+  <div class="card">
+    <div class="st">Avance general del plan <span id="prog-label" style="font-size:13px;font-weight:500;color:#378ADD">45%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:45%"></div></div>
+    <input type="range" class="prog-slider" id="prog-range" min="0" max="100" value="45"
+      oninput="updateProg(this.value);mc(this,'tab-avance')"/>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary)">
+      <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+    </div>
+    <div style="margin-top:.75rem;padding:.6rem .75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+      <div style="font-size:12px;color:var(--color-text-secondary)">Nota de avance (se mostrará en el historial)</div>
+      <textarea id="f-nota" style="min-height:48px;margin-top:5px;border:0.5px solid var(--color-border-tertiary)" placeholder="Ej: RTG-01 y RTG-02 completados. RTG-03 en mantenimiento, finalización estimada 17/04." oninput="mc(this,'tab-avance')"></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Tareas del plan <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)" id="tareas-counter">3 de 6 completadas</span></div>
+    <div id="tareas-container"></div>
+    <button onclick="addTarea()" style="font-size:12px;padding:5px 12px;margin-top:.6rem">+ Agregar tarea</button>
+  </div>
+</div>
+
+<!-- RECURSOS -->
+<div id="sec-recursos" style="display:none">
+  <div class="card">
+    <div class="st">Responsables</div>
+    <div class="g2">
+      <div class="field">
+        <label class="label">Responsable del plan <span class="req">*</span></label>
+        <input type="text" value="Jefatura de Mantenimiento · Carlos Loor" oninput="mc(this,'tab-recursos')"/>
+      </div>
+      <div class="field">
+        <label class="label">Aprobador</label>
+        <input type="text" value="Gerencia de Operaciones" oninput="mc(this,'tab-recursos')"/>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label class="label">Área responsable</label>
+        <select onchange="mc(this,'tab-recursos')">
+          <option selected>Jefatura de Mantenimiento</option>
+          <option>Supervisión de Patio</option><option>Seguridad Industrial</option>
+          <option>Gerencia de Operaciones</option><option>RRHH</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Nivel de aprobación requerido</label>
+        <select onchange="mc(this,'tab-recursos')">
+          <option>Supervisor de turno</option><option>Jefe de área</option>
+          <option selected>Gerencia de Operaciones</option><option>Gerencia General</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Presupuesto y recursos</div>
+    <div class="g3">
+      <div class="field">
+        <label class="label">Presupuesto estimado</label>
+        <select onchange="mc(this,'tab-recursos')">
+          <option>Sin costo</option><option>Menor ($0–$1,000)</option>
+          <option>Moderado ($1K–$10K)</option><option selected>Significativo ($10K–$50K)</option>
+          <option>Mayor (más de $50K)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Fuente de financiamiento</label>
+        <select onchange="mc(this,'tab-recursos')">
+          <option selected>Presupuesto de mantenimiento</option>
+          <option>Presupuesto operativo</option><option>Fondo de emergencia</option>
+          <option>CAPEX</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label">Prioridad</label>
+        <select onchange="mc(this,'tab-recursos')">
+          <option selected>Inmediata (24–48h)</option>
+          <option>Alta (esta semana)</option><option>Media (este mes)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Recursos adicionales necesarios</label>
+      <textarea oninput="mc(this,'tab-recursos')">2 técnicos externos especializados en RTG · Repuestos hidráulicos (cotización pendiente con Konecranes) · $8,500 presupuesto aprobado.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO -->
+<div id="sec-estado" style="display:none">
+  <div class="card">
+    <div class="st">Estado del plan</div>
+    <div class="field">
+      <div class="label" style="margin-bottom:.5rem">Estado actual</div>
+      <div class="estado-grid">
+        <button class="ep" id="ep-pend"   onclick="setEst('Pendiente')">Pendiente</button>
+        <button class="ep sel-prog" id="ep-prog" onclick="setEst('En progreso')">En progreso</button>
+        <button class="ep" id="ep-comp"   onclick="setEst('Completado')">Completado</button>
+        <button class="ep" id="ep-venc"   onclick="setEst('Vencido')">Vencido</button>
+        <button class="ep" id="ep-canc"   onclick="setEst('Cancelado')">Cancelado</button>
+      </div>
+    </div>
+    <div id="justif-wrap" class="field" style="display:none">
+      <label class="label">Justificación del cambio de estado <span class="req">*</span></label>
+      <textarea placeholder="Explica el motivo del cambio de estado..." style="min-height:64px" onchange="mc(this,'tab-estado')"></textarea>
+    </div>
+    <div id="cierre-wrap" class="field" style="display:none">
+      <label class="label">Evidencia de cierre</label>
+      <textarea placeholder="Describe las evidencias que demuestran que el plan fue completado exitosamente..." style="min-height:64px" onchange="mc(this,'tab-estado')"></textarea>
+    </div>
+    <div class="field">
+      <label class="label">Observaciones del responsable</label>
+      <textarea oninput="mc(this,'tab-estado')">RTG-03 en mantenimiento activo. RTG-04 pendiente de llegada de repuestos el 18/04. Se proyecta cerrar el plan el 22/04 como máximo.</textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">Vista previa de cambios</div>
+    <div id="diff-area"><div style="font-size:12px;color:var(--color-text-secondary);font-style:italic">Sin cambios registrados aún.</div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar" id="footer-bar">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--color-text-secondary)">PM-039 · Creado: 01/04/2026 · Última edición: 16/04/2026</span>
+    <span class="badge ba" id="cambios-ind" style="display:none">Cambios sin guardar</span>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:12px;padding:5px 12px">Cancelar</button>
+    <button onclick="guardar()" style="font-size:12px;padding:5px 16px;background:#185FA5;color:white;border-color:#185FA5">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- ÉXITO -->
+<div class="sw" id="sw">
+  <div class="sico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+  <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px">Plan actualizado correctamente</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem">Los cambios en PM-039 quedaron registrados en el log de auditoría. El tablero Kanban se actualizó.</div>
+  <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+    <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:12px;padding:5px 14px">Ver tablero Kanban ↗</button>
+    <button onclick="sendPrompt('Ver ficha completa del riesgo RISK-2026-001: Caída de contenedor durante operación de RTG')" style="font-size:12px;padding:5px 14px">Ver riesgo vinculado ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+let cambiados=new Set(), estSel='En progreso';
+let tareasData=[
+  {desc:'Auditoría de estado actual flota RTG',resp:'Jef. Mantenimiento',fecha:'2026-04-03',done:true},
+  {desc:'Mantenimiento RTG-01 completado',resp:'Técnico externo',fecha:'2026-04-07',done:true},
+  {desc:'Mantenimiento RTG-02 completado',resp:'Técnico externo',fecha:'2026-04-11',done:true},
+  {desc:'Mantenimiento RTG-03 — en ejecución',resp:'Técnico externo',fecha:'2026-04-17',done:false},
+  {desc:'Mantenimiento RTG-04 — pendiente repuestos',resp:'Jef. Mantenimiento',fecha:'2026-04-20',done:false},
+  {desc:'Validación final y cierre de cumplimiento',resp:'Gerencia Ops',fecha:'2026-04-22',done:false},
+];
+let tIdx=tareasData.length;
+
+function renderTareas(){
+  const c=document.getElementById('tareas-container');
+  c.innerHTML='';
+  tareasData.forEach((t,i)=>{
+    const div=document.createElement('div');
+    div.className='tarea'+(t.done?' done':'');
+    div.id='t'+i;
+    div.innerHTML=`<button class="tarea-del" onclick="delTarea(${i})">✕</button>
+      <div class="tcheck">
+        <input type="checkbox" id="tc${i}" ${t.done?'checked':''} style="width:auto;margin:0" onchange="toggleTarea(${i})">
+        <label class="tcheck-label" for="tc${i}">${t.desc}</label>
+      </div>
+      <div class="g3">
+        <div class="field" style="margin-bottom:0"><label class="label">Responsable</label><input type="text" value="${t.resp}" onchange="mc(this,'tab-avance')"/></div>
+        <div class="field" style="margin-bottom:0"><label class="label">Fecha límite</label><input type="date" value="${t.fecha}" onchange="mc(this,'tab-avance')"/></div>
+        <div class="field" style="margin-bottom:0"><label class="label">Estado</label>
+          <select onchange="mc(this,'tab-avance')">
+            <option ${!t.done?'selected':''}>Pendiente</option>
+            <option>En ejecución</option>
+            <option ${t.done?'selected':''}>Completada</option>
+          </select>
+        </div>
+      </div>`;
+    c.appendChild(div);
+  });
+  const done=tareasData.filter(t=>t.done).length;
+  document.getElementById('tareas-counter').textContent=`${done} de ${tareasData.length} completadas`;
+}
+renderTareas();
+
+function toggleTarea(i){
+  tareasData[i].done=!tareasData[i].done;
+  renderTareas();
+  const done=tareasData.filter(t=>t.done).length;
+  const pct=Math.round(done/tareasData.length*100);
+  updateProg(pct);
+  mc(null,'tab-avance');
+}
+
+function delTarea(i){tareasData.splice(i,1);renderTareas();mc(null,'tab-avance');}
+
+function addTarea(){
+  tareasData.push({desc:'',resp:'',fecha:'',done:false});
+  renderTareas();mc(null,'tab-avance');
+}
+
+function updateProg(v){
+  v=parseInt(v);
+  document.getElementById('prog-fill').style.width=v+'%';
+  document.getElementById('prog-label').textContent=v+'%';
+  document.getElementById('prog-range').value=v;
+  const c=v>=80?'#3B6D11':v>=40?'#378ADD':'#E24B4A';
+  document.getElementById('prog-fill').style.background=c;
+  document.getElementById('prog-label').style.color=c;
+}
+
+function checkVenc(){
+  const f=document.getElementById('f-fecha').value;
+  const today=new Date().toISOString().split('T')[0];
+  const late=f&&f<today;
+  document.getElementById('venc-tag').style.display=late?'inline':'none';
+  document.getElementById('venc-alert').style.display=late?'block':'none';
+}
+checkVenc();
+
+function mc(el,tabId){
+  if(el&&el.classList) el.classList.add('mod');
+  cambiados.add(tabId);
+  const tab=document.getElementById(tabId);
+  if(tab&&!tab.classList.contains('mod')) tab.classList.add('mod');
+  document.getElementById('unsaved-alert').style.display='flex';
+  document.getElementById('cambios-ind').style.display='inline-block';
+  updateDiff();
+}
+
+function updateDiff(){
+  const da=document.getElementById('diff-area');
+  const c=[];
+  if(cambiados.has('tab-general')) c.push({k:'Título / Fechas / Objetivo',o:'Valores originales',n:'Modificados'});
+  if(cambiados.has('tab-avance')){const v=document.getElementById('prog-range').value;c.push({k:'Avance del plan',o:'45%',n:v+'%'});}
+  if(cambiados.has('tab-recursos')) c.push({k:'Responsable / Presupuesto',o:'Valores originales',n:'Actualizados'});
+  if(cambiados.has('tab-estado')) c.push({k:'Estado',o:'En progreso',n:estSel});
+  if(c.length===0){da.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);font-style:italic">Sin cambios registrados aún.</div>';return;}
+  da.innerHTML=c.map(x=>`<div class="diff-item"><div class="dk">${x.k}</div><span class="dold">${x.o}</span><span style="color:var(--color-text-secondary);margin:0 4px">→</span><span class="dnew">${x.n}</span></div>`).join('');
+}
+
+function setEst(est){
+  estSel=est;
+  ['pend','prog','comp','venc','canc'].forEach(k=>document.getElementById('ep-'+k).className='ep');
+  const km={Pendiente:'pend','En progreso':'prog',Completado:'comp',Vencido:'venc',Cancelado:'canc'};
+  const sc={Pendiente:'sel-pend','En progreso':'sel-prog',Completado:'sel-comp',Vencido:'sel-venc',Cancelado:'sel-canc'};
+  const bc={Pendiente:'bgr','En progreso':'bb',Completado:'bg',Vencido:'br',Cancelado:'bgr'};
+  document.getElementById('ep-'+km[est]).className='ep '+sc[est];
+  document.getElementById('estado-badge').textContent=est;
+  document.getElementById('estado-badge').className='badge '+bc[est];
+  document.getElementById('justif-wrap').style.display=(est==='Vencido'||est==='Cancelado')?'block':'none';
+  document.getElementById('cierre-wrap').style.display=est==='Completado'?'block':'none';
+  mc(null,'tab-estado');
+}
+
+function goTab(el,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['general','avance','recursos','estado'].forEach(s=>{
+    document.getElementById('sec-'+s).style.display=s===id?'block':'none';
+  });
+}
+
+function guardar(){
+  document.getElementById('footer-bar').style.display='none';
+  document.getElementById('sw').style.display='block';
+}
+</script>

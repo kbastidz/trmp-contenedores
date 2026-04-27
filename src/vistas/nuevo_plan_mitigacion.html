@@ -1,0 +1,550 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem;font-family:var(--font-sans)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.back-btn{font-size:12px;color:var(--color-text-secondary);background:none;border:none;cursor:pointer;padding:0}
+.steps{display:flex;align-items:center;margin-bottom:1.5rem}
+.step{display:flex;align-items:center;gap:6px}
+.step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.step.done .step-num{background:#185FA5;color:white}
+.step.active .step-num{background:#185FA5;color:white}
+.step.pending .step-num{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.step-label{font-size:12px}
+.step.active .step-label{color:var(--color-text-primary);font-weight:500}
+.step.done .step-label,.step.pending .step-label{color:var(--color-text-secondary)}
+.step-line{flex:1;height:1px;background:var(--color-border-tertiary);margin:0 8px}
+.step-line.done{background:#185FA5}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.1rem 1.25rem;margin-bottom:1rem}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:.9rem}
+.field{margin-bottom:.9rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;display:block}
+.req{color:#E24B4A}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+input,select,textarea{width:100%;font-family:var(--font-sans);font-size:13px}
+textarea{resize:vertical;min-height:68px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-high{background:#FAECE7;color:#993C1D}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.risk-selector{display:flex;flex-direction:column;gap:6px}
+.risk-opt{display:flex;align-items:flex-start;gap:10px;padding:.7rem .9rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;transition:border-color .15s,background .15s}
+.risk-opt:hover{background:var(--color-background-secondary)}
+.risk-opt.selected{border:2px solid #185FA5;background:#E6F1FB}
+.risk-opt input[type=radio]{width:auto;margin-top:2px;flex-shrink:0}
+.risk-opt-body{flex:1}
+.risk-opt-name{font-size:13px;color:var(--color-text-primary);font-weight:500}
+.risk-opt-meta{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.risk-preview{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin-top:.75rem;display:none}
+.risk-preview-row{display:flex;justify-content:space-between;font-size:12px;padding:.3rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.risk-preview-row:last-child{border-bottom:none}
+.risk-preview-key{color:var(--color-text-secondary)}
+.risk-preview-val{font-weight:500;color:var(--color-text-primary)}
+.tarea-item{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.75rem;margin-bottom:8px;position:relative}
+.tarea-num{font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:500}
+.tarea-remove{position:absolute;top:.6rem;right:.75rem;font-size:11px;color:var(--color-text-secondary);cursor:pointer;background:none;border:none;padding:0}
+.tarea-remove:hover{color:#A32D2D}
+.tipo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tipo-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem .5rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.tipo-card:hover{background:var(--color-background-secondary)}
+.tipo-card.sel{border:2px solid #185FA5;background:#E6F1FB}
+.tipo-icon{width:28px;height:28px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center}
+.tipo-title{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.tipo-sub{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.summary-row{display:flex;justify-content:space-between;align-items:flex-start;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.summary-row:last-child{border-bottom:none}
+.summary-key{color:var(--color-text-secondary);min-width:160px}
+.summary-val{color:var(--color-text-primary);font-weight:500;text-align:right;flex:1}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
+.progress-preview{height:6px;border-radius:3px;background:var(--color-background-secondary);overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:3px;background:#185FA5;transition:width .3s}
+.success-icon{width:48px;height:48px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+</style>
+
+<h2 class="sr-only">Formulario para agregar nuevo plan de mitigación vinculado a un riesgo operacional</h2>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <button class="back-btn" onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')">← Volver a mitigación</button>
+    <span style="font-size:11px;color:var(--color-text-secondary)">Nuevo plan · ID provisional: PM-042</span>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="s1"><div class="step-num">1</div><div class="step-label">Riesgo</div></div>
+    <div class="step-line" id="l1"></div>
+    <div class="step pending" id="s2"><div class="step-num">2</div><div class="step-label">Estrategia</div></div>
+    <div class="step-line" id="l2"></div>
+    <div class="step pending" id="s3"><div class="step-num">3</div><div class="step-label">Tareas</div></div>
+    <div class="step-line" id="l3"></div>
+    <div class="step pending" id="s4"><div class="step-num">4</div><div class="step-label">Recursos</div></div>
+    <div class="step-line" id="l4"></div>
+    <div class="step pending" id="s5"><div class="step-num">5</div><div class="step-label">Revisión</div></div>
+  </div>
+
+  <!-- STEP 1: Selección de riesgo -->
+  <div id="step1">
+    <div class="card">
+      <div class="section-title">¿A qué riesgo vinculamos este plan? <span class="req">*</span></div>
+      <div style="margin-bottom:.75rem">
+        <input type="text" id="search-risk" placeholder="Buscar riesgo por nombre o área..." oninput="filterRisks()" style="margin-bottom:.6rem" />
+      </div>
+      <div class="risk-selector" id="risk-list">
+        <div class="risk-opt" id="ro1" onclick="selectRisk(1)">
+          <input type="radio" name="riesgo" value="1">
+          <div class="risk-opt-body">
+            <div class="risk-opt-name">Caída de contenedor durante operación de RTG</div>
+            <div class="risk-opt-meta">Patio / Yard &nbsp;·&nbsp; <span class="badge badge-red" style="font-size:10px">Crítico · 20</span> &nbsp;·&nbsp; Sin plan activo</div>
+          </div>
+        </div>
+        <div class="risk-opt" id="ro2" onclick="selectRisk(2)">
+          <input type="radio" name="riesgo" value="2">
+          <div class="risk-opt-body">
+            <div class="risk-opt-name">Falla de grúa STS durante operación de buque</div>
+            <div class="risk-opt-meta">Muelle / Buque &nbsp;·&nbsp; <span class="badge badge-red" style="font-size:10px">Crítico · 20</span> &nbsp;·&nbsp; 1 plan vencido</div>
+          </div>
+        </div>
+        <div class="risk-opt" id="ro3" onclick="selectRisk(3)">
+          <input type="radio" name="riesgo" value="3">
+          <div class="risk-opt-body">
+            <div class="risk-opt-name">Incendio en área de carga peligrosa IMDG clase 3</div>
+            <div class="risk-opt-meta">Patio / Yard &nbsp;·&nbsp; <span class="badge badge-high" style="font-size:10px">Alto · 15</span> &nbsp;·&nbsp; Sin plan activo</div>
+          </div>
+        </div>
+        <div class="risk-opt" id="ro4" onclick="selectRisk(4)">
+          <input type="radio" name="riesgo" value="4">
+          <div class="risk-opt-body">
+            <div class="risk-opt-name">Acceso no autorizado a zona restringida ISPS</div>
+            <div class="risk-opt-meta">Seg. ISPS / BASC &nbsp;·&nbsp; <span class="badge badge-high" style="font-size:10px">Alto · 12</span> &nbsp;·&nbsp; Sin plan activo</div>
+          </div>
+        </div>
+        <div class="risk-opt" id="ro5" onclick="selectRisk(5)">
+          <input type="radio" name="riesgo" value="5">
+          <div class="risk-opt-body">
+            <div class="risk-opt-name">Falla del TOS — pérdida de trazabilidad de contenedores</div>
+            <div class="risk-opt-meta">Sistemas TOS / IT &nbsp;·&nbsp; <span class="badge badge-high" style="font-size:10px">Alto · 12</span> &nbsp;·&nbsp; Sin plan activo</div>
+          </div>
+        </div>
+        <div class="risk-opt" id="ro6" onclick="selectRisk(6)">
+          <input type="radio" name="riesgo" value="6">
+          <div class="risk-opt-body">
+            <div class="risk-opt-name">Atropello por reach stacker en zona de patio</div>
+            <div class="risk-opt-meta">Patio / Yard &nbsp;·&nbsp; <span class="badge badge-amber" style="font-size:10px">Medio · 10</span> &nbsp;·&nbsp; 1 plan en progreso</div>
+          </div>
+        </div>
+      </div>
+      <div class="risk-preview" id="risk-preview">
+        <div class="risk-preview-row"><span class="risk-preview-key">Causa raíz registrada</span><span class="risk-preview-val" id="prev-causa">—</span></div>
+        <div class="risk-preview-row"><span class="risk-preview-key">Controles existentes</span><span class="risk-preview-val" id="prev-ctrl">—</span></div>
+        <div class="risk-preview-row"><span class="risk-preview-key">Responsable del riesgo</span><span class="risk-preview-val" id="prev-resp">—</span></div>
+        <div class="risk-preview-row"><span class="risk-preview-key">Último incidente relacionado</span><span class="risk-preview-val" id="prev-inc">—</span></div>
+      </div>
+    </div>
+    <div class="footer">
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 1 de 5</span>
+      <button onclick="goStep(2)" style="font-size:13px;padding:7px 20px">Siguiente → Estrategia</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Estrategia y tipo de control -->
+  <div id="step2" style="display:none">
+    <div class="card">
+      <div class="section-title">Nombre y objetivo del plan</div>
+      <div class="field">
+        <label class="label">Título del plan de mitigación <span class="req">*</span></label>
+        <input type="text" id="f-titulo" placeholder="Ej: Instalación de sistema anti-colisión en RTG del patio norte" />
+      </div>
+      <div class="field">
+        <label class="label">Objetivo del plan</label>
+        <textarea id="f-objetivo" placeholder="¿Qué resultado espera lograr con este plan? ¿Cómo reducirá el riesgo?"></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Tipo de control <span class="req">*</span></div>
+      <div class="tipo-grid" id="tipo-grid">
+        <div class="tipo-card" id="tc1" onclick="setTipo(1)">
+          <div class="tipo-icon" style="background:#EAF3DE"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="tipo-title">Preventivo</div>
+          <div class="tipo-sub">Evita que el riesgo ocurra</div>
+        </div>
+        <div class="tipo-card" id="tc2" onclick="setTipo(2)">
+          <div class="tipo-icon" style="background:#E6F1FB"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+          <div class="tipo-title">Detectivo</div>
+          <div class="tipo-sub">Identifica si el riesgo ocurre</div>
+        </div>
+        <div class="tipo-card" id="tc3" onclick="setTipo(3)">
+          <div class="tipo-icon" style="background:#FAEEDA"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>
+          <div class="tipo-title">Correctivo</div>
+          <div class="tipo-sub">Reduce impacto después de ocurrir</div>
+        </div>
+        <div class="tipo-card" id="tc4" onclick="setTipo(4)">
+          <div class="tipo-icon" style="background:#FAECE7"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#993C1D" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
+          <div class="tipo-title">Mitigante</div>
+          <div class="tipo-sub">Reduce la probabilidad</div>
+        </div>
+        <div class="tipo-card" id="tc5" onclick="setTipo(5)">
+          <div class="tipo-icon" style="background:#EEEDFE"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div class="tipo-title">Transferencia</div>
+          <div class="tipo-sub">Seguro o tercero asume el riesgo</div>
+        </div>
+        <div class="tipo-card" id="tc6" onclick="setTipo(6)">
+          <div class="tipo-icon" style="background:var(--color-background-secondary)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="tipo-title">Aceptación</div>
+          <div class="tipo-sub">Riesgo asumido con monitoreo</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Alcance del plan</div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Estrategia de reducción</label>
+          <select id="f-estrategia">
+            <option>Reducir probabilidad</option>
+            <option>Reducir impacto</option>
+            <option>Reducir probabilidad e impacto</option>
+            <option>Eliminar el riesgo completamente</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Nivel de riesgo objetivo (post-mitigación)</label>
+          <select id="f-objetivo-nivel">
+            <option>Bajo (1–4)</option>
+            <option>Medio (5–9)</option>
+            <option>Alto (10–16)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Normativa o estándar de referencia</label>
+        <select id="f-norma">
+          <option>Ninguna específica</option>
+          <option>ISO 45001 — Seguridad y salud ocupacional</option>
+          <option>ISO 31000 — Gestión de riesgos</option>
+          <option>Código ISPS — Seguridad portuaria</option>
+          <option>IMDG — Mercancías peligrosas</option>
+          <option>BASC — Seguridad en comercio exterior</option>
+          <option>OHSAS 18001</option>
+        </select>
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(1)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 2 de 5</span>
+      <button onclick="goStep(3)" style="font-size:13px;padding:7px 20px">Siguiente → Tareas</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Tareas -->
+  <div id="step3" style="display:none">
+    <div class="card">
+      <div class="section-title">Tareas del plan de mitigación</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.85rem">Define las acciones específicas para ejecutar este plan. Cada tarea tiene un responsable y fecha límite.</div>
+      <div id="tareas-container"></div>
+      <button onclick="addTarea()" style="font-size:12px;padding:5px 14px;margin-top:4px">+ Agregar tarea</button>
+    </div>
+    <div class="card">
+      <div class="section-title">Indicador de éxito</div>
+      <div class="field">
+        <label class="label">¿Cómo sabremos que el plan fue exitoso? <span class="req">*</span></label>
+        <textarea id="f-indicador" placeholder="Ej: Reducir puntaje del riesgo de 20 a máximo 8. Cero incidentes de caída de contenedor en 90 días después de implementado." style="min-height:56px"></textarea>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Fecha de revisión de efectividad</label>
+          <input type="date" id="f-rev" />
+        </div>
+        <div class="field">
+          <label class="label">Frecuencia de seguimiento</label>
+          <select id="f-frecuencia">
+            <option>Diaria</option>
+            <option>Semanal</option>
+            <option>Quincenal</option>
+            <option selected>Mensual</option>
+            <option>Trimestral</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(2)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 3 de 5</span>
+      <button onclick="goStep(4)" style="font-size:13px;padding:7px 20px">Siguiente → Recursos</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Recursos y aprobación -->
+  <div id="step4" style="display:none">
+    <div class="card">
+      <div class="section-title">Responsables</div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Responsable del plan <span class="req">*</span></label>
+          <input type="text" id="f-resp-plan" placeholder="Nombre o cargo" />
+        </div>
+        <div class="field">
+          <label class="label">Área responsable</label>
+          <select id="f-area-resp">
+            <option>Jefatura de Mantenimiento</option>
+            <option>Supervisión de Patio</option>
+            <option>Seguridad Industrial</option>
+            <option>Gerencia de Operaciones</option>
+            <option>RRHH</option>
+            <option>Sistemas / TI</option>
+            <option>Seguridad ISPS</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Aprobador del plan</label>
+          <input type="text" id="f-aprobador" placeholder="Cargo o nombre del aprobador" />
+        </div>
+        <div class="field">
+          <label class="label">Nivel de aprobación requerido</label>
+          <select id="f-nivel-aprov">
+            <option>Supervisor de turno</option>
+            <option>Jefe de área</option>
+            <option>Gerencia de Operaciones</option>
+            <option>Gerencia General</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Presupuesto y recursos</div>
+      <div class="grid3">
+        <div class="field">
+          <label class="label">Presupuesto estimado</label>
+          <select id="f-presupuesto">
+            <option>Sin costo</option>
+            <option>Menor ($0 – $1,000)</option>
+            <option>Moderado ($1,000 – $10,000)</option>
+            <option>Significativo ($10,000 – $50,000)</option>
+            <option>Mayor (más de $50,000)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Fuente de financiamiento</label>
+          <select id="f-fuente">
+            <option>Presupuesto operativo</option>
+            <option>Presupuesto de mantenimiento</option>
+            <option>Fondo de emergencia</option>
+            <option>Inversión de capital (CAPEX)</option>
+            <option>Seguro / tercero</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Prioridad de ejecución <span class="req">*</span></label>
+          <select id="f-prioridad">
+            <option>Inmediata (24–48h)</option>
+            <option>Alta (esta semana)</option>
+            <option>Media (este mes)</option>
+            <option>Baja (próximo trimestre)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Recursos adicionales necesarios</label>
+        <textarea id="f-recursos" placeholder="Ej: 2 técnicos especializados, sensor modelo XR-200, coordinación con proveedor Konecranes..." style="min-height:52px"></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Cronograma</div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Fecha de inicio <span class="req">*</span></label>
+          <input type="date" id="f-inicio" />
+        </div>
+        <div class="field">
+          <label class="label">Fecha límite de cierre <span class="req">*</span></label>
+          <input type="date" id="f-cierre" onchange="updateDuration()" />
+        </div>
+      </div>
+      <div id="duracion-display" style="display:none;font-size:12px;color:var(--color-text-secondary);margin-top:-4px">Duración estimada: <span id="duracion-val" style="font-weight:500;color:var(--color-text-primary)"></span></div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(3)" style="font-size:13px;padding:7px 16px">← Anterior</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 4 de 5</span>
+      <button onclick="goStep(5)" style="font-size:13px;padding:7px 20px">Siguiente → Revisar</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Revisión -->
+  <div id="step5" style="display:none">
+    <div class="card">
+      <div class="section-title">Resumen del plan de mitigación</div>
+      <div id="summary-content"></div>
+    </div>
+    <div class="card" style="padding:.85rem 1.25rem">
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="conf-check" style="width:auto" onchange="toggleSubmit()">
+        <label for="conf-check" style="font-size:12px;color:var(--color-text-secondary);cursor:pointer">Confirmo que el plan es viable, los recursos están disponibles y el responsable fue notificado.</label>
+      </div>
+    </div>
+    <div class="footer">
+      <button onclick="goStep(4)" style="font-size:13px;padding:7px 16px">← Editar</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Paso 5 de 5</span>
+      <button id="submit-btn" onclick="submitForm()" disabled style="font-size:13px;padding:7px 22px;opacity:.4">Crear plan</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Éxito -->
+  <div id="step6" style="display:none">
+    <div class="card" style="text-align:center;padding:2rem 1rem">
+      <div class="success-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Plan de mitigación creado</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:4px">ID asignado: <strong>PM-042</strong></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1.5rem">El responsable y aprobador fueron notificados. El plan aparece activo en el tablero.</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button onclick="sendPrompt('Ver el detalle del plan de mitigación PM-042')" style="font-size:13px;padding:7px 16px">Ver plan PM-042 ↗</button>
+        <button onclick="sendPrompt('Agregar otro plan de mitigación para un riesgo')" style="font-size:13px;padding:7px 16px">Crear otro plan ↗</button>
+        <button onclick="sendPrompt('Ver módulo de seguimiento de planes de mitigación')" style="font-size:13px;padding:7px 16px">Tablero Kanban ↗</button>
+        <button onclick="sendPrompt('Volver al dashboard principal de riesgos')" style="font-size:13px;padding:7px 16px">Dashboard ↗</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const riskData={
+  1:{causa:'Ausencia de sensor de carga en gancho de RTG-03 y RTG-04',ctrl:'Inspección preoperacional diaria, POE de apilamiento',resp:'Jefe de Patio',inc:'INC-2026-014 · Fallo hidráulico RTG-03 (hace 2 días)'},
+  2:{causa:'Mantenimiento correctivo de grúa STS-2 vencido hace 15 días',ctrl:'Checklist diario de operador, inspección semanal',resp:'Jefe de Mantenimiento',inc:'INC-2026-011 · Detención no planificada STS-2 (hace 5 días)'},
+  3:{causa:'Falta de protocolo específico para carga IMDG en patio abierto',ctrl:'Señalización de zona, EPP básico',resp:'Supervisión de Patio',inc:'Ninguno registrado este mes'},
+  4:{causa:'Sensores perimetrales con cobertura incompleta en sector norte',ctrl:'Rondas de vigilancia cada 2h, control de acceso vehicular',resp:'Jefe de Seguridad ISPS',inc:'INC-2026-018 · Intento de acceso no autorizado (ayer)'},
+  5:{causa:'Sin plan de contingencia documentado para caída del TOS',ctrl:'Backup manual de datos cada 4h',resp:'Jefe de Sistemas TI',inc:'Ninguno registrado este mes'},
+  6:{causa:'Ausencia de barreras físicas entre zonas peatonales y de tránsito de equipos',ctrl:'Señalización horizontal, capacitación anual',resp:'Supervisión de Patio',inc:'INC-2026-009 · Near miss reach stacker (hace 9 días)'},
+};
+
+let selRisk=null,selTipo=null,tareaCount=0;
+
+function selectRisk(n){
+  document.querySelectorAll('.risk-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('ro'+n).classList.add('selected');
+  document.querySelector(`input[value="${n}"]`).checked=true;
+  selRisk=n;
+  const d=riskData[n];
+  document.getElementById('prev-causa').textContent=d.causa;
+  document.getElementById('prev-ctrl').textContent=d.ctrl;
+  document.getElementById('prev-resp').textContent=d.resp;
+  document.getElementById('prev-inc').textContent=d.inc;
+  document.getElementById('risk-preview').style.display='block';
+}
+
+function filterRisks(){
+  const q=document.getElementById('search-risk').value.toLowerCase();
+  document.querySelectorAll('.risk-opt').forEach(o=>{
+    o.style.display=o.textContent.toLowerCase().includes(q)?'flex':'none';
+  });
+}
+
+function setTipo(n){
+  selTipo=n;
+  document.querySelectorAll('.tipo-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('tc'+n).classList.add('sel');
+}
+
+let tareaIdx=0;
+function addTarea(){
+  tareaIdx++;
+  const c=document.getElementById('tareas-container');
+  const div=document.createElement('div');
+  div.className='tarea-item';
+  div.id='tarea'+tareaIdx;
+  div.innerHTML=`<div class="tarea-num">Tarea ${tareaIdx}</div>
+    <button class="tarea-remove" onclick="removeTarea('tarea${tareaIdx}')">✕ Eliminar</button>
+    <div class="grid2" style="margin-bottom:8px">
+      <div class="field" style="margin-bottom:0"><label class="label">Descripción <span class="req">*</span></label><input type="text" placeholder="Ej: Adquirir e instalar sensor XR-200"/></div>
+      <div class="field" style="margin-bottom:0"><label class="label">Responsable</label><input type="text" placeholder="Nombre o cargo"/></div>
+    </div>
+    <div class="grid3">
+      <div class="field" style="margin-bottom:0"><label class="label">Fecha límite</label><input type="date"/></div>
+      <div class="field" style="margin-bottom:0"><label class="label">Prioridad</label><select><option>Alta</option><option>Media</option><option>Baja</option></select></div>
+      <div class="field" style="margin-bottom:0"><label class="label">Estimado (días)</label><input type="number" min="1" placeholder="Ej: 5"/></div>
+    </div>`;
+  c.appendChild(div);
+}
+
+function removeTarea(id){
+  const el=document.getElementById(id);
+  if(el) el.remove();
+}
+
+function updateDuration(){
+  const inicio=document.getElementById('f-inicio').value;
+  const cierre=document.getElementById('f-cierre').value;
+  if(inicio&&cierre){
+    const diff=Math.round((new Date(cierre)-new Date(inicio))/(1000*60*60*24));
+    if(diff>0){
+      document.getElementById('duracion-display').style.display='block';
+      document.getElementById('duracion-val').textContent=diff+' días';
+    }
+  }
+}
+
+const now=new Date();
+function goStep(n){
+  for(let i=1;i<=6;i++){
+    const el=document.getElementById('step'+i);
+    if(el) el.style.display=i===n?'block':'none';
+  }
+  for(let i=1;i<=5;i++){
+    const s=document.getElementById('s'+i);
+    if(!s) continue;
+    s.className='step '+(i<n?'done':i===n?'active':'pending');
+    const l=document.getElementById('l'+i);
+    if(l) l.className='step-line '+(i<n?'done':'');
+  }
+  if(n===3 && tareaIdx===0) addTarea();
+  if(n===4){
+    document.getElementById('f-inicio').value=now.toISOString().split('T')[0];
+  }
+  if(n===5) buildSummary();
+}
+
+const tipoLabels=['','Preventivo','Detectivo','Correctivo','Mitigante','Transferencia','Aceptación'];
+const riskNames={1:'Caída de contenedor RTG',2:'Falla grúa STS',3:'Incendio IMDG clase 3',4:'Acceso no autorizado ISPS',5:'Falla TOS',6:'Atropello reach stacker'};
+
+function buildSummary(){
+  const rows=[
+    ['Riesgo vinculado', selRisk?riskNames[selRisk]:'—'],
+    ['Título del plan', document.getElementById('f-titulo').value||'—'],
+    ['Tipo de control', selTipo?tipoLabels[selTipo]:'—'],
+    ['Estrategia', document.getElementById('f-estrategia').value],
+    ['Nivel objetivo post-mitigación', document.getElementById('f-objetivo-nivel').value],
+    ['Normativa aplicable', document.getElementById('f-norma').value],
+    ['Responsable del plan', document.getElementById('f-resp-plan').value||'—'],
+    ['Aprobador', document.getElementById('f-aprobador').value||'—'],
+    ['Prioridad', document.getElementById('f-prioridad').value],
+    ['Presupuesto estimado', document.getElementById('f-presupuesto').value],
+    ['Fuente de financiamiento', document.getElementById('f-fuente').value],
+    ['Fecha de inicio', document.getElementById('f-inicio').value||'—'],
+    ['Fecha límite', document.getElementById('f-cierre').value||'—'],
+    ['Frecuencia de seguimiento', document.getElementById('f-frecuencia').value],
+  ];
+  let html='';
+  rows.forEach(r=>{
+    html+=`<div class="summary-row"><div class="summary-key">${r[0]}</div><div class="summary-val">${r[1]}</div></div>`;
+  });
+  document.getElementById('summary-content').innerHTML=html;
+}
+
+function toggleSubmit(){
+  const btn=document.getElementById('submit-btn');
+  const ok=document.getElementById('conf-check').checked;
+  btn.disabled=!ok;
+  btn.style.opacity=ok?'1':'0.4';
+  btn.style.background=ok?'#185FA5':'';
+  btn.style.color=ok?'white':'';
+  btn.style.borderColor=ok?'#185FA5':'';
+}
+
+function submitForm(){goStep(6);}
+</script>

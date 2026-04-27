@@ -1,0 +1,1121 @@
+{
+  "info": {
+    "name": "Auth Service API",
+    "description": "Colección completa para el microservicio de autenticación con Better Auth + Fastify",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🏥 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Verifica que el servicio esté corriendo",
+            "url": {
+              "raw": "{{base_url}}/health",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Mi Perfil",
+      "item": [
+        {
+          "name": "Obtener Mi Menú Dinámico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Retorna el menú de navegación según los permisos del usuario. Usar para construir el sidebar en Next.js.",
+            "url": {
+              "raw": "{{base_url}}/me/menu",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me",
+                "menu"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Obtener Mi Perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Retorna el perfil del usuario autenticado con sus roles",
+            "url": {
+              "raw": "{{base_url}}/me",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Verificar Permisos en Ruta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Retorna las acciones permitidas (READ, WRITE, etc.) para el usuario en una ruta específica",
+            "url": {
+              "raw": "{{base_url}}/me/permissions?route=/admin/users",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me",
+                "permissions?route=",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "route",
+                  "value": "/admin/users",
+                  "description": "Ruta a verificar"
+                }
+              ],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Usuarios",
+      "item": [
+        {
+          "name": "Actualizar Usuario",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Actualiza nombre o imagen del usuario",
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kevin Alexander Bastidas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Asignar Rol a Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Asigna un rol al usuario. Solo ADMIN puede hacer esto.",
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}/roles",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "roles"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleIds\": [\"{{roleId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Eliminar Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Elimina el usuario y sus relaciones",
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Listar Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Requiere permiso READ en /admin/users",
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Obtener Usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Retorna usuario con sus roles",
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Quitar Rol de Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Remueve un rol del usuario",
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}/roles/{{roleId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "roles",
+                "{{roleId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Opciones / Módulos",
+      "item": [
+        {
+          "name": "Actualizar Opción",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/options/{{optionId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "{{optionId}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Reportes Avanzados UDP\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Crear Opción",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/options",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "options"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuarios\",\n  \"route\": \"/admin/users\",\n  \"icon\": \"Users\",\n  \"module\": \"Admin\",\n  \"description\": \"Gestión de usuarios\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const res = pm.response.json();",
+                  "// if (res.id) pm.collectionVariables.set('optionId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar Opción",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/options/{{optionId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "{{optionId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Listar Opciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/options",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "options"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Obtener Opción por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/options/{{optionId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "options",
+                "{{optionId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const res = pm.response.json();",
+                  "// if (res.id) pm.collectionVariables.set('optionId', res.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔑 Permisos",
+      "item": [
+        {
+          "name": "Crear Permiso Personalizado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/permissions",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "permissions"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aprobación\",\n  \"action\": \"APPROVE\",\n  \"description\": \"Puede aprobar solicitudes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Eliminar Permiso",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/permissions/{{permissionId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "permissions",
+                "{{permissionId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Listar Permisos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Lista los 5 permisos base: READ, WRITE, UPDATE, DELETE, EXPORT",
+            "url": {
+              "raw": "{{base_url}}/api/permissions",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "permissions"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.length > 0) {",
+                  "//   pm.collectionVariables.set('permissionId', res.data[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener Permiso por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/permissions/{{permissionId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "permissions",
+                "{{permissionId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Roles",
+      "item": [
+        {
+          "name": "Actualizar Rol",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/roles/{{roleId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Descripción actualizada\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Asignar Opción + Permisos a Rol",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Asigna una opción/módulo al rol con los permisos específicos. Envía múltiples permissionIds para READ + WRITE + UPDATE, etc.",
+            "url": {
+              "raw": "{{base_url}}/api/roles/{{roleId}}/options",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}",
+                "options"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"optionId\": \"{{optionId}}\",\n  \"permissionIds\": [\"{{permissionId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Crear Rol",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"EDITOR\",\n  \"description\": \"Puede editar contenido pero no administrar usuarios\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const res = pm.response.json();",
+                  "// if (res.id) pm.collectionVariables.set('roleId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar Rol",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{base_url}}/api/roles/{{roleId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Listar Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Lista todos los roles con conteo de usuarios y opciones",
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Obtener Rol por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Retorna el rol con sus opciones y permisos asignados",
+            "url": {
+              "raw": "{{base_url}}/api/roles/{{roleId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const res = pm.response.json();",
+                  "// if (res.id) pm.collectionVariables.set('roleId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Quitar Opción de Rol",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Elimina la opción y todos sus permisos del rol",
+            "url": {
+              "raw": "{{base_url}}/api/roles/{{roleId}}/options/{{optionId}}",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}",
+                "options",
+                "{{optionId}}"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Cerrar Sesión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Invalida la sesión actual",
+            "url": {
+              "raw": "{{base_url}}/api/auth/sign-out",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "sign-out"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Login con Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Login con email y contraseña. La sesión se guarda como cookie.",
+            "url": {
+              "raw": "{{base_url}}/api/auth/sign-in/email",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "sign-in",
+                "email"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kevin-10b2011@hotmail.com\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const res = pm.response.json();",
+                  "// if (res.user) pm.collectionVariables.set('userId', res.user.id);",
+                  "// Cookie 'better-auth.session_token' se guarda automáticamente"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con Google (URL)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Redirige al flujo OAuth de Google. Abrir en navegador.",
+            "url": {
+              "raw": "{{base_url}}/auth/sign-in/social?provider=google&callbackURL=http://localhost:3001/dashboard",
+              "protocol": "{{base_url}}/auth/sign-in/social?provider=google&callbackURL=http",
+              "host": [
+                "localhost:3001"
+              ],
+              "path": [
+                "dashboard"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Obtener Sesión Actual",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Retorna la sesión y usuario actualmente autenticado",
+            "url": {
+              "raw": "{{base_url}}/api/auth/get-session",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "get-session"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Registro con Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Crea una nueva cuenta con email y contraseña",
+            "url": {
+              "raw": "{{base_url}}/api/auth/sign-up/email",
+              "protocol": "",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "sign-up",
+                "email"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kevin Bastidas\",\n  \"email\": \"kevin-10b2011@hotmail.com\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const res = pm.response.json();",
+                  "// if (res.user) pm.collectionVariables.set('userId', res.user.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "default"
+    },
+    {
+      "key": "userId",
+      "value": "KGZe4bFaMqxh6AZtulPO7SRxyZgT5sdq",
+      "type": "default"
+    },
+    {
+      "key": "roleId",
+      "value": "eb5f83d1-d429-48ea-8e64-f9996534938e",
+      "type": "default"
+    },
+    {
+      "key": "optionId",
+      "value": "eb5f83d1-d429-48ea-8e64-f9996534938e",
+      "type": "default"
+    },
+    {
+      "key": "permissionId",
+      "value": "8fb31713-484f-45f3-91c5-f9354965435d",
+      "type": "default"
+    }
+  ]
+}
