@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { useFetch } from '@mantine/hooks';
 import type { IApiResponse } from '@/types/api-response';
 import type { CustomerDto } from '@/types';
-import { riesgosService } from '@/lib/trm';
-import type { RiesgoDto } from '@/types/trm';
+import { riesgosService, planesService, incidentesService, controlesService, kriService } from '@/lib/trm';
+import type { RiesgoDto, HistorialEstadoDto, PlanDto, HistorialAvanceDto, IncidenteDto, ControlDto, KriDto } from '@/types/trm';
 
 export type ApiResponse<T> = IApiResponse<T>;
 
@@ -66,4 +66,205 @@ export function useRiesgos(terminal_id?: string) {
   useEffect(() => { fetchRiesgos(); }, [fetchRiesgos]);
 
   return { data, loading, error, refetch: fetchRiesgos };
+}
+
+export function useRiesgo(id: string | null) {
+  const [data, setData] = useState<RiesgoDto | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch_ = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await riesgosService.getById(id));
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al cargar riesgo'));
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, error, refetch: fetch_ };
+}
+
+export function useRiesgoHistorial(id: string | null) {
+  const [data, setData] = useState<HistorialEstadoDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    riesgosService.historial(id).then(setData).finally(() => setLoading(false));
+  }, [id]);
+
+  return { data, loading };
+}
+
+export function usePlanesByRiesgo(riesgo_id: string | null) {
+  const [data, setData] = useState<PlanDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!riesgo_id) return;
+    setLoading(true);
+    planesService.list({ riesgo_id }).then(setData).finally(() => setLoading(false));
+  }, [riesgo_id]);
+
+  return { data, loading };
+}
+
+export function useIncidentesByRiesgo(riesgo_id: string | null) {
+  const [data, setData] = useState<IncidenteDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!riesgo_id) return;
+    setLoading(true);
+    incidentesService.list({ riesgo_id }).then(setData).finally(() => setLoading(false));
+  }, [riesgo_id]);
+
+  return { data, loading };
+}
+
+export function useControlesByRiesgo(riesgo_id: string | null) {
+  const [data, setData] = useState<ControlDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!riesgo_id) return;
+    setLoading(true);
+    controlesService.listByRiesgo(riesgo_id).then(setData).finally(() => setLoading(false));
+  }, [riesgo_id]);
+
+  return { data, loading };
+}
+
+export function useKriByTerminal(terminal_id: string | null) {
+  const [data, setData] = useState<KriDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!terminal_id) return;
+    setLoading(true);
+    kriService.list(terminal_id).then(setData).finally(() => setLoading(false));
+  }, [terminal_id]);
+
+  return { data, loading };
+}
+
+export function useIncidentes(params?: { terminal_id?: string; estado?: string }) {
+  const [data, setData] = useState<IncidenteDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch_ = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await incidentesService.list(params));
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al cargar incidentes'));
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.terminal_id, params?.estado]);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, error, refetch: fetch_ };
+}
+
+export function useIncidente(id: string | null) {
+  const [data, setData] = useState<IncidenteDto | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch_ = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await incidentesService.getById(id));
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al cargar incidente'));
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, error, refetch: fetch_ };
+}
+
+export function useIncidenteHistorial(id: string | null) {
+  const [data, setData] = useState<HistorialEstadoDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    incidentesService.historial(id).then(setData).finally(() => setLoading(false));
+  }, [id]);
+
+  return { data, loading };
+}
+
+export function usePlanes(params?: { terminal_id?: string; estado?: string }) {
+  const [data, setData] = useState<PlanDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch_ = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await planesService.list(params));
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al cargar planes'));
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.terminal_id, params?.estado]);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, error, refetch: fetch_ };
+}
+
+export function usePlan(id: string | null) {
+  const [data, setData] = useState<PlanDto | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch_ = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await planesService.getById(id));
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al cargar plan'));
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, error, refetch: fetch_ };
+}
+
+export function usePlanHistorial(id: string | null) {
+  const [data, setData] = useState<HistorialAvanceDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    planesService.historial(id).then(setData).finally(() => setLoading(false));
+  }, [id]);
+
+  return { data, loading };
 }

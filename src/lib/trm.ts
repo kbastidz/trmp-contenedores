@@ -5,6 +5,16 @@ import type {
   HistorialEstadoDto,
   TerminalDto,
   AreaDto,
+  PlanDto,
+  CreatePlanPayload,
+  UpdatePlanPayload,
+  AvancePlanPayload,
+  HistorialAvanceDto,
+  IncidenteDto,
+  CreateIncidentePayload,
+  UpdateIncidentePayload,
+  ControlDto,
+  KriDto,
 } from '@/types/trm';
 
 const TRM_API =
@@ -71,4 +81,90 @@ export const riesgosService = {
 
   historial: (id: string) =>
     request<HistorialEstadoDto[]>(`/api/trm/riesgos/${id}/historial`),
+};
+
+// ── Planes ────────────────────────────────────────────────────────────────────
+
+export const planesService = {
+  list: (params?: { riesgo_id?: string; terminal_id?: string; estado?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.riesgo_id) qs.set('riesgo_id', params.riesgo_id);
+    if (params?.terminal_id) qs.set('terminal_id', params.terminal_id);
+    if (params?.estado) qs.set('estado', params.estado);
+    const q = qs.toString();
+    return request<PlanDto[]>(`/api/trm/planes${q ? `?${q}` : ''}`);
+  },
+
+  getById: (id: string) => request<PlanDto>(`/api/trm/planes/${id}`),
+
+  create: (payload: CreatePlanPayload) =>
+    request<PlanDto>('/api/trm/planes', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  update: (id: string, payload: UpdatePlanPayload) =>
+    request<PlanDto>(`/api/trm/planes/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (id: string) =>
+    request<void>(`/api/trm/planes/${id}`, { method: 'DELETE' }),
+
+  registrarAvance: (id: string, payload: AvancePlanPayload) =>
+    request<PlanDto>(`/api/trm/planes/${id}/avance`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  historial: (id: string) =>
+    request<HistorialAvanceDto[]>(`/api/trm/planes/${id}/historial`),
+};
+
+// ── Incidentes ────────────────────────────────────────────────────────────────
+
+export const incidentesService = {
+  list: (params?: { riesgo_id?: string; terminal_id?: string; estado?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.riesgo_id) qs.set('riesgo_id', params.riesgo_id);
+    if (params?.terminal_id) qs.set('terminal_id', params.terminal_id);
+    if (params?.estado) qs.set('estado', params.estado);
+    const q = qs.toString();
+    return request<IncidenteDto[]>(`/api/trm/incidentes${q ? `?${q}` : ''}`);
+  },
+
+  getById: (id: string) => request<IncidenteDto>(`/api/trm/incidentes/${id}`),
+
+  create: (payload: CreateIncidentePayload) =>
+    request<IncidenteDto>('/api/trm/incidentes', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  update: (id: string, payload: UpdateIncidentePayload) =>
+    request<IncidenteDto>(`/api/trm/incidentes/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (id: string) =>
+    request<void>(`/api/trm/incidentes/${id}`, { method: 'DELETE' }),
+
+  historial: (id: string) =>
+    request<HistorialEstadoDto[]>(`/api/trm/incidentes/${id}/historial`),
+};
+
+// ── Controles ─────────────────────────────────────────────────────────────────
+
+export const controlesService = {
+  listByRiesgo: (riesgo_id: string) =>
+    request<ControlDto[]>(`/api/trm/riesgos/${riesgo_id}/controles`),
+};
+
+// ── KRI ───────────────────────────────────────────────────────────────────────
+
+export const kriService = {
+  list: (terminal_id?: string) =>
+    request<KriDto[]>(`/api/trm/kri${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
 };

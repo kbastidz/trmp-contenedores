@@ -86,3 +86,178 @@ export interface HistorialEstadoDto {
   fecha: string;
   usuario?: string;
 }
+
+// ── Planes ────────────────────────────────────────────────────────────────────
+
+export type EstadoPlan = 'Pendiente' | 'En progreso' | 'Completado' | 'Vencido' | 'Cancelado';
+
+export interface PlanDto {
+  id: string;
+  codigo: string;
+  titulo: string;
+  descripcion?: string;
+  objetivo?: string;
+  estado: EstadoPlan;
+  progreso: number;
+  fecha_inicio?: string;
+  fecha_limite?: string;
+  fecha_revision?: string;
+  responsable?: string;
+  responsable_id?: string;
+  aprobador?: string;
+  area?: string;
+  tipo_control?: string;
+  estrategia?: string;
+  indicador?: string;
+  observaciones?: string;
+  riesgo_id?: string;
+  terminal_id?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreatePlanPayload {
+  terminal_id: string;
+  riesgo_id?: string;
+  responsable_id?: string;
+  codigo: string;
+  titulo: string;
+  descripcion?: string;
+  objetivo?: string;
+  estado: EstadoPlan;
+  progreso: number;
+  fecha_inicio?: string;
+  fecha_limite: string;
+  tipo_control?: string;
+  estrategia?: string;
+  indicador?: string;
+}
+
+export interface UpdatePlanPayload {
+  titulo?: string;
+  descripcion?: string;
+  objetivo?: string;
+  estado?: EstadoPlan;
+  progreso?: number;
+  fecha_inicio?: string;
+  fecha_limite?: string;
+  fecha_revision?: string;
+  tipo_control?: string;
+  estrategia?: string;
+  indicador?: string;
+  observaciones?: string;
+}
+
+export interface AvancePlanPayload {
+  progreso_nuevo: number;
+  estado_nuevo: EstadoPlan;
+  nota?: string;
+  nombre_usuario?: string;
+}
+
+export interface HistorialAvanceDto {
+  id: string;
+  progreso_anterior: number;
+  progreso_nuevo: number;
+  estado_anterior: string;
+  estado_nuevo: string;
+  nota?: string;
+  nombre_usuario?: string;
+  fecha: string;
+}
+
+// ── Incidentes ────────────────────────────────────────────────────────────────
+
+export type SeveridadIncidente = 'Leve' | 'Moderado' | 'Grave' | 'Crítico';
+export type EstadoIncidente = 'Abierto' | 'En análisis' | 'Con plan' | 'Cerrado';
+
+export interface IncidenteDto {
+  id: string;
+  codigo: string;
+  titulo: string;
+  descripcion?: string;
+  severidad: SeveridadIncidente;
+  estado: EstadoIncidente;
+  fecha_ocurrencia?: string;
+  hora_ocurrencia?: string;
+  area?: string;
+  area_id?: string;
+  turno?: string;
+  equipo_involucrado?: string;
+  responsable?: string;
+  responsable_id?: string;
+  causa_inmediata?: string;
+  causa_raiz?: string;
+  lecciones_aprendidas?: string;
+  acciones_inmediatas?: string;
+  observaciones_internas?: string;
+  motivo_cierre?: string;
+  riesgo_id?: string;
+  terminal_id?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateIncidentePayload {
+  terminal_id: string;
+  area_id?: string;
+  responsable_id?: string;
+  codigo: string;
+  titulo: string;
+  descripcion?: string;
+  severidad: SeveridadIncidente;
+  estado: EstadoIncidente;
+  fecha_ocurrencia: string;
+  hora_ocurrencia?: string;
+  turno?: string;
+  equipo_involucrado?: string;
+  causa_inmediata?: string;
+  causa_raiz?: string;
+  lecciones_aprendidas?: string;
+  acciones_inmediatas?: string;
+  riesgo_id?: string;
+}
+
+export interface UpdateIncidentePayload {
+  titulo?: string;
+  descripcion?: string;
+  severidad?: SeveridadIncidente;
+  estado?: EstadoIncidente;
+  fecha_ocurrencia?: string;
+  hora_ocurrencia?: string;
+  turno?: string;
+  equipo_involucrado?: string;
+  causa_inmediata?: string;
+  causa_raiz?: string;
+  lecciones_aprendidas?: string;
+  acciones_inmediatas?: string;
+  observaciones_internas?: string;
+  motivo_cierre?: string;
+}
+
+// ── Controles ─────────────────────────────────────────────────────────────────
+
+export interface ControlDto {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: string;
+  activo: boolean;
+  efectivo?: boolean;
+  observaciones?: string;
+}
+
+// ── KRI ───────────────────────────────────────────────────────────────────────
+
+export interface KriDto {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  unidad?: string;
+  umbral_alerta?: number;
+  umbral_critico?: number;
+  activo: boolean;
+  ultimo_valor?: number;
+  ultimo_estado?: string;
+  terminal_id?: string;
+}

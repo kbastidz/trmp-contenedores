@@ -208,7 +208,7 @@ export default function GestionRiesgos() {
                           <Badge color={ESTADO_BADGE[r.estado]} variant="light" size="xs">{r.estado}</Badge>
                         </td>
                         <td style={{ padding: '6px 10px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
-                          <Button size="xs" variant="subtle" component="a" href={PATH_OPERADOR.editarRiesgo}>Editar</Button>
+                          <Button size="xs" variant="subtle" component="a" href={`${PATH_OPERADOR.editarRiesgo}?id=${r.id}`}>Editar</Button>
                         </td>
                       </tr>
                     );
@@ -255,7 +255,7 @@ export default function GestionRiesgos() {
                   </Group>
                 </Box>
                 <Group gap="sm" style={{ flexShrink: 0 }}>
-                  <Button size="xs" component="a" href={PATH_OPERADOR.detalleRiesgo}>Ver ficha completa</Button>
+                  <Button size="xs" component="a" href={`${PATH_OPERADOR.detalleRiesgo}?id=${selected.id}`}>Ver ficha completa</Button>
                   <Button size="xs" variant="default" onClick={() => setSelected(null)}>✕</Button>
                 </Group>
               </Group>
