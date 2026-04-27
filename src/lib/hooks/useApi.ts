@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { useFetch } from '@mantine/hooks';
 import type { IApiResponse } from '@/types/api-response';
 import type { CustomerDto } from '@/types';
-import { riesgosService, planesService, incidentesService, controlesService, kriService } from '@/lib/trm';
-import type { RiesgoDto, HistorialEstadoDto, PlanDto, HistorialAvanceDto, IncidenteDto, ControlDto, KriDto } from '@/types/trm';
+import { riesgosService, planesService, incidentesService, controlesService, kriService, escalamientosService } from '@/lib/trm';
+import type { RiesgoDto, HistorialEstadoDto, PlanDto, HistorialAvanceDto, IncidenteDto, ControlDto, KriDto, EscalamientoDto } from '@/types/trm';
 
 export type ApiResponse<T> = IApiResponse<T>;
 
@@ -264,6 +264,63 @@ export function usePlanHistorial(id: string | null) {
     if (!id) return;
     setLoading(true);
     planesService.historial(id).then(setData).finally(() => setLoading(false));
+  }, [id]);
+
+  return { data, loading };
+}
+
+export function useEscalamientos(params?: { terminal_id?: string; estado?: string }) {
+  const [data, setData] = useState<EscalamientoDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch_ = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await escalamientosService.list(params));
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al cargar escalamientos'));
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.terminal_id, params?.estado]);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, error, refetch: fetch_ };
+}
+
+export function useEscalamiento(id: string | null) {
+  const [data, setData] = useState<EscalamientoDto | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch_ = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await escalamientosService.getById(id));
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al cargar escalamiento'));
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, error, refetch: fetch_ };
+}
+
+export function useEscalamientoHistorial(id: string | null) {
+  const [data, setData] = useState<HistorialEstadoDto[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    escalamientosService.historial(id).then(setData).finally(() => setLoading(false));
   }, [id]);
 
   return { data, loading };

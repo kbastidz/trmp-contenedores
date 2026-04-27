@@ -15,6 +15,9 @@ import type {
   UpdateIncidentePayload,
   ControlDto,
   KriDto,
+  EscalamientoDto,
+  CreateEscalamientoPayload,
+  ResponderEscalamientoPayload,
 } from '@/types/trm';
 
 const TRM_API =
@@ -167,4 +170,39 @@ export const controlesService = {
 export const kriService = {
   list: (terminal_id?: string) =>
     request<KriDto[]>(`/api/trm/kri${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
+};
+
+// ── Escalamientos ─────────────────────────────────────────────────────────────
+
+export const escalamientosService = {
+  list: (params?: { terminal_id?: string; estado?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.terminal_id) qs.set('terminal_id', params.terminal_id);
+    if (params?.estado) qs.set('estado', params.estado);
+    const q = qs.toString();
+    return request<EscalamientoDto[]>(`/api/trm/escalamientos${q ? `?${q}` : ''}`);
+  },
+
+  getById: (id: string) => request<EscalamientoDto>(`/api/trm/escalamientos/${id}`),
+
+  create: (payload: CreateEscalamientoPayload) =>
+    request<EscalamientoDto>('/api/trm/escalamientos', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  update: (id: string, payload: Partial<CreateEscalamientoPayload>) =>
+    request<EscalamientoDto>(`/api/trm/escalamientos/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+
+  responder: (id: string, payload: ResponderEscalamientoPayload) =>
+    request<EscalamientoDto>(`/api/trm/escalamientos/${id}/responder`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  historial: (id: string) =>
+    request<HistorialEstadoDto[]>(`/api/trm/escalamientos/${id}/historial`),
 };

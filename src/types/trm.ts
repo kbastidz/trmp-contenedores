@@ -261,3 +261,51 @@ export interface KriDto {
   ultimo_estado?: string;
   terminal_id?: string;
 }
+
+// ── Escalamientos ─────────────────────────────────────────────────────────────
+
+export type UrgenciaEscalamiento = 'Normal' | 'Alta' | 'Crítica';
+export type EstadoEscalamiento = 'Enviado' | 'Respondido' | 'Cerrado';
+
+export interface EscalamientoDto {
+  id: string;
+  codigo: string;
+  terminal_id?: string;
+  creado_por?: string;
+  motivo: string;
+  urgencia: UrgenciaEscalamiento;
+  estado: EstadoEscalamiento;
+  nivel_escalamiento: number;
+  auto_generado: boolean;
+  contexto?: string;
+  recursos_requeridos?: string;
+  nueva_fecha_propuesta?: string;
+  canal?: string;
+  respuesta_texto?: string;
+  respuesta_autor?: string;
+  respuesta_usuario_id?: string;
+  respuesta_fecha?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateEscalamientoPayload {
+  terminal_id: string;
+  creado_por?: string;
+  codigo: string;
+  motivo: string;
+  urgencia: UrgenciaEscalamiento;
+  estado: EstadoEscalamiento;
+  nivel_escalamiento: number;
+  auto_generado: boolean;
+  contexto?: string;
+  recursos_requeridos?: string;
+  nueva_fecha_propuesta?: string;
+  canal?: string;
+}
+
+export interface ResponderEscalamientoPayload {
+  respuesta_texto: string;
+  respuesta_autor: string;
+  respuesta_usuario_id?: string;
+}
