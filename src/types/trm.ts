@@ -16,6 +16,15 @@ export interface AreaDto {
   activa: boolean;
 }
 
+export interface EquipoDto {
+  id: string;
+  nombre: string;
+  codigo?: string;
+  tipo?: string;
+  terminal_id: string;
+  activo: boolean;
+}
+
 // ── Riesgos ───────────────────────────────────────────────────────────────────
 
 export type NivelRiesgo = 'Crítico' | 'Alto' | 'Medio' | 'Bajo';
@@ -188,11 +197,13 @@ export interface IncidenteDto {
   responsable_id?: string;
   causa_inmediata?: string;
   causa_raiz?: string;
+  factores_contribuyentes?: string; // JSON array serializado: '["Factor 1","Factor 2"]'
   lecciones_aprendidas?: string;
   acciones_inmediatas?: string;
   observaciones_internas?: string;
   motivo_cierre?: string;
   riesgo_id?: string;
+  riesgo_codigo?: string; // populado por el backend en el listado
   terminal_id?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -201,7 +212,9 @@ export interface IncidenteDto {
 export interface CreateIncidentePayload {
   terminal_id: string;
   area_id?: string;
+  equipo_id?: string;
   responsable_id?: string;
+  reportado_por?: string;
   codigo: string;
   titulo: string;
   descripcion?: string;
@@ -213,6 +226,7 @@ export interface CreateIncidentePayload {
   equipo_involucrado?: string;
   causa_inmediata?: string;
   causa_raiz?: string;
+  factores_contribuyentes?: string; // JSON array serializado: '["Factor 1","Factor 2"]'
   lecciones_aprendidas?: string;
   acciones_inmediatas?: string;
   riesgo_id?: string;
@@ -225,10 +239,13 @@ export interface UpdateIncidentePayload {
   estado?: EstadoIncidente;
   fecha_ocurrencia?: string;
   hora_ocurrencia?: string;
+  area_id?: string;
+  equipo_id?: string;
   turno?: string;
   equipo_involucrado?: string;
   causa_inmediata?: string;
   causa_raiz?: string;
+  factores_contribuyentes?: string; // JSON array serializado: '["Factor 1","Factor 2"]'
   lecciones_aprendidas?: string;
   acciones_inmediatas?: string;
   observaciones_internas?: string;

@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
-  Anchor, Badge, Box, Button, Group, Loader,
+  Anchor, Badge, Box, Button, Checkbox, Group, Loader,
   Select, SimpleGrid, Stack, Tabs, Text, Textarea, TextInput, Title,
 } from '@mantine/core';
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 import { useIncidente } from '@/lib/hooks/useApi';
-import { incidentesService } from '@/lib/trm';
-import type { EstadoIncidente, SeveridadIncidente, UpdateIncidentePayload } from '@/types/trm';
+import { incidentesService, areasService, equiposService } from '@/lib/trm';
+import { TERMINAL_ID } from '@/lib/constants';
+import type { EstadoIncidente, SeveridadIncidente, UpdateIncidentePayload, AreaDto, EquipoDto } from '@/types/trm';
 
 const SEV_OPTIONS: { id: number; label: SeveridadIncidente; sub: string; color: string }[] = [
   { id: 1, label: 'Leve',     sub: 'Sin lesiones',          color: 'green'  },
@@ -23,9 +24,10 @@ const ESTADOS: EstadoIncidente[] = ['Abierto', 'En análisis', 'Con plan', 'Cerr
 const ESTADO_COLOR: Record<EstadoIncidente, string> = { Abierto: 'red', 'En análisis': 'yellow', 'Con plan': 'blue', Cerrado: 'green' };
 
 const FACTORES = [
-  'Fallo de equipo / maquinaria','Error humano','Falta de capacitación',
-  'Procedimiento no seguido','Condiciones climáticas adversas',
-  'Fatiga del operador','Comunicación deficiente',
+  'Fallo de equipo / maquinaria', 'Error humano / falta de atención',
+  'Falta de capacitación', 'Procedimiento no seguido',
+  'Condiciones climáticas adversas', 'Fatiga del operador',
+  'Comunicación deficiente', 'Herramientas / EPP inadecuados',
 ];
 
 export default function EditarIncidente() {
@@ -33,10 +35,13 @@ export default function EditarIncidente() {
   const id = params.get('id');
 
   const { data: incidente, loading, error } = useIncidente(id);
+  const [areas, setAreas] = useState<AreaDto[]>([]);
+  const [equipos, setEquipos] = useState<EquipoDto[]>([]);
 
   const [activeTab, setActiveTab] = useState<string | null>('ocurrencia');
   const [sev, setSev] = useState(1);
   const [estado, setEstado] = useState<EstadoIncidente>('Abierto');
+  const [factores, setFactores] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -44,25 +49,45 @@ export default function EditarIncidente() {
 
   const [form, setForm] = useState({
     titulo: '', descripcion: '', fecha: '', hora: '',
-    area: '', turno: '', equipo: '',
+    area_id: '', turno: '', equipo_id: '',
     causa_inmediata: '', causa_raiz: '',
     lecciones_aprendidas: '', acciones_inmediatas: '',
     observaciones_internas: '', motivo_cierre: '',
   });
 
+  // Cargar áreas y equipos
+  useEffect(() => {
+    areasService.list(TERMINAL_ID)
+      .then(setAreas)
+      .catch(err => console.error('[EditarIncidente] Error cargando áreas:', err));
+    equiposService.list(TERMINAL_ID)
+      .then(setEquipos)
+      .catch(err => console.error('[EditarIncidente] Error cargando equipos:', err));
+  }, []);
+
+  // Poblar form cuando llega el incidente
   useEffect(() => {
     if (!incidente) return;
     const sevIdx = SEV_OPTIONS.findIndex(s => s.label === incidente.severidad);
     setSev(sevIdx >= 0 ? sevIdx + 1 : 1);
     setEstado(incidente.estado);
+    // Parsear factores_contribuyentes desde JSON string
+    try {
+      const parsed = incidente.factores_contribuyentes
+        ? JSON.parse(incidente.factores_contribuyentes)
+        : [];
+      setFactores(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      setFactores([]);
+    }
     setForm({
       titulo: incidente.titulo ?? '',
       descripcion: incidente.descripcion ?? '',
       fecha: incidente.fecha_ocurrencia?.split('T')[0] ?? '',
       hora: incidente.hora_ocurrencia ?? '',
-      area: incidente.area ?? '',
+      area_id: incidente.area_id ?? '',
       turno: incidente.turno ?? '',
-      equipo: incidente.equipo_involucrado ?? '',
+      equipo_id: '',   // se resuelve abajo cuando equipos ya cargó
       causa_inmediata: incidente.causa_inmediata ?? '',
       causa_raiz: incidente.causa_raiz ?? '',
       lecciones_aprendidas: incidente.lecciones_aprendidas ?? '',
@@ -72,7 +97,18 @@ export default function EditarIncidente() {
     });
   }, [incidente]);
 
+  // Resolver equipo_id cuando equipos y el incidente ya están disponibles
+  useEffect(() => {
+    if (!incidente || equipos.length === 0) return;
+    // Buscar por id directo o por nombre si el backend devuelve el nombre en equipo_involucrado
+    const match = equipos.find(
+      e => e.id === (incidente as any).equipo_id || e.nombre === incidente.equipo_involucrado
+    );
+    if (match) setForm(f => ({ ...f, equipo_id: match.id }));
+  }, [incidente, equipos]);
+
   const update = (k: keyof typeof form, v: string) => { setForm(f => ({ ...f, [k]: v })); setHasChanges(true); };
+  const toggleFactor = (f: string) => { setFactores(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]); setHasChanges(true); };
 
   const breadcrumbs = [
     { title: 'Dashboard', href: PATH_DASHBOARD.default },
@@ -94,10 +130,12 @@ export default function EditarIncidente() {
         estado,
         fecha_ocurrencia: form.fecha || undefined,
         hora_ocurrencia: form.hora || undefined,
+        area_id: form.area_id || undefined,
+        equipo_id: form.equipo_id || undefined,
         turno: form.turno || undefined,
-        equipo_involucrado: form.equipo || undefined,
         causa_inmediata: form.causa_inmediata || undefined,
         causa_raiz: form.causa_raiz || undefined,
+        factores_contribuyentes: factores.length > 0 ? JSON.stringify(factores) : undefined,
         lecciones_aprendidas: form.lecciones_aprendidas || undefined,
         acciones_inmediatas: form.acciones_inmediatas || undefined,
         observaciones_internas: form.observaciones_internas || undefined,
@@ -196,12 +234,12 @@ export default function EditarIncidente() {
                   <TextInput label="Hora exacta" type="time" value={form.hora} onChange={e => update('hora', e.target.value)} />
                 </SimpleGrid>
                 <SimpleGrid cols={{ base: 1, sm: 3 }}>
-                  <Select label="Área operacional *" value={form.area} onChange={v => update('area', v || '')}
-                    data={['Muelle / Operaciones de buque','Patio de contenedores','Gate / Portería','Taller y equipos','Seguridad ISPS / BASC','Carga peligrosa IMDG','Sistemas TOS / IT']} />
+                  <Select label="Área operacional *" value={form.area_id} onChange={v => update('area_id', v || '')}
+                    data={areas.map(a => ({ value: a.id, label: a.nombre }))} placeholder="Seleccionar..." />
                   <Select label="Turno" value={form.turno} onChange={v => update('turno', v || '')}
-                    data={['Turno día (06:00–18:00)','Turno noche (18:00–06:00)']} />
-                  <Select label="Equipo involucrado" value={form.equipo} onChange={v => update('equipo', v || '')}
-                    data={['Ninguno / N/A','Grúa STS','RTG','Reach stacker','Sistema TOS','Otro equipo']} clearable />
+                    data={['Turno día (06:00–18:00)','Turno noche (18:00–06:00)']} clearable />
+                  <Select label="Equipo involucrado" value={form.equipo_id} onChange={v => update('equipo_id', v || '')}
+                    data={equipos.map(e => ({ value: e.id, label: e.nombre }))} placeholder="Ninguno / N/A" clearable />
                 </SimpleGrid>
               </Surface>
               <Surface p="md">
@@ -228,11 +266,11 @@ export default function EditarIncidente() {
                 <Textarea label="Causa inmediata" value={form.causa_inmediata} onChange={e => update('causa_inmediata', e.target.value)} minRows={2} mb="sm" />
                 <Textarea label="Causa raíz" value={form.causa_raiz} onChange={e => update('causa_raiz', e.target.value)} minRows={2} mb="sm" />
                 <Text size="xs" c="dimmed" mb="xs">Factores contribuyentes</Text>
-                <Stack gap={4}>{FACTORES.map(f => <Box key={f} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '3px 0' }}><input type="checkbox" onChange={() => setHasChanges(true)} /><Text size="xs">{f}</Text></Box>)}</Stack>
+                <Stack gap={4}>{FACTORES.map(f => <Checkbox key={f} label={f} size="xs" checked={factores.includes(f)} onChange={() => toggleFactor(f)} />)}</Stack>
               </Surface>
               <Surface p="md">
                 <Text fw={500} size="sm" mb="md">Lecciones aprendidas</Text>
-                <Textarea value={form.lecciones_aprendidas} onChange={e => update('lecciones_aprendidas', e.target.value)} minRows={3} />
+                <Textarea value={form.lecciones_aprendidas} onChange={e => update('lecciones_aprendidas', e.target.value)} minRows={3} placeholder="¿Qué aprendizaje deja este incidente?" />
               </Surface>
             </Stack>
           </Tabs.Panel>

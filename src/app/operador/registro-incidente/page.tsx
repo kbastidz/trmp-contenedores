@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Anchor, Badge, Box, Button, Checkbox, Group,
+  Anchor, Badge, Box, Button, Checkbox, Group, Loader,
   Select, SimpleGrid, Stack, Stepper, Text, Textarea, TextInput, Title,
 } from '@mantine/core';
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
-import { incidentesService } from '@/lib/trm';
-import type { SeveridadIncidente, EstadoIncidente } from '@/types/trm';
+import { incidentesService, areasService, equiposService } from '@/lib/trm';
+import { TERMINAL_ID } from '@/lib/constants';
+import { useCurrentUser, useRiesgos } from '@/lib/hooks/useApi';
+import type { SeveridadIncidente, EstadoIncidente, AreaDto, EquipoDto } from '@/types/trm';
 
 const breadcrumbs = [
   { title: 'Dashboard', href: PATH_DASHBOARD.default },
@@ -17,52 +19,76 @@ const breadcrumbs = [
 ].map((item, i) => <Anchor href={item.href} key={i}>{item.title}</Anchor>);
 
 const SEV_OPTIONS: { id: number; label: SeveridadIncidente; sub: string; color: string }[] = [
-  { id: 1, label: 'Leve',     sub: 'Sin lesiones · daño menor',       color: 'green'  },
+  { id: 1, label: 'Leve',     sub: 'Sin lesiones · daño menor',         color: 'green'  },
   { id: 2, label: 'Moderado', sub: 'Primeros auxilios · baja operativa', color: 'yellow' },
-  { id: 3, label: 'Grave',    sub: 'Lesión con baja · daño mayor',    color: 'orange' },
-  { id: 4, label: 'Crítico',  sub: 'Fatalidad · emergencia mayor',    color: 'red'    },
+  { id: 3, label: 'Grave',    sub: 'Lesión con baja · daño mayor',      color: 'orange' },
+  { id: 4, label: 'Crítico',  sub: 'Fatalidad · emergencia mayor',      color: 'red'    },
 ];
 
 const FACTORES = [
-  'Fallo de equipo / maquinaria','Error humano / falta de atención',
-  'Falta de capacitación','Procedimiento no seguido',
-  'Condiciones climáticas adversas','Fatiga del operador',
-  'Comunicación deficiente','Herramientas / EPP inadecuados',
+  'Fallo de equipo / maquinaria', 'Error humano / falta de atención',
+  'Falta de capacitación', 'Procedimiento no seguido',
+  'Condiciones climáticas adversas', 'Fatiga del operador',
+  'Comunicación deficiente', 'Herramientas / EPP inadecuados',
 ];
 const EVIDENCIAS = [
-  'Fotografías del sitio','Video de cámara de seguridad',
-  'Informe del operador','Bitácora de turno',
-  'Reporte de mantenimiento','Ficha técnica del equipo',
+  'Fotografías del sitio', 'Video de cámara de seguridad',
+  'Informe del operador', 'Bitácora de turno',
+  'Reporte de mantenimiento', 'Ficha técnica del equipo',
 ];
 
 export default function RegistroIncidente() {
+  const { user } = useCurrentUser();
+  const { data: riesgos, loading: loadingRiesgos } = useRiesgos(TERMINAL_ID);
+  const [selRiesgoId, setSelRiesgoId] = useState<string | null>(null);
+  const [searchRiesgo, setSearchRiesgo] = useState('');
   const [active, setActive] = useState(0);
   const [sev, setSev] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [createdCodigo, setCreatedCodigo] = useState<string | null>(null);
+  const [areas, setAreas] = useState<AreaDto[]>([]);
+  const [equipos, setEquipos] = useState<EquipoDto[]>([]);
 
   const [form, setForm] = useState({
     titulo: '', descripcion: '',
     fecha: new Date().toISOString().split('T')[0],
     hora: new Date().toTimeString().slice(0, 5),
-    area: '', turno: '', equipo: '',
+    area_id: '', turno: '', equipo_id: '',
     causa_inmediata: '', causa_raiz: '',
     acciones_inmediatas: '', lecciones_aprendidas: '',
   });
 
   const update = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }));
 
+  // Factores contribuyentes (checkboxes)
+  const [factores, setFactores] = useState<string[]>([]);
+  const toggleFactor = (f: string) =>
+    setFactores(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]);
+
+  // Cargar áreas y equipos de la terminal al montar
+  useEffect(() => {
+    areasService.list(TERMINAL_ID)
+      .then(setAreas)
+      .catch(err => console.error('[RegistroIncidente] Error cargando áreas:', err));
+    equiposService.list(TERMINAL_ID)
+      .then(setEquipos)
+      .catch(err => console.error('[RegistroIncidente] Error cargando equipos:', err));
+  }, []);
+
   const handleSubmit = async () => {
     setSaving(true);
     setSaveError(null);
     try {
       const sevLabel = SEV_OPTIONS[sev - 1]?.label ?? 'Leve';
-      // Generar código temporal — el backend debería asignarlo, pero lo enviamos como sugerencia
       const codigo = `INC-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
       const result = await incidentesService.create({
-        terminal_id: '', // TODO: obtener de contexto de sesión/terminal activa
+        terminal_id: TERMINAL_ID,
+        area_id: form.area_id || undefined,
+        equipo_id: form.equipo_id || undefined,
+        responsable_id: user?.id || undefined,
+        reportado_por: user?.id || undefined,
         codigo,
         titulo: form.titulo,
         descripcion: form.descripcion || undefined,
@@ -71,11 +97,12 @@ export default function RegistroIncidente() {
         fecha_ocurrencia: form.fecha,
         hora_ocurrencia: form.hora || undefined,
         turno: form.turno || undefined,
-        equipo_involucrado: form.equipo || undefined,
         causa_inmediata: form.causa_inmediata || undefined,
         causa_raiz: form.causa_raiz || undefined,
+        factores_contribuyentes: factores.length > 0 ? JSON.stringify(factores) : undefined,
         acciones_inmediatas: form.acciones_inmediatas || undefined,
         lecciones_aprendidas: form.lecciones_aprendidas || undefined,
+        riesgo_id: selRiesgoId || undefined,
       });
       setCreatedCodigo(result.codigo);
     } catch (err) {
@@ -111,6 +138,7 @@ export default function RegistroIncidente() {
 
       <Stack gap="md" mt="md">
         <Stepper active={active} onStepClick={setActive} size="sm">
+          <Stepper.Step label="Riesgo" />
           <Stepper.Step label="Ocurrencia" />
           <Stepper.Step label="Afectados" />
           <Stepper.Step label="Análisis" />
@@ -118,8 +146,54 @@ export default function RegistroIncidente() {
           <Stepper.Step label="Revisión" />
         </Stepper>
 
-        {/* Paso 1 — Ocurrencia */}
+        {/* Paso 1 — Riesgo vinculado */}
         {active === 0 && (
+          <Surface p="md">
+            <Text fw={500} size="sm" mb="xs">¿A qué riesgo está vinculado este incidente? <Text span c="dimmed" size="xs">(opcional)</Text></Text>
+            <Text size="xs" c="dimmed" mb="sm">Si el incidente materializa un riesgo registrado, selecciónalo. Si no, puedes continuar sin vincular.</Text>
+            <TextInput placeholder="Buscar riesgo por nombre o área..." mb="sm" value={searchRiesgo} onChange={e => setSearchRiesgo(e.target.value)} />
+            {loadingRiesgos ? (
+              <Group justify="center" p="md"><Loader size="sm" /></Group>
+            ) : (
+              <Stack gap={6}>
+                {riesgos
+                  .filter(r =>
+                    r.nombre.toLowerCase().includes(searchRiesgo.toLowerCase()) ||
+                    (r.area ?? '').toLowerCase().includes(searchRiesgo.toLowerCase())
+                  )
+                  .map((r) => {
+                    const score = r.probabilidad * r.impacto;
+                    const color = score >= 17 ? 'red' : score >= 10 ? 'orange' : score >= 5 ? 'yellow' : 'green';
+                    return (
+                      <Box key={r.id} onClick={() => setSelRiesgoId(prev => prev === r.id ? null : r.id)}
+                        style={{ border: `${selRiesgoId === r.id ? '2px solid #185FA5' : '0.5px solid var(--mantine-color-default-border)'}`, borderRadius: 8, padding: '10px 12px', cursor: 'pointer', background: selRiesgoId === r.id ? '#E6F1FB' : 'transparent' }}>
+                        <Group justify="space-between" wrap="nowrap">
+                          <Box>
+                            <Text size="sm" fw={500}>{r.nombre}</Text>
+                            <Group gap="xs" mt={2}>
+                              <Text size="xs" c="dimmed">{r.area ?? '—'}</Text>
+                              <Badge color={color} variant="light" size="xs">{r.nivel} · {score}</Badge>
+                              <Text size="xs" c="dimmed">· {r.estado}</Text>
+                            </Group>
+                          </Box>
+                          {selRiesgoId === r.id && <Badge color="blue" size="xs">Seleccionado</Badge>}
+                        </Group>
+                      </Box>
+                    );
+                  })}
+                {riesgos.length === 0 && !loadingRiesgos && <Text size="xs" c="dimmed" ta="center">No hay riesgos registrados</Text>}
+              </Stack>
+            )}
+            {selRiesgoId && (
+              <Button size="xs" variant="subtle" color="gray" mt="sm" onClick={() => setSelRiesgoId(null)}>
+                Quitar vinculación
+              </Button>
+            )}
+          </Surface>
+        )}
+
+        {/* Paso 2 — Ocurrencia */}
+        {active === 1 && (
           <Stack gap="md">
             {sev === 4 && (
               <Box p="sm" style={{ background: '#FCEBEB', borderRadius: 8, border: '0.5px solid #F09595' }}>
@@ -136,13 +210,35 @@ export default function RegistroIncidente() {
                   <TextInput label="Hora exacta *" type="time" value={form.hora} onChange={e => update('hora', e.target.value)} />
                 </SimpleGrid>
                 <SimpleGrid cols={{ base: 1, sm: 3 }}>
-                  <Select label="Área operacional *" placeholder="Seleccionar..." value={form.area} onChange={v => update('area', v || '')}
-                    data={['Muelle / Operaciones de buque','Patio de contenedores','Gate / Portería','Taller y equipos','Seguridad ISPS / BASC','Carga peligrosa IMDG','Sistemas TOS / IT','Salud ocupacional']} />
-                  <Select label="Turno" value={form.turno} onChange={v => update('turno', v || '')}
-                    data={['Turno día (06:00–18:00)','Turno noche (18:00–06:00)']} />
-                  <Select label="Equipo involucrado" placeholder="Ninguno / N/A" value={form.equipo} onChange={v => update('equipo', v || '')}
-                    data={['Grúa STS','RTG','RMG','Reach stacker','Tractor de patio','Montacargas','Vehículo liviano','Sistema TOS','Otro equipo']} clearable />
+                  <Select
+                    label="Área operacional *"
+                    placeholder="Seleccionar..."
+                    value={form.area_id}
+                    onChange={v => update('area_id', v || '')}
+                    data={areas.map(a => ({ value: a.id, label: a.nombre }))}
+                  />
+                  <Select
+                    label="Turno"
+                    value={form.turno}
+                    onChange={v => update('turno', v || '')}
+                    data={['Turno día (06:00–18:00)', 'Turno noche (18:00–06:00)']}
+                    clearable
+                  />
+                  <Select
+                    label="Equipo involucrado"
+                    placeholder="Ninguno / N/A"
+                    value={form.equipo_id}
+                    onChange={v => update('equipo_id', v || '')}
+                    data={equipos.map(e => ({ value: e.id, label: e.nombre }))}
+                    clearable
+                  />
                 </SimpleGrid>
+                <TextInput
+                  label="Reportado por"
+                  value={user?.name ?? ''}
+                  readOnly
+                  placeholder="Cargando..."
+                />
               </Stack>
             </Surface>
             <Surface p="md">
@@ -159,39 +255,39 @@ export default function RegistroIncidente() {
           </Stack>
         )}
 
-        {/* Paso 2 — Afectados */}
-        {active === 1 && (
+        {/* Paso 3 — Afectados */}
+        {active === 2 && (
           <Stack gap="md">
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Personas afectadas</Text>
               <SimpleGrid cols={{ base: 1, sm: 3 }}>
-                <Select label="¿Hubo lesionados?" data={[{value:'no',label:'No'},{value:'si',label:'Sí'}]} defaultValue="no" />
+                <Select label="¿Hubo lesionados?" data={[{ value: 'no', label: 'No' }, { value: 'si', label: 'Sí' }]} defaultValue="no" />
                 <TextInput label="Número de personas" type="number" defaultValue="0" />
-                <Select label="Atención médica" data={['No fue necesaria','Primeros auxilios en sitio','Traslado a clínica / hospital','Atención de emergencia']} />
+                <Select label="Atención médica" data={['No fue necesaria', 'Primeros auxilios en sitio', 'Traslado a clínica / hospital', 'Atención de emergencia']} />
               </SimpleGrid>
             </Surface>
             <Surface p="md">
               <Text fw={500} size="sm" mb="sm">Daños materiales y operacionales</Text>
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <Select label="Estimación de daño económico" data={['Sin daño económico','Menor ($0–$1,000)','Moderado ($1,000–$10,000)','Significativo ($10,000–$100,000)','Mayor (más de $100,000)']} />
-                <Select label="Impacto en operación" data={['Sin interrupción','Retraso menor (menos de 1h)','Interrupción parcial (1–4h)','Paralización total (más de 4h)']} />
+                <Select label="Estimación de daño económico" data={['Sin daño económico', 'Menor ($0–$1,000)', 'Moderado ($1,000–$10,000)', 'Significativo ($10,000–$100,000)', 'Mayor (más de $100,000)']} />
+                <Select label="Impacto en operación" data={['Sin interrupción', 'Retraso menor (menos de 1h)', 'Interrupción parcial (1–4h)', 'Paralización total (más de 4h)']} />
               </SimpleGrid>
-              <Select label="¿Hubo impacto ambiental?" mt="sm" data={['No','Derrame menor contenido en área','Derrame con alcance externo','Emisión de gases / contaminantes']} />
+              <Select label="¿Hubo impacto ambiental?" mt="sm" data={['No', 'Derrame menor contenido en área', 'Derrame con alcance externo', 'Emisión de gases / contaminantes']} />
             </Surface>
           </Stack>
         )}
 
-        {/* Paso 3 — Análisis */}
-        {active === 2 && (
+        {/* Paso 4 — Análisis */}
+        {active === 3 && (
           <Stack gap="md">
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Análisis de causa raíz</Text>
               <Stack gap="sm">
-                <Select label="Metodología de análisis" data={['5 Porqués','Diagrama Ishikawa (causa-efecto)','Árbol de fallas (FTA)','Análisis simplificado']} />
+                <Select label="Metodología de análisis" data={['5 Porqués', 'Diagrama Ishikawa (causa-efecto)', 'Árbol de fallas (FTA)', 'Análisis simplificado']} />
                 <Textarea label="Causa inmediata" placeholder="Ej: Fallo del sistema hidráulico del RTG-03..." value={form.causa_inmediata} onChange={e => update('causa_inmediata', e.target.value)} minRows={2} />
                 <Textarea label="Causa básica / raíz" placeholder="Ej: Mantenimiento preventivo vencido hace 3 semanas..." value={form.causa_raiz} onChange={e => update('causa_raiz', e.target.value)} minRows={2} />
                 <Text size="xs" c="dimmed" mb={4}>Factores contribuyentes</Text>
-                <Stack gap={4}>{FACTORES.map(f => <Checkbox key={f} label={f} size="xs" />)}</Stack>
+                <Stack gap={4}>{FACTORES.map(f => <Checkbox key={f} label={f} size="xs" checked={factores.includes(f)} onChange={() => toggleFactor(f)} />)}</Stack>
               </Stack>
             </Surface>
             <Surface p="md">
@@ -207,13 +303,13 @@ export default function RegistroIncidente() {
           </Stack>
         )}
 
-        {/* Paso 4 — Acciones */}
-        {active === 3 && (
+        {/* Paso 5 — Acciones */}
+        {active === 4 && (
           <Stack gap="md">
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Acciones inmediatas tomadas</Text>
               <Textarea label="¿Qué se hizo en el momento?" placeholder="Ej: Se detuvo la operación del RTG-03, se activó protocolo de emergencia..." value={form.acciones_inmediatas} onChange={e => update('acciones_inmediatas', e.target.value)} minRows={3} />
-              <Select label="¿Se notificó a autoridades externas?" mt="sm" data={['No fue necesario','Autoridad portuaria','Cuerpo de bomberos','Policía / Fuerzas del orden','Ministerio de Trabajo','Entidad ambiental']} />
+              <Select label="¿Se notificó a autoridades externas?" mt="sm" data={['No fue necesario', 'Autoridad portuaria', 'Cuerpo de bomberos', 'Policía / Fuerzas del orden', 'Ministerio de Trabajo', 'Entidad ambiental']} />
             </Surface>
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Lecciones aprendidas</Text>
@@ -222,21 +318,24 @@ export default function RegistroIncidente() {
           </Stack>
         )}
 
-        {/* Paso 5 — Revisión */}
-        {active === 4 && (
+        {/* Paso 6 — Revisión */}
+        {active === 5 && (
           <Stack gap="md">
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Revisión final del incidente</Text>
               <Stack gap={0}>
                 {[
+                  ['Riesgo vinculado', riesgos.find(r => r.id === selRiesgoId)?.nombre || 'Sin vincular'],
                   ['Título', form.titulo || '—'],
                   ['Fecha y hora', `${form.fecha} ${form.hora}`],
-                  ['Área operacional', form.area || '—'],
+                  ['Área operacional', areas.find(a => a.id === form.area_id)?.nombre || '—'],
                   ['Turno', form.turno || '—'],
-                  ['Equipo involucrado', form.equipo || 'N/A'],
+                  ['Equipo involucrado', equipos.find(e => e.id === form.equipo_id)?.nombre || 'N/A'],
                   ['Severidad', sev ? SEV_OPTIONS[sev - 1].label : '—'],
+                  ['Reportado por', user?.name || '—'],
                   ['Causa inmediata', form.causa_inmediata || '—'],
                   ['Causa raíz', form.causa_raiz || '—'],
+                  ['Factores contribuyentes', factores.length > 0 ? factores.join(', ') : '—'],
                 ].map(([k, v]) => (
                   <Group key={k} justify="space-between" style={{ padding: '6px 0', borderBottom: '0.5px solid var(--mantine-color-default-border)' }}>
                     <Text size="xs" c="dimmed" style={{ minWidth: 160 }}>{k}</Text>
@@ -264,8 +363,8 @@ export default function RegistroIncidente() {
         {/* Navegación */}
         <Group justify="space-between">
           <Button variant="default" size="sm" disabled={active === 0} onClick={() => setActive(a => a - 1)}>← Anterior</Button>
-          <Text size="xs" c="dimmed">Paso {active + 1} de 5</Text>
-          {active < 4
+          <Text size="xs" c="dimmed">Paso {active + 1} de 6</Text>
+          {active < 5
             ? <Button size="sm" onClick={() => setActive(a => a + 1)}>Siguiente →</Button>
             : <Button size="sm" disabled={!confirmed || saving} loading={saving} onClick={handleSubmit}>Registrar incidente</Button>
           }

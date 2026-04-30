@@ -5,6 +5,7 @@ import type {
   HistorialEstadoDto,
   TerminalDto,
   AreaDto,
+  EquipoDto,
   PlanDto,
   CreatePlanPayload,
   UpdatePlanPayload,
@@ -71,6 +72,13 @@ export const terminalesService = {
 export const areasService = {
   list: (terminal_id?: string) =>
     request<AreaDto[]>(`/api/trm/areas${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
+};
+
+// ── Equipos ───────────────────────────────────────────────────────────────────
+
+export const equiposService = {
+  list: (terminal_id?: string) =>
+    request<EquipoDto[]>(`/api/trm/equipos${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
 };
 
 // ── Riesgos ───────────────────────────────────────────────────────────────────

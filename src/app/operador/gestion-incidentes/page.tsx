@@ -7,14 +7,15 @@ import {
 } from '@mantine/core';
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
-import { useIncidentes, useIncidenteHistorial } from '@/lib/hooks/useApi';
+import { useIncidentes, useIncidenteHistorial, useRiesgos, useAreas } from '@/lib/hooks/useApi';
+import { TERMINAL_ID } from '@/lib/constants';
 import type { IncidenteDto, SeveridadIncidente, EstadoIncidente } from '@/types/trm';
 
 const SEV_COLOR: Record<SeveridadIncidente, string> = { Crítico: 'red', Grave: 'orange', Moderado: 'yellow', Leve: 'green' };
 const SEV_HEX: Record<SeveridadIncidente, string> = { Crítico: '#A32D2D', Grave: '#993C1D', Moderado: '#EF9F27', Leve: '#639922' };
 const EST_COLOR: Record<EstadoIncidente, string> = { Abierto: 'red', 'En análisis': 'yellow', 'Con plan': 'blue', Cerrado: 'green' };
 
-function DetailPanel({ inc, onClose }: { inc: IncidenteDto; onClose: () => void }) {
+function DetailPanel({ inc, areaNombre, onClose }: { inc: IncidenteDto; areaNombre: string | null; onClose: () => void }) {
   const [tab, setTab] = useState<string | null>('resumen');
   const { data: historial } = useIncidenteHistorial(inc.id);
   const HIST_COLOR = ['#378ADD', '#E24B4A', '#639922', '#EF9F27'];
@@ -28,7 +29,7 @@ function DetailPanel({ inc, onClose }: { inc: IncidenteDto; onClose: () => void 
           <Group gap="xs" mt={6}>
             <Badge color={SEV_COLOR[inc.severidad]} variant="light" size="xs">{inc.severidad}</Badge>
             <Badge color={EST_COLOR[inc.estado]} variant="light" size="xs">{inc.estado}</Badge>
-            {inc.area && <Badge color="blue" variant="light" size="xs">{inc.area}</Badge>}
+            {areaNombre && <Badge color="blue" variant="light" size="xs">{areaNombre}</Badge>}
           </Group>
         </Box>
         <Group gap="sm" style={{ flexShrink: 0 }}>
@@ -47,7 +48,7 @@ function DetailPanel({ inc, onClose }: { inc: IncidenteDto; onClose: () => void 
         <Tabs.Panel value="resumen" pt="md">
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
             <Stack gap={8}>
-              {inc.area && <Box><Text size="xs" c="dimmed">Área</Text><Text size="xs">{inc.area}</Text></Box>}
+              {areaNombre && <Box><Text size="xs" c="dimmed">Área</Text><Text size="xs">{areaNombre}</Text></Box>}
               {inc.turno && <Box><Text size="xs" c="dimmed">Turno</Text><Text size="xs">{inc.turno}</Text></Box>}
               {inc.fecha_ocurrencia && <Box><Text size="xs" c="dimmed">Fecha</Text><Text size="xs">{new Date(inc.fecha_ocurrencia).toLocaleDateString('es-PE')}{inc.hora_ocurrencia ? ` · ${inc.hora_ocurrencia}` : ''}</Text></Box>}
               {inc.equipo_involucrado && <Box><Text size="xs" c="dimmed">Equipo</Text><Text size="xs">{inc.equipo_involucrado}</Text></Box>}
@@ -103,6 +104,8 @@ function DetailPanel({ inc, onClose }: { inc: IncidenteDto; onClose: () => void 
 
 export default function GestionIncidentes() {
   const { data: incidentes, loading, error, refetch } = useIncidentes();
+  const { data: riesgos } = useRiesgos(TERMINAL_ID);
+  const { data: areas } = useAreas(TERMINAL_ID);
   const [selected, setSelected] = useState<IncidenteDto | null>(null);
   const [search, setSearch] = useState('');
   const [filtSev, setFiltSev] = useState('');
@@ -120,13 +123,21 @@ export default function GestionIncidentes() {
     return incidentes.filter(inc => {
       if (filtSev && inc.severidad !== filtSev) return false;
       if (filtEst && inc.estado !== filtEst) return false;
-      if (filtArea && inc.area !== filtArea) return false;
-      if (q && !inc.titulo.toLowerCase().includes(q) && !inc.codigo.toLowerCase().includes(q) && !(inc.area ?? '').toLowerCase().includes(q)) return false;
+      if (filtArea && getAreaNombre(inc) !== filtArea) return false;
+      if (q && !inc.titulo.toLowerCase().includes(q) && !inc.codigo.toLowerCase().includes(q) && !(getAreaNombre(inc) ?? '').toLowerCase().includes(q)) return false;
       return true;
     });
   }, [incidentes, search, filtSev, filtEst, filtArea]);
 
-  const areas = [...new Set(incidentes.map(i => i.area).filter(Boolean))] as string[];
+  const areaOptions = [...new Set(areas.map(a => a.nombre))];
+
+  // Resuelve el código del riesgo: usa riesgo_codigo si el backend lo popula, si no busca por riesgo_id
+  const getRiesgoCodigo = (inc: IncidenteDto) =>
+    inc.riesgo_codigo ?? riesgos.find(r => r.id === inc.riesgo_id)?.codigo ?? null;
+
+  // Resuelve el nombre del área: usa inc.area si el backend lo popula, si no busca por area_id
+  const getAreaNombre = (inc: IncidenteDto) =>
+    inc.area ?? areas.find(a => a.id === inc.area_id)?.nombre ?? null;
 
   const counts = useMemo(() => ({
     total: incidentes.length,
@@ -234,8 +245,8 @@ export default function GestionIncidentes() {
             <TextInput placeholder="Buscar incidente..." size="xs" value={search} onChange={e => setSearch(e.target.value)} style={{ width: 200 }} />
             <Select size="xs" placeholder="Severidad" data={['Crítico','Grave','Moderado','Leve']} value={filtSev} onChange={v => setFiltSev(v || '')} clearable style={{ width: 130 }} />
             <Select size="xs" placeholder="Estado" data={['Abierto','En análisis','Con plan','Cerrado']} value={filtEst} onChange={v => setFiltEst(v || '')} clearable style={{ width: 130 }} />
-            {areas.length > 0 && (
-              <Select size="xs" placeholder="Área" data={areas} value={filtArea} onChange={v => setFiltArea(v || '')} clearable style={{ width: 160 }} />
+            {areaOptions.length > 0 && (
+              <Select size="xs" placeholder="Área" data={areaOptions} value={filtArea} onChange={v => setFiltArea(v || '')} clearable style={{ width: 160 }} />
             )}
           </Group>
 
@@ -246,7 +257,7 @@ export default function GestionIncidentes() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '0.5px solid var(--mantine-color-default-border)', background: 'var(--mantine-color-default-hover)' }}>
-                    {['ID','Sev.','Descripción','Área','Fecha','Turno','Estado',''].map(h => (
+                    {['ID','Sev.','Descripción','Área','Riesgo','Fecha','Turno','Estado',''].map(h => (
                       <th key={h} style={{ fontSize: 11, color: 'var(--mantine-color-dimmed)', fontWeight: 500, textAlign: 'left', padding: '8px 10px', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
@@ -262,7 +273,12 @@ export default function GestionIncidentes() {
                       <td style={{ padding: '8px 10px', fontSize: 12, maxWidth: 280 }}>
                         <Text size="xs" lineClamp={1}>{inc.titulo}</Text>
                       </td>
-                      <td style={{ padding: '8px 10px', fontSize: 11, color: 'var(--mantine-color-dimmed)' }}>{inc.area ?? '—'}</td>
+                      <td style={{ padding: '8px 10px', fontSize: 11, color: 'var(--mantine-color-dimmed)' }}>{getAreaNombre(inc) ?? '—'}</td>
+                      <td style={{ padding: '8px 10px', fontSize: 11, whiteSpace: 'nowrap' }}>
+                        {getRiesgoCodigo(inc)
+                          ? <Text size="xs" c="blue" fw={500}>{getRiesgoCodigo(inc)}</Text>
+                          : <Text size="xs" c="dimmed">—</Text>}
+                      </td>
                       <td style={{ padding: '8px 10px', fontSize: 11, whiteSpace: 'nowrap' }}>
                         {inc.fecha_ocurrencia ? new Date(inc.fecha_ocurrencia).toLocaleDateString('es-PE') : '—'}
                       </td>
@@ -277,7 +293,7 @@ export default function GestionIncidentes() {
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={8} style={{ padding: 24, textAlign: 'center', color: 'var(--mantine-color-dimmed)', fontSize: 13 }}>
+                      <td colSpan={9} style={{ padding: 24, textAlign: 'center', color: 'var(--mantine-color-dimmed)', fontSize: 13 }}>
                         No se encontraron incidentes
                       </td>
                     </tr>
@@ -290,7 +306,7 @@ export default function GestionIncidentes() {
 
         {/* Panel de detalle */}
         <Collapse in={!!selected}>
-          {selected && <DetailPanel inc={selected} onClose={() => setSelected(null)} />}
+          {selected && <DetailPanel inc={selected} areaNombre={getAreaNombre(selected)} onClose={() => setSelected(null)} />}
         </Collapse>
       </Stack>
     </>
