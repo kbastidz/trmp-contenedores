@@ -39,7 +39,7 @@ function Page() {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
-    initialValues: { email: 'demo@example.com', password: 'demo123' },
+    initialValues: { email: 'kevin-10b2011@hotmail.com', password: 'Password123!' },
     validate: {
       email: (value: string) =>
         /^\S+@\S+$/.test(value) ? null : 'Invalid email',
@@ -91,14 +91,14 @@ function Page() {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
             label="Email"
-            placeholder="demo@example.com"
+            placeholder="kevin-10b2011@hotmail.com"
             required
             classNames={{ label: classes.label }}
             {...form.getInputProps('email')}
           />
           <PasswordInput
             label="Password"
-            placeholder="demo123"
+            placeholder="Password123!"
             required
             mt="md"
             classNames={{ label: classes.label }}

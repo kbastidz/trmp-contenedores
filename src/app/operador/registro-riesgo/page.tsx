@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Anchor, Badge, Box, Button, Checkbox, Group, Radio, Select,
   SimpleGrid, Stack, Stepper, Text, Textarea, TextInput, Title,
 } from '@mantine/core';
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
+import { riesgosService, areasService } from '@/lib/trm';
+import { TERMINAL_ID } from '@/lib/constants';
+import type { AreaDto } from '@/types/trm';
+import { useCurrentUser } from '@/lib/hooks/useApi';
 
 const breadcrumbs = [
   { title: 'Dashboard', href: PATH_DASHBOARD.default },
@@ -34,15 +38,55 @@ function getScoreInfo(score: number) {
 }
 
 export default function RegistroRiesgo() {
+  const { user } = useCurrentUser();
   const [active, setActive] = useState(0);
   const [prob, setProb] = useState('');
   const [imp, setImp] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ nombre: '', desc: '', area: '', tipo: '', resp: '', turno: '', norma: '', prev: '', trigger: '', conseq: '', accion: '', resp2: '', fecha: '', prio: '', recursos: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [createdId, setCreatedId] = useState<string | null>(null);
+  const [areas, setAreas] = useState<AreaDto[]>([]);
+  const [form, setForm] = useState({ nombre: '', desc: '', area_id: '', tipo: '', resp: '', turno: '', norma: '', prev: '', trigger: '', conseq: '', accion: '', resp2: '', fecha: '', prio: '', recursos: '' });
   const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  // Cargar áreas de la terminal al montar
+  useEffect(() => {
+    areasService.list(TERMINAL_ID)
+      .then(setAreas)
+      .catch(err => console.error('[RegistroRiesgo] Error cargando áreas:', err));
+  }, []);
 
   const score = prob && imp ? parseInt(prob) * parseInt(imp) : null;
   const scoreInfo = score ? getScoreInfo(score) : null;
+
+  async function handleSubmit() {
+    setLoading(true);
+    setError(null);
+    try {
+      const nivel = scoreInfo?.label as 'Bajo' | 'Medio' | 'Alto' | 'Crítico';
+      const result = await riesgosService.create({
+        terminal_id: TERMINAL_ID,
+        area_id: form.area_id || undefined,
+        responsable_id: user?.id || undefined,
+        codigo: `RISK-${Date.now()}`,
+        nombre: form.nombre,
+        descripcion: form.desc,
+        causa: form.trigger,
+        categoria: form.tipo,
+        probabilidad: parseInt(prob),
+        impacto: parseInt(imp),
+        nivel,
+        estado: 'Activo',
+      });
+      setCreatedId(result.id ?? null);
+      setSubmitted(true);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error al registrar el riesgo');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (submitted) {
     return (
@@ -54,7 +98,7 @@ export default function RegistroRiesgo() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
           </Box>
           <Title order={4} mb={6}>Riesgo registrado exitosamente</Title>
-          <Text size="sm" c="dimmed" mb="lg">ID asignado: <strong>RISK-2026-025</strong> · El responsable será notificado por correo</Text>
+          <Text size="sm" c="dimmed" mb="lg">ID asignado: <strong>{createdId ?? '—'}</strong> · El responsable será notificado por correo</Text>
           <Group justify="center" gap="sm">
             <Button size="xs" variant="default" onClick={() => { setSubmitted(false); setActive(0); }}>Registrar otro</Button>
             <Button size="xs" component="a" href={PATH_OPERADOR.dashboard}>Ir al dashboard</Button>
@@ -85,13 +129,13 @@ export default function RegistroRiesgo() {
               <TextInput label="Nombre del riesgo *" placeholder="Ej: Caída de contenedor durante operación de RTG en patio" value={form.nombre} onChange={e => update('nombre', e.target.value)} />
               <Textarea label="Descripción detallada" placeholder="Describa el escenario de riesgo, condiciones que lo generan y posibles consecuencias..." value={form.desc} onChange={e => update('desc', e.target.value)} minRows={3} />
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <Select label="Área operacional *" placeholder="Seleccionar..." value={form.area} onChange={v => update('area', v || '')}
-                  data={['Muelle / Operaciones de buque','Patio de contenedores (Yard)','Gate / Portería','Taller y equipos','Seguridad ISPS / BASC','Carga peligrosa IMDG','Sistemas TOS / IT','Salud ocupacional','Medio ambiente']} />
+                <Select label="Área operacional *" placeholder="Seleccionar..." value={form.area_id} onChange={v => update('area_id', v || '')}
+                  data={areas.map(a => ({ value: a.id, label: a.nombre }))} />
                 <Select label="Tipo de riesgo *" placeholder="Seleccionar..." value={form.tipo} onChange={v => update('tipo', v || '')}
                   data={['Seguridad industrial','Operacional / Proceso','Seguridad física','Ambiental','Tecnológico','Humano / Fatiga','Externo / Climático','Legal / Regulatorio']} />
               </SimpleGrid>
               <SimpleGrid cols={{ base: 1, sm: 3 }}>
-                <TextInput label="Responsable *" placeholder="Nombre o cargo" value={form.resp} onChange={e => update('resp', e.target.value)} />
+                <TextInput label="Responsable *" placeholder="Cargando..." value={user?.name ?? ''} readOnly />
                 <Select label="Turno afectado" placeholder="Todos" value={form.turno} onChange={v => update('turno', v || '')} data={['Turno día','Turno noche','Todos los turnos']} clearable />
                 <Select label="Normativa aplicable" placeholder="Ninguna específica" value={form.norma} onChange={v => update('norma', v || '')} data={['ISO 45001','Código ISPS','IMDG','BASC','ISO 31000']} clearable />
               </SimpleGrid>
@@ -179,9 +223,9 @@ export default function RegistroRiesgo() {
             <Stack gap={0}>
               {[
                 ['Nombre del riesgo', form.nombre || '—'],
-                ['Área operacional', form.area || '—'],
+                ['Área operacional', areas.find(a => a.id === form.area_id)?.nombre || '—'],
                 ['Tipo de riesgo', form.tipo || '—'],
-                ['Responsable', form.resp || '—'],
+                ['Responsable', user?.name || '—'],
                 ['Probabilidad', prob ? `${prob}/5` : '—'],
                 ['Impacto', imp ? `${imp}/5` : '—'],
                 ['Puntaje / Nivel', score ? `${score} — ${scoreInfo?.label}` : '—'],
@@ -203,9 +247,10 @@ export default function RegistroRiesgo() {
           <Text size="xs" c="dimmed">Paso {active + 1} de 4</Text>
           {active < 3
             ? <Button size="sm" onClick={() => setActive(a => a + 1)}>Siguiente →</Button>
-            : <Button size="sm" style={{ background: '#185FA5', color: 'white' }} onClick={() => setSubmitted(true)}>Registrar riesgo</Button>
+            : <Button size="sm" style={{ background: '#185FA5', color: 'white' }} loading={loading} onClick={handleSubmit}>Registrar riesgo</Button>
           }
         </Group>
+        {error && <Text size="xs" c="red" ta="center">{error}</Text>}
       </Stack>
     </>
   );

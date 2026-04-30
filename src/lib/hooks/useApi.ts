@@ -4,10 +4,28 @@ import type { IApiResponse } from '@/types/api-response';
 import type { CustomerDto } from '@/types';
 import { riesgosService, planesService, incidentesService, controlesService, kriService, escalamientosService } from '@/lib/trm';
 import type { RiesgoDto, HistorialEstadoDto, PlanDto, HistorialAvanceDto, IncidenteDto, ControlDto, KriDto, EscalamientoDto } from '@/types/trm';
+import { authService } from '@/lib/auth';
+import type { AuthUser } from '@/lib/auth';
 
 export type ApiResponse<T> = IApiResponse<T>;
 
 const AUTH_API = process.env.NEXT_PUBLIC_AUTH_API_URL ?? 'http://localhost:3000';
+
+// ── Session ───────────────────────────────────────────────────────────────────
+
+export function useCurrentUser() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    authService.getSession()
+      .then(session => setUser(session?.user ?? null))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { user, loading };
+}
 
 // Generic hook for GET requests
 export function useApiGet<T>(endpoint: string) {
@@ -43,7 +61,21 @@ export function useAdminUsers() {
   return { data, loading, error, refetch: fetchUsers };
 }
 
-// ── Riesgos TRM ───────────────────────────────────────────────────────────────
+export function useAreas(terminal_id?: string) {
+  const [data, setData] = useState<import('@/types/trm').AreaDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    import('@/lib/trm').then(m => m.areasService.list(terminal_id))
+      .then(setData)
+      .catch(() => setData([]))
+      .finally(() => setLoading(false));
+  }, [terminal_id]);
+
+  return { data, loading };
+}
+
+
 
 export function useRiesgos(terminal_id?: string) {
   const [data, setData] = useState<RiesgoDto[]>([]);

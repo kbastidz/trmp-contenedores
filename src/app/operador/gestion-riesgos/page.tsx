@@ -7,7 +7,8 @@ import {
 } from '@mantine/core';
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
-import { useRiesgos } from '@/lib/hooks/useApi';
+import { useRiesgos, useAreas } from '@/lib/hooks/useApi';
+import { TERMINAL_ID } from '@/lib/constants';
 import type { NivelRiesgo, EstadoRiesgo, RiesgoDto } from '@/types/trm';
 
 const NIVEL_COLOR: Record<NivelRiesgo, string> = { Crítico: '#A32D2D', Alto: '#993C1D', Medio: '#854F0B', Bajo: '#3B6D11' };
@@ -26,6 +27,7 @@ const PER_PAGE = 10;
 
 export default function GestionRiesgos() {
   const { data: riesgos, loading, error, refetch } = useRiesgos();
+  const { data: areas } = useAreas(TERMINAL_ID);
   const [filtNivel, setFiltNivel] = useState('todos');
   const [filtArea, setFiltArea] = useState('');
   const [filtEstado, setFiltEstado] = useState('');
@@ -47,9 +49,9 @@ export default function GestionRiesgos() {
       .filter(r => {
         if (filtNivel !== 'todos' && filtNivel !== 'sin-plan' && r.nivel !== filtNivel) return false;
         if (filtNivel === 'sin-plan' && (r.planes ?? []).length > 0) return false;
-        if (filtArea && r.area !== filtArea) return false;
+        if (filtArea && getAreaNombre(r) !== filtArea) return false;
         if (filtEstado && r.estado !== filtEstado) return false;
-        if (q && !r.nombre.toLowerCase().includes(q) && !r.codigo.toLowerCase().includes(q) && !(r.area ?? '').toLowerCase().includes(q)) return false;
+        if (q && !r.nombre.toLowerCase().includes(q) && !r.codigo.toLowerCase().includes(q) && !getAreaNombre(r).toLowerCase().includes(q)) return false;
         return true;
       })
       .sort((a, b) => {
@@ -68,7 +70,11 @@ export default function GestionRiesgos() {
     else { setSortCol(col); setSortDir(-1); }
   };
 
-  const areas = [...new Set(riesgos.map(r => r.area).filter(Boolean))] as string[];
+  // Resuelve el nombre del área: usa r.area si el backend lo popula, si no busca por area_id
+  const getAreaNombre = (r: RiesgoDto) =>
+    r.area ?? areas.find(a => a.id === r.area_id)?.nombre ?? '—';
+
+  const areaOptions = [...new Set(areas.map(a => a.nombre))];
 
   const counts = useMemo(() => ({
     total: riesgos.length,
@@ -138,7 +144,7 @@ export default function GestionRiesgos() {
             </Button>
           ))}
           <Box style={{ width: 1, height: 20, background: 'var(--mantine-color-default-border)' }} />
-          <Select size="xs" placeholder="Todas las áreas" data={areas} value={filtArea} onChange={v => { setFiltArea(v || ''); setPage(1); }} clearable style={{ width: 180 }} />
+          <Select size="xs" placeholder="Todas las áreas" data={areaOptions} value={filtArea} onChange={v => { setFiltArea(v || ''); setPage(1); }} clearable style={{ width: 180 }} />
           <Select size="xs" placeholder="Todos los estados" data={['Activo','En revisión','En mitigación','Aceptado','Cerrado']} value={filtEstado} onChange={v => { setFiltEstado(v || ''); setPage(1); }} clearable style={{ width: 160 }} />
           <TextInput size="xs" placeholder="Buscar riesgo..." value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} style={{ width: 180 }} />
         </Group>
@@ -184,7 +190,7 @@ export default function GestionRiesgos() {
                           <Box style={{ width: 10, height: 10, borderRadius: '50%', background: NIVEL_COLOR[r.nivel], margin: '0 auto' }} />
                         </td>
                         <td style={{ padding: '8px 10px', fontSize: 12, wordBreak: 'break-word' }}>{r.nombre}</td>
-                        <td style={{ padding: '8px 10px', fontSize: 11, color: 'var(--mantine-color-dimmed)' }}>{r.area ?? '—'}</td>
+                        <td style={{ padding: '8px 10px', fontSize: 11, color: 'var(--mantine-color-dimmed)' }}>{getAreaNombre(r)}</td>
                         <td style={{ padding: '8px 10px', fontSize: 12, fontWeight: 500, textAlign: 'center' }}>{r.probabilidad}/5</td>
                         <td style={{ padding: '8px 10px', fontSize: 12, fontWeight: 500, textAlign: 'center' }}>{r.impacto}/5</td>
                         <td style={{ padding: '8px 10px', textAlign: 'center' }}>
@@ -250,7 +256,7 @@ export default function GestionRiesgos() {
                   <Text fw={500}>{selected.nombre}</Text>
                   <Group gap="xs" mt={6}>
                     <Badge color={NIVEL_BADGE[selected.nivel]} variant="light" size="xs">{selected.nivel} · {selected.probabilidad * selected.impacto}</Badge>
-                    <Badge color="blue" variant="light" size="xs">{selected.area ?? '—'}</Badge>
+                    <Badge color="blue" variant="light" size="xs">{getAreaNombre(selected)}</Badge>
                     <Badge color={ESTADO_BADGE[selected.estado]} variant="light" size="xs">{selected.estado}</Badge>
                   </Group>
                 </Box>

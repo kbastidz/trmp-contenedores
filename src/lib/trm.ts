@@ -22,27 +22,41 @@ import type {
 
 const TRM_API =
   typeof window !== 'undefined'
-    ? (process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3001')
-    : (process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3001');
+    ? ''  // en el browser llama al proxy local /api/trm/...
+    : (process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3002'); // en SSR va directo
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${TRM_API}${path}`, {
+  const method = options?.method ?? 'GET';
+  const url = `${TRM_API}${path}`;
+
+  console.log(`[TRM] ➡️  ${method} ${url}`);
+  if (options?.body) {
+    console.log(`[TRM] 📦 Request body:`, JSON.parse(options.body as string));
+  }
+
+  const res = await fetch(url, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...options?.headers,
     },
   });
 
+  console.log(`[TRM] ⬅️  ${res.status} ${res.statusText} — ${method} ${url}`);
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
+    console.error(`[TRM] ❌ Error response:`, body);
     throw new Error(body?.message ?? `TRM request failed: ${res.status}`);
   }
 
   const text = await res.text();
   if (!text) return undefined as T;
 
-  return JSON.parse(text) as T;
+  const data = JSON.parse(text) as T;
+  console.log(`[TRM] ✅ Response data:`, data);
+  return data;
 }
 
 // ── Terminales ────────────────────────────────────────────────────────────────
