@@ -99,6 +99,34 @@ export interface HistorialEstadoDto {
 // ── Planes ────────────────────────────────────────────────────────────────────
 
 export type EstadoPlan = 'Pendiente' | 'En progreso' | 'Completado' | 'Vencido' | 'Cancelado';
+export type EstadoTarea = 'Pendiente' | 'En ejecución' | 'Completada';
+
+export interface TareaDto {
+  id: string;
+  plan_id: string;
+  descripcion: string;
+  responsable?: string;
+  fecha_limite?: string;
+  estado: EstadoTarea;
+  orden?: number;
+  creado_en?: string;
+}
+
+export interface CreateTareaPayload {
+  descripcion: string;
+  responsable?: string;
+  fecha_limite?: string;
+  estado?: EstadoTarea;
+  orden?: number;
+}
+
+export interface UpdateTareaPayload {
+  descripcion?: string;
+  responsable?: string;
+  fecha_limite?: string;
+  estado?: EstadoTarea;
+  orden?: number;
+}
 
 export interface PlanDto {
   id: string;
@@ -114,12 +142,16 @@ export interface PlanDto {
   responsable?: string;
   responsable_id?: string;
   aprobador?: string;
+  norma?: string;
   area?: string;
+  area_id?: string;
   tipo_control?: string;
   estrategia?: string;
   indicador?: string;
   observaciones?: string;
   riesgo_id?: string;
+  riesgo_codigo?: string;
+  riesgo_nombre?: string;
   terminal_id?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -140,6 +172,9 @@ export interface CreatePlanPayload {
   tipo_control?: string;
   estrategia?: string;
   indicador?: string;
+  area_id?: string;
+  aprobador?: string;
+  norma?: string;
 }
 
 export interface UpdatePlanPayload {
@@ -155,6 +190,18 @@ export interface UpdatePlanPayload {
   estrategia?: string;
   indicador?: string;
   observaciones?: string;
+  area_id?: string;
+  aprobador?: string;
+  norma?: string;
+  responsable?: string;
+  presupuesto?: string;
+  fuente_financiamiento?: string;
+  prioridad?: string;
+  recursos_adicionales?: string;
+  justificacion_cambio?: string;
+  evidencia_cierre?: string;
+  notaAvance?: string;
+  
 }
 
 export interface AvancePlanPayload {
@@ -172,7 +219,8 @@ export interface HistorialAvanceDto {
   estado_nuevo: string;
   nota?: string;
   nombre_usuario?: string;
-  fecha: string;
+  fecha?: string;       // alias frontend
+  creado_en?: string;   // nombre real en el backend
 }
 
 // ── Incidentes ────────────────────────────────────────────────────────────────

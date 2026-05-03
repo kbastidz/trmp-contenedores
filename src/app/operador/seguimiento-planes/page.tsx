@@ -116,7 +116,7 @@ function DetailPanel({ plan, onClose }: { plan: PlanDto; onClose: () => void }) 
                   <Box style={{ flex: 1 }}>
                     <Text size="xs" fw={500}>{h.progreso_anterior}% → {h.progreso_nuevo}% · {h.estado_anterior} → {h.estado_nuevo}</Text>
                     {h.nota && <Text size="xs" c="dimmed">{h.nota}</Text>}
-                    <Text size="xs" c="dimmed">{h.nombre_usuario ? `${h.nombre_usuario} · ` : ''}{new Date(h.fecha).toLocaleString('es-PE')}</Text>
+                    <Text size="xs" c="dimmed">{h.nombre_usuario ? `${h.nombre_usuario} · ` : ''}{(() => { const d = h.creado_en ?? h.fecha; return d ? new Date(d).toLocaleString('es-PE') : '—'; })()}</Text>
                   </Box>
                 </Group>
               ))}
@@ -147,7 +147,7 @@ export default function SeguimientoPlanes() {
   }), [planes, filtArea, filtResp]);
 
   const byEstado = (estado: EstadoPlan) => filtered.filter(p => p.estado === estado);
-  const vencidos = filtered.filter(p => isOverdue(p) && p.estado !== 'Completado');
+  const vencidos = filtered.filter(p => p.estado === 'Vencido' || (isOverdue(p) && p.estado !== 'Completado'));
 
   const areas = [...new Set(planes.map(p => p.area).filter(Boolean))] as string[];
   const responsables = [...new Set(planes.map(p => p.responsable).filter(Boolean))] as string[];
@@ -156,7 +156,7 @@ export default function SeguimientoPlanes() {
     total: planes.length,
     completado: planes.filter(p => p.estado === 'Completado').length,
     enProgreso: planes.filter(p => p.estado === 'En progreso').length,
-    vencido: planes.filter(p => isOverdue(p) && p.estado !== 'Completado').length,
+    vencido: planes.filter(p => p.estado === 'Vencido' || (isOverdue(p) && p.estado !== 'Completado')).length,
     pendiente: planes.filter(p => p.estado === 'Pendiente').length,
   }), [planes]);
 

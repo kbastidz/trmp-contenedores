@@ -11,6 +11,9 @@ import type {
   UpdatePlanPayload,
   AvancePlanPayload,
   HistorialAvanceDto,
+  TareaDto,
+  CreateTareaPayload,
+  UpdateTareaPayload,
   IncidenteDto,
   CreateIncidentePayload,
   UpdateIncidentePayload,
@@ -178,6 +181,28 @@ export const incidentesService = {
 
   historial: (id: string) =>
     request<HistorialEstadoDto[]>(`/api/trm/incidentes/${id}/historial`),
+};
+
+// ── Tareas de plan ────────────────────────────────────────────────────────────
+
+export const tareasPlanService = {
+  list: (plan_id: string) =>
+    request<TareaDto[]>(`/api/trm/planes/${plan_id}/tareas`),
+
+  create: (plan_id: string, payload: CreateTareaPayload) =>
+    request<TareaDto>(`/api/trm/planes/${plan_id}/tareas`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  update: (plan_id: string, tarea_id: string, payload: UpdateTareaPayload) =>
+    request<TareaDto>(`/api/trm/planes/${plan_id}/tareas/${tarea_id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (plan_id: string, tarea_id: string) =>
+    request<void>(`/api/trm/planes/${plan_id}/tareas/${tarea_id}`, { method: 'DELETE' }),
 };
 
 // ── Controles ─────────────────────────────────────────────────────────────────

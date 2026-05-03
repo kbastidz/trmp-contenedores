@@ -8,8 +8,9 @@ import {
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 import { planesService } from '@/lib/trm';
-import { useRiesgos } from '@/lib/hooks/useApi';
+import { useCurrentUser, useRiesgos, useAreas } from '@/lib/hooks/useApi';
 import type { EstadoPlan } from '@/types/trm';
+import { TERMINAL_ID } from '@/lib/constants';
 
 const breadcrumbs = [
   { title: 'Dashboard', href: PATH_DASHBOARD.default },
@@ -27,7 +28,9 @@ const TIPO_CONTROL = [
 ];
 
 export default function NuevoPlan() {
+  const { user } = useCurrentUser();
   const { data: riesgos, loading: loadingRiesgos } = useRiesgos();
+  const { data: areas } = useAreas(TERMINAL_ID);
 
   const [active, setActive] = useState(0);
   const [selRiesgoId, setSelRiesgoId] = useState<string | null>(null);
@@ -40,7 +43,7 @@ export default function NuevoPlan() {
 
   const [form, setForm] = useState({
     titulo: '', objetivo: '', estrategia: '', nivelObj: '', norma: '',
-    indicador: '', frecuencia: 'Mensual', respPlan: '', areaResp: '',
+    indicador: '', frecuencia: 'Mensual', respPlan: '', area_id: '',
     aprobador: '', presupuesto: '', fuente: '', prioridad: '',
     recursos: '', inicio: '', cierre: '',
   });
@@ -60,8 +63,9 @@ export default function NuevoPlan() {
     try {
       const codigo = `PLN-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
       const result = await planesService.create({
-        terminal_id: selRiesgo?.terminal_id ?? '',
+        terminal_id: TERMINAL_ID,
         riesgo_id: selRiesgoId,
+        responsable_id: user?.id || undefined,
         codigo,
         titulo: form.titulo,
         objetivo: form.objetivo || undefined,
@@ -72,6 +76,9 @@ export default function NuevoPlan() {
         tipo_control: selTipo ? TIPO_CONTROL[selTipo - 1].label : undefined,
         estrategia: form.estrategia || undefined,
         indicador: form.indicador || undefined,
+        area_id: form.area_id || undefined,
+        aprobador: form.aprobador || undefined,
+        norma: form.norma || undefined,
       });
       setCreatedCodigo(result.codigo);
     } catch (err) {
@@ -188,8 +195,9 @@ export default function NuevoPlan() {
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Responsables</Text>
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <TextInput label="Responsable del plan *" placeholder="Nombre o cargo" value={form.respPlan} onChange={e => update('respPlan', e.target.value)} />
-                <Select label="Área responsable" data={['Jefatura de Mantenimiento','Supervisión de Patio','Seguridad Industrial','Gerencia de Operaciones','RRHH','Sistemas / TI','Seguridad ISPS']} value={form.areaResp} onChange={v => update('areaResp', v || '')} />
+                <TextInput label="Responsable del plan *" placeholder="Cargando..." value={user?.name ?? ''} readOnly />
+                
+                <Select label="Área responsable" placeholder="Seleccionar área..." data={areas.map(a => ({ value: a.id, label: a.nombre }))} value={form.area_id} onChange={v => update('area_id', v || '')} clearable />
               </SimpleGrid>
               <TextInput label="Aprobador del plan" placeholder="Cargo o nombre" mt="sm" value={form.aprobador} onChange={e => update('aprobador', e.target.value)} />
             </Surface>
@@ -215,7 +223,9 @@ export default function NuevoPlan() {
                   ['Título del plan', form.titulo || '—'],
                   ['Tipo de control', selTipo ? TIPO_CONTROL[selTipo - 1].label : '—'],
                   ['Estrategia', form.estrategia || '—'],
-                  ['Responsable', form.respPlan || '—'],
+                  ['Área responsable', areas.find(a => a.id === form.area_id)?.nombre || '—'],
+                  ['Aprobador', form.aprobador || '—'],
+                  ['Normativa', form.norma || '—'],
                   ['Prioridad', form.prioridad || '—'],
                   ['Fecha de inicio', form.inicio || '—'],
                   ['Fecha límite', form.cierre || '—'],
