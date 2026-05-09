@@ -137,7 +137,7 @@ export default function GestionIncidentes() {
 
   // Resuelve el nombre del área: usa inc.area si el backend lo popula, si no busca por area_id
   const getAreaNombre = (inc: IncidenteDto) =>
-    inc.area ?? areas.find(a => a.id === inc.area_id)?.nombre ?? null;
+    inc.area ?? inc.area_nombre ?? areas.find(a => a.id === inc.area_id)?.nombre ?? null;
 
   const counts = useMemo(() => ({
     total: incidentes.length,

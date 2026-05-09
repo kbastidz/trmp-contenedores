@@ -52,8 +52,11 @@ export interface RiesgoDto {
   impacto: number;
   nivel: NivelRiesgo;
   estado: EstadoRiesgo;
-  responsable?: string;
-  area?: string;
+  // campos populados por JOIN en el backend
+  responsable_nombre?: string;       // user.name del responsable_id
+  area?: string;              // areas.nombre del area_id
+  area_nombre?: string;       // alias alternativo
+  terminal_nombre?: string;   // terminal.nombre del terminal_id
   ultima_revision?: string;
   planes?: PlanResumen[];
   createdAt?: string;
@@ -140,20 +143,23 @@ export interface PlanDto {
   fecha_inicio?: string;
   fecha_limite?: string;
   fecha_revision?: string;
-  responsable?: string;
   responsable_id?: string;
   aprobador?: string;
   norma?: string;
-  area?: string;
   area_id?: string;
   tipo_control?: string;
   estrategia?: string;
   indicador?: string;
   observaciones?: string;
   riesgo_id?: string;
-  riesgo_codigo?: string;
-  riesgo_nombre?: string;
   terminal_id?: string;
+  // campos populados por JOIN en el backend
+  responsable_nombre?: string; // user.name del responsable_id
+  area?: string;            // areas.nombre del area_id
+  area_nombre?: string;     // alias alternativo
+  riesgo_codigo?: string;   // riesgos.codigo del riesgo_id
+  riesgo_nombre?: string;   // riesgos.nombre del riesgo_id
+  terminal_nombre?: string; // terminal.nombre del terminal_id
   createdAt?: string;
   updatedAt?: string;
 }
@@ -201,8 +207,6 @@ export interface UpdatePlanPayload {
   recursos_adicionales?: string;
   justificacion_cambio?: string;
   evidencia_cierre?: string;
-  nota_avance?: string;
-  
 }
 
 export interface AvancePlanPayload {
@@ -238,11 +242,9 @@ export interface IncidenteDto {
   estado: EstadoIncidente;
   fecha_ocurrencia?: string;
   hora_ocurrencia?: string;
-  area?: string;
   area_id?: string;
   turno?: string;
   equipo_involucrado?: string;
-  responsable?: string;
   responsable_id?: string;
   causa_inmediata?: string;
   causa_raiz?: string;
@@ -252,8 +254,14 @@ export interface IncidenteDto {
   observaciones_internas?: string;
   motivo_cierre?: string;
   riesgo_id?: string;
-  riesgo_codigo?: string; // populado por el backend en el listado
   terminal_id?: string;
+  // campos populados por JOIN en el backend
+  responsable_nombre?: string;       // user.name del responsable_id
+  area?: string;              // areas.nombre del area_id
+  area_nombre?: string;       // alias alternativo
+  equipo_nombre?: string;     // equipos.nombre del equipo_id
+  terminal_nombre?: string;   // terminal.nombre del terminal_id
+  riesgo_codigo?: string;     // riesgos.codigo del riesgo_id
   createdAt?: string;
   updatedAt?: string;
 }
@@ -338,7 +346,6 @@ export interface EscalamientoDto {
   codigo: string;
   terminal_id?: string;
   creado_por?: string;
-  creado_por_nombre?: string; // populado por el backend en el listado
   motivo: string;
   urgencia: UrgenciaEscalamiento;
   estado: EstadoEscalamiento;
@@ -352,6 +359,9 @@ export interface EscalamientoDto {
   respuesta_autor?: string;
   respuesta_usuario_id?: string;
   respuesta_fecha?: string;
+  // campos populados por JOIN en el backend
+  creado_por_nombre?: string; // user.name del creado_por
+  terminal_nombre?: string;   // terminal.nombre del terminal_id
   createdAt?: string;
   updatedAt?: string;
 }

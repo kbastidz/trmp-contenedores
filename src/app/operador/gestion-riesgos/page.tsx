@@ -72,7 +72,7 @@ export default function GestionRiesgos() {
 
   // Resuelve el nombre del área: usa r.area si el backend lo popula, si no busca por area_id
   const getAreaNombre = (r: RiesgoDto) =>
-    r.area ?? areas.find(a => a.id === r.area_id)?.nombre ?? '—';
+    r.area ?? r.area_nombre ?? areas.find(a => a.id === r.area_id)?.nombre ?? '—';
 
   const areaOptions = [...new Set(areas.map(a => a.nombre))];
 

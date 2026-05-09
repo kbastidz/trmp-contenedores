@@ -1,433 +1,868 @@
-//Backend
-import {
-  pgSchema,
-  uuid,
-  text,
-  varchar,
-  integer,
-  boolean,
-  numeric,
-  timestamp,
-  time,
-  date,
-  primaryKey,
-} from "drizzle-orm/pg-core";
-import { user } from "./schema.ts"; // reutilizamos la tabla user de Better Auth
+import "dotenv/config";
+import Fastify from "fastify";
+import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
+import { auth } from "./src/lib/auth.ts";
+import { db } from "./src/db/index.ts";
+import * as trm from "./src/db/schema-trm.ts";
+import { eq, and, desc, sql } from "drizzle-orm";
+import { trmLogger } from "./src/lib/trm-logger.ts";
 
-export const trm = pgSchema("trm");
+const fastify = Fastify({ logger: false }); // desactivamos el logger built-in, usamos trmLogger
 
-// ── terminal ─────────────────────────────────────────────────
-export const terminal = trm.table("terminal", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  nombre: varchar("nombre", { length: 200 }).notNull(),
-  codigo: varchar("codigo", { length: 50 }),
-  ubicacion: text("ubicacion"),
-  activa: boolean("activa").default(true),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+// ── Request timing storage ────────────────────────────────────
+const requestStartTimes = new WeakMap<object, number>();
+
+// ── Hooks de logging ──────────────────────────────────────────
+fastify.addHook("onRequest", async (request) => {
+  requestStartTimes.set(request, Date.now());
 });
 
-// ── areas ────────────────────────────────────────────────────
-export const areas = trm.table("areas", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  nombre: varchar("nombre", { length: 150 }).notNull(),
-  descripcion: text("descripcion"),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  activa: boolean("activa").default(true),
+fastify.addHook("preHandler", async (request) => {
+  trmLogger.info(`→ ${request.method} ${request.url}`, {
+    service: "trm-server",
+    method: request.method,
+    path: request.url,
+    payload: ["POST", "PUT", "PATCH"].includes(request.method) ? request.body : undefined,
+  });
 });
 
-// ── riesgos ──────────────────────────────────────────────────
-export const riesgos = trm.table("riesgos", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  area_id: uuid("area_id").references(() => areas.id),
-  responsable_id: text("responsable_id").references(() => user.id),
-  codigo: varchar("codigo", { length: 50 }),
-  nombre: varchar("nombre", { length: 300 }).notNull(),
-  descripcion: text("descripcion"),
-  causa: text("causa"),
-  categoria: varchar("categoria", { length: 100 }),
-  probabilidad: integer("probabilidad"),
-  impacto: integer("impacto"),
-  score: integer("score"),
-  nivel: varchar("nivel", { length: 20 }),
-  estado: varchar("estado", { length: 30 }).default("Activo"),
-  proxima_revision: date("proxima_revision"),
-  observaciones_internas: text("observaciones_internas"),
-  justificacion_cambio_estado: text("justificacion_cambio_estado"),
-  antecedentes_descripcion: text("antecedentes_descripcion"),
-  score_anterior: integer("score_anterior"),
-  nivel_anterior: varchar("nivel_anterior", { length: 20 }),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
-  actualizado_en: timestamp("actualizado_en", { withTimezone: true }).defaultNow(),
+fastify.addHook("onResponse", async (request, reply) => {
+  const start = requestStartTimes.get(request) ?? Date.now();
+  const durationMs = Date.now() - start;
+  const level = reply.statusCode >= 500 ? "error" : reply.statusCode >= 400 ? "warn" : "info";
+  trmLogger[level](`${request.method} ${request.url}`, {
+    service: "trm-server",
+    method: request.method,
+    path: request.url,
+    statusCode: reply.statusCode,
+    durationMs,
+  });
 });
 
-// ── equipos ──────────────────────────────────────────────────
-export const equipos = trm.table("equipos", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  area_id: uuid("area_id").references(() => areas.id),
-  codigo: varchar("codigo", { length: 30 }).notNull(),
-  nombre: varchar("nombre", { length: 150 }).notNull(),
-  tipo: varchar("tipo", { length: 80 }),
-  ciclo_mtto_dias: integer("ciclo_mtto_dias").default(30),
-  ultimo_mtto: date("ultimo_mtto"),
-  proximo_mtto: date("proximo_mtto"),
-  estado: varchar("estado", { length: 30 }).default("OK"),
-  activo: boolean("activo").default(true),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
-  actualizado_en: timestamp("actualizado_en", { withTimezone: true }).defaultNow(),
+fastify.addHook("onError", async (request, reply, error) => {
+  const start = requestStartTimes.get(request) ?? Date.now();
+  trmLogger.error(`${request.method} ${request.url}`, {
+    service: "trm-server",
+    method: request.method,
+    path: request.url,
+    durationMs: Date.now() - start,
+    error: { message: error.message, stack: error.stack },
+  });
 });
 
-// ── incidentes ───────────────────────────────────────────────
-export const incidentes = trm.table("incidentes", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  area_id: uuid("area_id").references(() => areas.id),
-  equipo_id: uuid("equipo_id").references(() => equipos.id),
-  responsable_id: text("responsable_id").references(() => user.id),
-  responsable_nombre: varchar("responsable_nombre", { length: 200 }),
-  codigo: varchar("codigo", { length: 50 }),
-  titulo: varchar("titulo", { length: 300 }).notNull(),
-  descripcion: text("descripcion"),
-  severidad: varchar("severidad", { length: 30 }),
-  estado: varchar("estado", { length: 30 }).default("Abierto"),
-  fecha_ocurrencia: date("fecha_ocurrencia"),
-  hora_ocurrencia: time("hora_ocurrencia"),
-  turno: varchar("turno", { length: 30 }),
-  causa_inmediata: text("causa_inmediata"),
-  causa_raiz: text("causa_raiz"),
-  acciones_inmediatas: text("acciones_inmediatas"),
-  testigos: text("testigos"),
-  factores_contribuyentes: text("factores_contribuyentes"),
-  lecciones_aprendidas: text("lecciones_aprendidas"),
-  observaciones_internas: text("observaciones_internas"),
-  motivo_cierre: text("motivo_cierre"),
-  riesgo_id: uuid("riesgo_id").references(() => riesgos.id),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
-  actualizado_en: timestamp("actualizado_en", { withTimezone: true }).defaultNow(),
+fastify.register(cors, { origin: true, credentials: true });
+fastify.register(cookie);
+
+// ── Auth middleware ───────────────────────────────────────────
+fastify.addHook("preHandler", async (request) => {
+  const headers = new Headers();
+  for (const [k, v] of Object.entries(request.headers)) {
+    if (v) headers.set(k, Array.isArray(v) ? v.join(", ") : v);
+  }
+  const session = await auth.api.getSession({ headers });
+  if (session) {
+    request.user = session.user;
+    request.session = session.session;
+  }
 });
 
-// ── incidentes_riesgos (relación N:M) ────────────────────────
-export const incidentesRiesgos = trm.table("incidentes_riesgos", {
-  incidente_id: uuid("incidente_id").notNull().references(() => incidentes.id, { onDelete: "cascade" }),
-  riesgo_id: uuid("riesgo_id").notNull().references(() => riesgos.id, { onDelete: "cascade" }),
-}, (t) => ({ pk: primaryKey({ columns: [t.incidente_id, t.riesgo_id] }) }));
+declare module "fastify" {
+  interface FastifyRequest { user?: any; session?: any; }
+}
 
-// ── planes_mitigacion ────────────────────────────────────────
-export const planesMitigacion = trm.table("planes_mitigacion", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  area_id: uuid("area_id").references(() => areas.id),
-  riesgo_id: uuid("riesgo_id").references(() => riesgos.id),
-  responsable_id: text("responsable_id").references(() => user.id),
-  codigo: varchar("codigo", { length: 50 }),
-  titulo: varchar("titulo", { length: 300 }).notNull(),
-  descripcion: text("descripcion"),
-  objetivo: text("objetivo"),
-  tipo_control: text("tipo_control"),
-  estrategia: text("estrategia"),
-  indicador: text("indicador"),
-  norma: text("norma"),
-  aprobador: text("aprobador"),
-  estado: varchar("estado", { length: 30 }).default("Pendiente"),
-  progreso: integer("progreso").default(0),
-  fecha_inicio: date("fecha_inicio"),
-  fecha_limite: date("fecha_limite"),
-  observaciones_responsable: text("observaciones_responsable"),
-  evidencia_cierre: text("evidencia_cierre"),
-  justificacion_cambio_estado: text("justificacion_cambio_estado"),
-  progreso_anterior: integer("progreso_anterior").default(0),
-  estado_anterior: varchar("estado_anterior", { length: 30 }),
-  porcentaje_efectividad: numeric("porcentaje_efectividad", { precision: 5, scale: 2 }),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
-  actualizado_en: timestamp("actualizado_en", { withTimezone: true }).defaultNow(),
+const requireAuth = (request: any, reply: any) => {
+  if (!request.user) { reply.status(401).send({ error: "No autenticado" }); return false; }
+  return true;
+};
+
+// ── Health ────────────────────────────────────────────────────
+fastify.get("/health", async () => ({ status: "ok", timestamp: new Date() }));
+
+// ============================================================
+//  TERMINALES
+// ============================================================
+fastify.get("/api/trm/terminales", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  return db.select().from(trm.terminal).orderBy(trm.terminal.nombre);
 });
 
-// ── escalamientos ────────────────────────────────────────────
-export const escalamientos = trm.table("escalamientos", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  creado_por: text("creado_por").references(() => user.id),
-  codigo: varchar("codigo", { length: 50 }),
-  motivo: text("motivo").notNull(),
-  urgencia: varchar("urgencia", { length: 30 }),
-  estado: varchar("estado", { length: 30 }).default("Enviado"),
-  re_escalado_de: uuid("re_escalado_de"),
-  nivel_escalamiento: integer("nivel_escalamiento").default(1),
-  respuesta_texto: text("respuesta_texto"),
-  respuesta_autor: varchar("respuesta_autor", { length: 200 }),
-  respuesta_usuario_id: text("respuesta_usuario_id").references(() => user.id),
-  auto_generado: boolean("auto_generado").default(false),
-  horas_sin_respuesta: integer("horas_sin_respuesta"),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.post("/api/trm/terminales", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.terminal).values(req.body as any).returning();
+  return row;
 });
 
-// ── escalamientos_planes (relación N:M) ──────────────────────
-export const escalamientosPlanes = trm.table("escalamientos_planes", {
-  escalamiento_id: uuid("escalamiento_id").notNull().references(() => escalamientos.id, { onDelete: "cascade" }),
-  plan_id: uuid("plan_id").notNull().references(() => planesMitigacion.id, { onDelete: "cascade" }),
-}, (t) => ({ pk: primaryKey({ columns: [t.escalamiento_id, t.plan_id] }) }));
-
-// ── acciones_correctivas ─────────────────────────────────────
-export const accionesCorrectivas = trm.table("acciones_correctivas", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  responsable_id: text("responsable_id").references(() => user.id),
-  titulo: varchar("titulo", { length: 300 }).notNull(),
-  descripcion: text("descripcion"),
-  estado: varchar("estado", { length: 30 }).default("Pendiente"),
-  fecha_limite: date("fecha_limite"),
-  escalamiento_id: uuid("escalamiento_id").references(() => escalamientos.id),
-  riesgo_id: uuid("riesgo_id").references(() => riesgos.id),
-  prioridad: varchar("prioridad", { length: 20 }).default("Media"),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.get("/api/trm/terminales/:id", async (req, rep) => {
+  const { id } = req.params as { id: string };
+  const row = await db.select().from(trm.terminal).where(eq(trm.terminal.id, id)).limit(1);
+  if (!row.length) return rep.status(404).send({ error: "Terminal no encontrada" });
+  return row[0];
 });
 
-// ── controles ────────────────────────────────────────────────
-export const controles = trm.table("controles", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  nombre: varchar("nombre", { length: 300 }).notNull(),
-  descripcion: text("descripcion"),
-  tipo: varchar("tipo", { length: 100 }),
-  activo: boolean("activo").default(true),
+fastify.patch("/api/trm/terminales/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.terminal).set(req.body as any).where(eq(trm.terminal.id, id)).returning();
+  return row;
 });
 
-// ── riesgos_controles (relación N:M) ─────────────────────────
-export const riesgosControles = trm.table("riesgos_controles", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  riesgo_id: uuid("riesgo_id").notNull().references(() => riesgos.id, { onDelete: "cascade" }),
-  control_id: uuid("control_id").notNull().references(() => controles.id, { onDelete: "cascade" }),
-  efectivo: boolean("efectivo").default(false),
-  observaciones: text("observaciones"),
-  evaluado_en: timestamp("evaluado_en", { withTimezone: true }),
+fastify.delete("/api/trm/terminales/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.terminal).where(eq(trm.terminal.id, id));
+  return { success: true };
 });
 
-// ── kri (indicadores) ────────────────────────────────────────
-export const kri = trm.table("kri", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  nombre: varchar("nombre", { length: 200 }).notNull(),
-  descripcion: text("descripcion"),
-  unidad: varchar("unidad", { length: 50 }),
-  umbral_alerta: numeric("umbral_alerta", { precision: 10, scale: 2 }),
-  umbral_critico: numeric("umbral_critico", { precision: 10, scale: 2 }),
-  activo: boolean("activo").default(true),
+// ============================================================
+//  ÁREAS
+// ============================================================
+fastify.get("/api/trm/areas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.areas);
+  return terminal_id
+    ? query.where(eq(trm.areas.terminal_id, terminal_id))
+    : query;
 });
 
-// ── kri_valores ──────────────────────────────────────────────
-export const kriValores = trm.table("kri_valores", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  kri_id: uuid("kri_id").notNull().references(() => kri.id, { onDelete: "cascade" }),
-  terminal_id: uuid("terminal_id").references(() => terminal.id),
-  periodo: date("periodo").notNull(),
-  valor: numeric("valor", { precision: 10, scale: 2 }),
-  estado: varchar("estado", { length: 20 }).default("OK"),
-  registrado_por: text("registrado_por").references(() => user.id),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.post("/api/trm/areas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.areas).values(req.body as any).returning();
+  return row;
 });
 
-// ── auditoria_log ────────────────────────────────────────────
-export const auditoriaLog = trm.table("auditoria_log", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id),
-  usuario_id: text("usuario_id").references(() => user.id),
-  accion: varchar("accion", { length: 100 }).notNull(),
-  tabla: varchar("tabla", { length: 100 }),
-  registro_id: varchar("registro_id", { length: 100 }),
-  datos_anteriores: text("datos_anteriores"),
-  datos_nuevos: text("datos_nuevos"),
-  modulo_registro_id: varchar("modulo_registro_id", { length: 100 }),
-  duracion_ms: integer("duracion_ms"),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.patch("/api/trm/areas/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.areas).set(req.body as any).where(eq(trm.areas.id, id)).returning();
+  return row;
 });
 
-// ── exportaciones ────────────────────────────────────────────
-export const exportaciones = trm.table("exportaciones", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id),
-  usuario_id: text("usuario_id").references(() => user.id),
-  tipo: varchar("tipo", { length: 100 }),
-  formato: varchar("formato", { length: 20 }),
-  url: text("url"),
-  estado: varchar("estado", { length: 20 }).default("Completado"),
-  error_mensaje: text("error_mensaje"),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.delete("/api/trm/areas/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.areas).where(eq(trm.areas.id, id));
+  return { success: true };
 });
 
-// ── mapa_zonas ───────────────────────────────────────────────
-export const mapaZonas = trm.table("mapa_zonas", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  geojson: text("geojson"),
-  nombre: varchar("nombre", { length: 150 }),
-  nivel_riesgo: varchar("nivel_riesgo", { length: 20 }),
-  total_riesgos: integer("total_riesgos").default(0),
-  total_incidentes: integer("total_incidentes").default(0),
-  orden: integer("orden").default(0),
+// ============================================================
+//  EQUIPOS
+// ============================================================
+fastify.get("/api/trm/equipos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id, area_id } = req.query as { terminal_id?: string; area_id?: string };
+  let query = db.select().from(trm.equipos).orderBy(trm.equipos.nombre) as any;
+  if (terminal_id) query = query.where(eq(trm.equipos.terminal_id, terminal_id));
+  if (area_id) query = query.where(eq(trm.equipos.area_id, area_id));
+  return query;
 });
 
-// ── mapa_marcadores ──────────────────────────────────────────
-export const mapaMarcadores = trm.table("mapa_marcadores", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  zona_id: uuid("zona_id").references(() => mapaZonas.id),
-  lat: numeric("lat", { precision: 10, scale: 7 }),
-  lng: numeric("lng", { precision: 10, scale: 7 }),
-  titulo: varchar("titulo", { length: 200 }),
-  entidad_tipo: varchar("entidad_tipo", { length: 30 }),
-  entidad_id: uuid("entidad_id"),
-  nivel: varchar("nivel", { length: 20 }),
-  color_hex: varchar("color_hex", { length: 7 }),
-  pulsante: boolean("pulsante").default(false),
-  tooltip: text("tooltip"),
-  actualizado_en: timestamp("actualizado_en", { withTimezone: true }).defaultNow(),
+fastify.post("/api/trm/equipos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.equipos).values(req.body as any).returning();
+  return row;
 });
 
-// ── escalamientos_historial ──────────────────────────────────
-export const escalamientosHistorial = trm.table("escalamientos_historial", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  escalamiento_id: uuid("escalamiento_id").notNull().references(() => escalamientos.id, { onDelete: "cascade" }),
-  accion: varchar("accion", { length: 100 }).notNull(),
-  descripcion: text("descripcion"),
-  realizado_por: varchar("realizado_por", { length: 200 }),
-  usuario_id: text("usuario_id").references(() => user.id),
-  color_hex: varchar("color_hex", { length: 7 }).default("#185FA5"),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.get("/api/trm/equipos/:id", async (req, rep) => {
+  const { id } = req.params as { id: string };
+  const row = await db.select().from(trm.equipos).where(eq(trm.equipos.id, id)).limit(1);
+  if (!row.length) return rep.status(404).send({ error: "Equipo no encontrado" });
+  return row[0];
 });
 
-// ── planes_tareas ────────────────────────────────────────────
-export const planesTareas = trm.table("planes_tareas", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  plan_id: uuid("plan_id").notNull().references(() => planesMitigacion.id, { onDelete: "cascade" }),
-  descripcion: varchar("descripcion", { length: 500 }).notNull(),
-  responsable: varchar("responsable", { length: 200 }),
-  fecha_limite: date("fecha_limite"),
-  estado: varchar("estado", { length: 30 }).default("Pendiente"), // Pendiente | En ejecución | Completada
-  orden: integer("orden").default(0),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
-  actualizado_en: timestamp("actualizado_en", { withTimezone: true }).defaultNow(),
+fastify.patch("/api/trm/equipos/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const body = { ...(req.body as any), actualizado_en: new Date() };
+  const [row] = await db.update(trm.equipos).set(body).where(eq(trm.equipos.id, id)).returning();
+  return row;
 });
 
-// ── planes_avance_historial ──────────────────────────────────
-export const planesAvanceHistorial = trm.table("planes_avance_historial", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  plan_id: uuid("plan_id").notNull().references(() => planesMitigacion.id, { onDelete: "cascade" }),
-  progreso_anterior: integer("progreso_anterior"),
-  progreso_nuevo: integer("progreso_nuevo").notNull(),
-  estado_anterior: varchar("estado_anterior", { length: 30 }),
-  estado_nuevo: varchar("estado_nuevo", { length: 30 }),
-  nota: text("nota"),
-  actualizado_por: text("actualizado_por").references(() => user.id),
-  nombre_usuario: varchar("nombre_usuario", { length: 200 }),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.delete("/api/trm/equipos/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.equipos).where(eq(trm.equipos.id, id));
+  return { success: true };
 });
 
-// ── riesgos_estados_historial ────────────────────────────────
-export const riesgosEstadosHistorial = trm.table("riesgos_estados_historial", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  riesgo_id: uuid("riesgo_id").notNull().references(() => riesgos.id, { onDelete: "cascade" }),
-  estado_anterior: varchar("estado_anterior", { length: 30 }),
-  estado_nuevo: varchar("estado_nuevo", { length: 30 }).notNull(),
-  justificacion: text("justificacion"),
-  cambiado_por: text("cambiado_por").references(() => user.id),
-  nombre_usuario: varchar("nombre_usuario", { length: 200 }),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+// ============================================================
+//  RIESGOS
+// ============================================================
+fastify.get("/api/trm/riesgos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.riesgos).orderBy(desc(trm.riesgos.creado_en));
+  return terminal_id ? query.where(eq(trm.riesgos.terminal_id, terminal_id)) : query;
 });
 
-// ── incidentes_estados_historial ─────────────────────────────
-export const incidentesEstadosHistorial = trm.table("incidentes_estados_historial", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  incidente_id: uuid("incidente_id").notNull().references(() => incidentes.id, { onDelete: "cascade" }),
-  estado_anterior: varchar("estado_anterior", { length: 30 }),
-  estado_nuevo: varchar("estado_nuevo", { length: 30 }).notNull(),
-  justificacion: text("justificacion"),
-  cambiado_por: text("cambiado_por").references(() => user.id),
-  nombre_usuario: varchar("nombre_usuario", { length: 200 }),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.post("/api/trm/riesgos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const body = req.body as any;
+  // Convertir strings vacíos de campos UUID a null
+  if (body.terminal_id === "") body.terminal_id = null;
+  if (body.area_id === "") body.area_id = null;
+  if (body.responsable_id === "") body.responsable_id = null;
+  if (body.probabilidad && body.impacto) body.score = body.probabilidad * body.impacto;
+  const [row] = await db.insert(trm.riesgos).values(body).returning();
+  return row;
 });
 
-// ── comentarios ──────────────────────────────────────────────
-export const comentarios = trm.table("comentarios", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  entidad_tipo: varchar("entidad_tipo", { length: 30 }).notNull(),
-  entidad_id: uuid("entidad_id").notNull(),
-  texto: text("texto").notNull(),
-  visible_para: varchar("visible_para", { length: 30 }).default("todos"),
-  autor_id: text("autor_id").references(() => user.id),
-  nombre_autor: varchar("nombre_autor", { length: 200 }),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.get("/api/trm/riesgos/:id", async (req, rep) => {
+  const { id } = req.params as { id: string };
+  const row = await db.select().from(trm.riesgos).where(eq(trm.riesgos.id, id)).limit(1);
+  if (!row.length) return rep.status(404).send({ error: "Riesgo no encontrado" });
+  // Planes, controles e incidentes vinculados
+  const planes = await db.select().from(trm.planesMitigacion).where(eq(trm.planesMitigacion.riesgo_id, id));
+  const controles = await db.select().from(trm.riesgosControles).where(eq(trm.riesgosControles.riesgo_id, id));
+  const historial = await db.select().from(trm.riesgosEstadosHistorial)
+    .where(eq(trm.riesgosEstadosHistorial.riesgo_id, id))
+    .orderBy(desc(trm.riesgosEstadosHistorial.creado_en));
+  return { ...row[0], planes, controles, historial };
 });
 
-// ── notificaciones ───────────────────────────────────────────
-export const notificaciones = trm.table("notificaciones", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  usuario_id: text("usuario_id").references(() => user.id, { onDelete: "cascade" }),
-  tipo: varchar("tipo", { length: 50 }).notNull(),
-  titulo: varchar("titulo", { length: 200 }).notNull(),
-  mensaje: text("mensaje"),
-  entidad_tipo: varchar("entidad_tipo", { length: 30 }),
-  entidad_id: uuid("entidad_id"),
-  leida: boolean("leida").default(false),
-  leida_en: timestamp("leida_en", { withTimezone: true }),
-  nivel: varchar("nivel", { length: 20 }).default("info"),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+fastify.patch("/api/trm/riesgos/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const body = req.body as any;
+  if (body.probabilidad && body.impacto) body.score = body.probabilidad * body.impacto;
+  body.actualizado_en = new Date();
+  const [row] = await db.update(trm.riesgos).set(body).where(eq(trm.riesgos.id, id)).returning();
+  return row;
 });
 
-// ── adjuntos ─────────────────────────────────────────────────
-export const adjuntos = trm.table("adjuntos", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  entidad_tipo: varchar("entidad_tipo", { length: 30 }).notNull(),
-  entidad_id: uuid("entidad_id").notNull(),
-  nombre_archivo: varchar("nombre_archivo", { length: 300 }).notNull(),
-  tipo_mime: varchar("tipo_mime", { length: 100 }),
-  tamano_bytes: integer("tamano_bytes"),
-  url_almacenamiento: text("url_almacenamiento"),
-  descripcion: text("descripcion"),
-  subido_por: text("subido_por").references(() => user.id),
-  subido_en: timestamp("subido_en", { withTimezone: true }).defaultNow(),
+fastify.delete("/api/trm/riesgos/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.riesgos).where(eq(trm.riesgos.id, id));
+  return { success: true };
 });
 
-// ── reportes_programados ─────────────────────────────────────
-export const reportesProgramados = trm.table("reportes_programados", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").references(() => terminal.id, { onDelete: "cascade" }),
-  nombre: varchar("nombre", { length: 200 }).notNull(),
-  tipo: varchar("tipo", { length: 30 }).default("ejecutivo_mensual"),
-  frecuencia: varchar("frecuencia", { length: 20 }).default("mensual"),
-  dia_envio: integer("dia_envio"),
-  hora_envio: time("hora_envio").default("08:00"),
-  destinatarios: text("destinatarios").array(),
-  formato: varchar("formato", { length: 10 }).default("pdf"),
-  activo: boolean("activo").default(true),
-  ultimo_envio: timestamp("ultimo_envio", { withTimezone: true }),
-  proximo_envio: timestamp("proximo_envio", { withTimezone: true }),
-  creado_por: text("creado_por").references(() => user.id),
-  creado_en: timestamp("creado_en", { withTimezone: true }).defaultNow(),
+// Historial de estados de un riesgo
+fastify.get("/api/trm/riesgos/:id/historial", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  return db.select().from(trm.riesgosEstadosHistorial)
+    .where(eq(trm.riesgosEstadosHistorial.riesgo_id, id))
+    .orderBy(desc(trm.riesgosEstadosHistorial.creado_en));
 });
 
-// ── dashboard_metricas ───────────────────────────────────────
-export const dashboardMetricas = trm.table("dashboard_metricas", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  terminal_id: uuid("terminal_id").notNull().references(() => terminal.id, { onDelete: "cascade" }),
-  calculado_en: timestamp("calculado_en", { withTimezone: true }).defaultNow(),
-  periodo: date("periodo").notNull(),
-  total_riesgos_activos: integer("total_riesgos_activos").default(0),
-  riesgos_criticos: integer("riesgos_criticos").default(0),
-  riesgos_altos: integer("riesgos_altos").default(0),
-  riesgos_medios: integer("riesgos_medios").default(0),
-  riesgos_bajos: integer("riesgos_bajos").default(0),
-  total_incidentes_mes: integer("total_incidentes_mes").default(0),
-  incidentes_criticos_mes: integer("incidentes_criticos_mes").default(0),
-  incidentes_graves_mes: integer("incidentes_graves_mes").default(0),
-  dias_sin_accidentes: integer("dias_sin_accidentes").default(0),
-  planes_activos: integer("planes_activos").default(0),
-  planes_vencidos: integer("planes_vencidos").default(0),
-  planes_completados_mes: integer("planes_completados_mes").default(0),
-  efectividad_controles_pct: numeric("efectividad_controles_pct", { precision: 5, scale: 2 }),
-  acciones_vencidas: integer("acciones_vencidas").default(0),
-  acciones_pendientes: integer("acciones_pendientes").default(0),
-  escalamientos_pendientes: integer("escalamientos_pendientes").default(0),
+// ============================================================
+//  INCIDENTES
+// ============================================================
+fastify.get("/api/trm/incidentes", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.incidentes).orderBy(desc(trm.incidentes.creado_en));
+  return terminal_id ? query.where(eq(trm.incidentes.terminal_id, terminal_id)) : query;
 });
+
+fastify.post("/api/trm/incidentes", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.incidentes).values(req.body as any).returning();
+  return row;
+});
+
+fastify.get("/api/trm/incidentes/:id", async (req, rep) => {
+  const { id } = req.params as { id: string };
+  const row = await db.select().from(trm.incidentes).where(eq(trm.incidentes.id, id)).limit(1);
+  if (!row.length) return rep.status(404).send({ error: "Incidente no encontrado" });
+  const historial = await db.select().from(trm.incidentesEstadosHistorial)
+    .where(eq(trm.incidentesEstadosHistorial.incidente_id, id))
+    .orderBy(desc(trm.incidentesEstadosHistorial.creado_en));
+  return { ...row[0], historial };
+});
+
+fastify.patch("/api/trm/incidentes/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const body = { ...(req.body as any), actualizado_en: new Date() };
+  const [row] = await db.update(trm.incidentes).set(body).where(eq(trm.incidentes.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/incidentes/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.incidentes).where(eq(trm.incidentes.id, id));
+  return { success: true };
+});
+
+fastify.get("/api/trm/incidentes/:id/historial", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  return db.select().from(trm.incidentesEstadosHistorial)
+    .where(eq(trm.incidentesEstadosHistorial.incidente_id, id))
+    .orderBy(desc(trm.incidentesEstadosHistorial.creado_en));
+});
+
+// ============================================================
+//  PLANES DE MITIGACIÓN
+// ============================================================
+fastify.get("/api/trm/planes", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id, riesgo_id } = req.query as { terminal_id?: string; riesgo_id?: string };
+  let query = db.select().from(trm.planesMitigacion).orderBy(desc(trm.planesMitigacion.creado_en));
+  if (terminal_id) query = query.where(eq(trm.planesMitigacion.terminal_id, terminal_id)) as any;
+  if (riesgo_id) query = query.where(eq(trm.planesMitigacion.riesgo_id, riesgo_id)) as any;
+  return query;
+});
+
+fastify.post("/api/trm/planes", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.planesMitigacion).values(req.body as any).returning();
+  return row;
+});
+
+fastify.get("/api/trm/planes/:id", async (req, rep) => {
+  const { id } = req.params as { id: string };
+  const row = await db.select().from(trm.planesMitigacion).where(eq(trm.planesMitigacion.id, id)).limit(1);
+  if (!row.length) return rep.status(404).send({ error: "Plan no encontrado" });
+  const historial = await db.select().from(trm.planesAvanceHistorial)
+    .where(eq(trm.planesAvanceHistorial.plan_id, id))
+    .orderBy(desc(trm.planesAvanceHistorial.creado_en));
+  return { ...row[0], historial };
+});
+
+fastify.patch("/api/trm/planes/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const body = { ...(req.body as any), actualizado_en: new Date() };
+  const [row] = await db.update(trm.planesMitigacion).set(body).where(eq(trm.planesMitigacion.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/planes/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.planesMitigacion).where(eq(trm.planesMitigacion.id, id));
+  return { success: true };
+});
+
+// Registrar avance manualmente
+fastify.post("/api/trm/planes/:id/avance", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const body = req.body as { progreso_nuevo: number; estado_nuevo?: string; nota?: string; nombre_usuario?: string };
+  const [current] = await db.select().from(trm.planesMitigacion).where(eq(trm.planesMitigacion.id, id)).limit(1);
+  if (!current) return rep.status(404).send({ error: "Plan no encontrado" });
+  const [hist] = await db.insert(trm.planesAvanceHistorial).values({
+    plan_id: id,
+    progreso_anterior: current.progreso,
+    progreso_nuevo: body.progreso_nuevo,
+    estado_anterior: current.estado,
+    estado_nuevo: body.estado_nuevo ?? current.estado ?? undefined,
+    nota: body.nota,
+    nombre_usuario: body.nombre_usuario,
+  }).returning();
+  await db.update(trm.planesMitigacion).set({
+    progreso: body.progreso_nuevo,
+    ...(body.estado_nuevo ? { estado: body.estado_nuevo } : {}),
+    actualizado_en: new Date(),
+  }).where(eq(trm.planesMitigacion.id, id));
+  return hist;
+});
+
+fastify.get("/api/trm/planes/:id/historial", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  return db.select().from(trm.planesAvanceHistorial)
+    .where(eq(trm.planesAvanceHistorial.plan_id, id))
+    .orderBy(desc(trm.planesAvanceHistorial.creado_en));
+});
+
+// ============================================================
+//  TAREAS DE PLANES
+// ============================================================
+fastify.get("/api/trm/planes/:planId/tareas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { planId } = req.params as { planId: string };
+  return db.select().from(trm.planesTareas)
+    .where(eq(trm.planesTareas.plan_id, planId))
+    .orderBy(trm.planesTareas.orden);
+});
+
+fastify.post("/api/trm/planes/:planId/tareas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { planId } = req.params as { planId: string };
+  const [row] = await db.insert(trm.planesTareas)
+    .values({ ...(req.body as any), plan_id: planId })
+    .returning();
+  return row;
+});
+
+fastify.patch("/api/trm/planes/:planId/tareas/:tareaId", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { planId, tareaId } = req.params as { planId: string; tareaId: string };
+  const body = { ...(req.body as any), actualizado_en: new Date() };
+  const [row] = await db.update(trm.planesTareas)
+    .set(body)
+    .where(and(eq(trm.planesTareas.id, tareaId), eq(trm.planesTareas.plan_id, planId)))
+    .returning();
+  if (!row) return rep.status(404).send({ error: "Tarea no encontrada" });
+  return row;
+});
+
+fastify.delete("/api/trm/planes/:planId/tareas/:tareaId", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { planId, tareaId } = req.params as { planId: string; tareaId: string };
+  await db.delete(trm.planesTareas)
+    .where(and(eq(trm.planesTareas.id, tareaId), eq(trm.planesTareas.plan_id, planId)));
+  return { success: true };
+});
+
+// ============================================================
+//  ESCALAMIENTOS
+// ============================================================
+fastify.get("/api/trm/escalamientos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id, estado } = req.query as { terminal_id?: string; estado?: string };
+  let query = db.select().from(trm.escalamientos).orderBy(desc(trm.escalamientos.creado_en));
+  if (terminal_id) query = query.where(eq(trm.escalamientos.terminal_id, terminal_id)) as any;
+  if (estado) query = query.where(eq(trm.escalamientos.estado, estado)) as any;
+  return query;
+});
+
+fastify.post("/api/trm/escalamientos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const body = req.body as any;
+  if (body.terminal_id === "") body.terminal_id = null;
+  if (body.creado_por === "") body.creado_por = null;
+  if (body.re_escalado_de === "") body.re_escalado_de = null;
+  const [row] = await db.insert(trm.escalamientos).values(body).returning();
+  return row;
+});
+
+fastify.get("/api/trm/escalamientos/:id", async (req, rep) => {
+  const { id } = req.params as { id: string };
+  const row = await db.select().from(trm.escalamientos).where(eq(trm.escalamientos.id, id)).limit(1);
+  if (!row.length) return rep.status(404).send({ error: "Escalamiento no encontrado" });
+  const historial = await db.select().from(trm.escalamientosHistorial)
+    .where(eq(trm.escalamientosHistorial.escalamiento_id, id))
+    .orderBy(desc(trm.escalamientosHistorial.creado_en));
+  return { ...row[0], historial };
+});
+
+fastify.patch("/api/trm/escalamientos/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.escalamientos).set(req.body as any).where(eq(trm.escalamientos.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/escalamientos/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.escalamientos).where(eq(trm.escalamientos.id, id));
+  return { success: true };
+});
+
+// Responder un escalamiento
+fastify.post("/api/trm/escalamientos/:id/responder", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const body = req.body as { respuesta_texto: string; respuesta_autor: string; respuesta_usuario_id?: string };
+  const [row] = await db.update(trm.escalamientos).set({
+    respuesta_texto: body.respuesta_texto,
+    respuesta_autor: body.respuesta_autor,
+    respuesta_usuario_id: body.respuesta_usuario_id,
+    estado: "Respondido",
+  }).where(eq(trm.escalamientos.id, id)).returning();
+  await db.insert(trm.escalamientosHistorial).values({
+    escalamiento_id: id,
+    accion: "Respondido",
+    descripcion: body.respuesta_texto,
+    realizado_por: body.respuesta_autor,
+    usuario_id: body.respuesta_usuario_id,
+    color_hex: "#22C55E",
+  });
+  return row;
+});
+
+fastify.get("/api/trm/escalamientos/:id/historial", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  return db.select().from(trm.escalamientosHistorial)
+    .where(eq(trm.escalamientosHistorial.escalamiento_id, id))
+    .orderBy(desc(trm.escalamientosHistorial.creado_en));
+});
+
+// ============================================================
+//  ACCIONES CORRECTIVAS
+// ============================================================
+fastify.get("/api/trm/acciones", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.accionesCorrectivas).orderBy(desc(trm.accionesCorrectivas.creado_en));
+  return terminal_id ? query.where(eq(trm.accionesCorrectivas.terminal_id, terminal_id)) : query;
+});
+
+fastify.post("/api/trm/acciones", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.accionesCorrectivas).values(req.body as any).returning();
+  return row;
+});
+
+fastify.patch("/api/trm/acciones/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.accionesCorrectivas).set(req.body as any).where(eq(trm.accionesCorrectivas.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/acciones/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.accionesCorrectivas).where(eq(trm.accionesCorrectivas.id, id));
+  return { success: true };
+});
+
+// ============================================================
+//  CONTROLES
+// ============================================================
+fastify.get("/api/trm/controles", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  return db.select().from(trm.controles);
+});
+
+fastify.post("/api/trm/controles", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.controles).values(req.body as any).returning();
+  return row;
+});
+
+fastify.patch("/api/trm/controles/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.controles).set(req.body as any).where(eq(trm.controles.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/controles/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.controles).where(eq(trm.controles.id, id));
+  return { success: true };
+});
+
+// Vincular/desvincular control a riesgo
+fastify.post("/api/trm/riesgos/:riesgoId/controles", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { riesgoId } = req.params as { riesgoId: string };
+  const body = req.body as { control_id: string; efectivo?: boolean; observaciones?: string };
+  const [row] = await db.insert(trm.riesgosControles).values({ riesgo_id: riesgoId, ...body }).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/riesgos/:riesgoId/controles/:controlId", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { riesgoId, controlId } = req.params as { riesgoId: string; controlId: string };
+  await db.delete(trm.riesgosControles).where(
+    and(eq(trm.riesgosControles.riesgo_id, riesgoId), eq(trm.riesgosControles.control_id, controlId))
+  );
+  return { success: true };
+});
+
+// ============================================================
+//  KRI — INDICADORES
+// ============================================================
+fastify.get("/api/trm/kri", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.kri);
+  return terminal_id ? query.where(eq(trm.kri.terminal_id, terminal_id)) : query;
+});
+
+fastify.post("/api/trm/kri", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.kri).values(req.body as any).returning();
+  return row;
+});
+
+fastify.patch("/api/trm/kri/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.kri).set(req.body as any).where(eq(trm.kri.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/kri/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.kri).where(eq(trm.kri.id, id));
+  return { success: true };
+});
+
+// Valores de KRI
+fastify.get("/api/trm/kri/:kriId/valores", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { kriId } = req.params as { kriId: string };
+  return db.select().from(trm.kriValores)
+    .where(eq(trm.kriValores.kri_id, kriId))
+    .orderBy(desc(trm.kriValores.periodo));
+});
+
+fastify.post("/api/trm/kri/:kriId/valores", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { kriId } = req.params as { kriId: string };
+  const [row] = await db.insert(trm.kriValores).values({ kri_id: kriId, ...(req.body as any) }).returning();
+  return row;
+});
+
+// ============================================================
+//  COMENTARIOS (polimórfico)
+// ============================================================
+fastify.get("/api/trm/comentarios", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { entidad_tipo, entidad_id } = req.query as { entidad_tipo: string; entidad_id: string };
+  if (!entidad_tipo || !entidad_id) return rep.status(400).send({ error: "entidad_tipo y entidad_id son requeridos" });
+  return db.select().from(trm.comentarios)
+    .where(and(eq(trm.comentarios.entidad_tipo, entidad_tipo), eq(trm.comentarios.entidad_id, entidad_id)))
+    .orderBy(desc(trm.comentarios.creado_en));
+});
+
+fastify.post("/api/trm/comentarios", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.comentarios).values(req.body as any).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/comentarios/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.comentarios).where(eq(trm.comentarios.id, id));
+  return { success: true };
+});
+
+// ============================================================
+//  NOTIFICACIONES
+// ============================================================
+fastify.get("/api/trm/notificaciones", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { usuario_id, solo_no_leidas } = req.query as { usuario_id: string; solo_no_leidas?: string };
+  if (!usuario_id) return rep.status(400).send({ error: "usuario_id es requerido" });
+  const whereClause = solo_no_leidas === "true"
+    ? and(eq(trm.notificaciones.usuario_id, usuario_id), eq(trm.notificaciones.leida, false))
+    : eq(trm.notificaciones.usuario_id, usuario_id);
+  return db.select().from(trm.notificaciones)
+    .where(whereClause)
+    .orderBy(desc(trm.notificaciones.creado_en));
+});
+
+fastify.patch("/api/trm/notificaciones/:id/leer", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.notificaciones)
+    .set({ leida: true, leida_en: new Date() })
+    .where(eq(trm.notificaciones.id, id))
+    .returning();
+  return row;
+});
+
+// Marcar todas como leídas
+fastify.patch("/api/trm/notificaciones/leer-todas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { usuario_id } = req.body as { usuario_id: string };
+  await db.update(trm.notificaciones)
+    .set({ leida: true, leida_en: new Date() })
+    .where(and(eq(trm.notificaciones.usuario_id, usuario_id), eq(trm.notificaciones.leida, false)));
+  return { success: true };
+});
+
+// ============================================================
+//  ADJUNTOS
+// ============================================================
+fastify.get("/api/trm/adjuntos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { entidad_tipo, entidad_id } = req.query as { entidad_tipo: string; entidad_id: string };
+  if (!entidad_tipo || !entidad_id) return rep.status(400).send({ error: "entidad_tipo y entidad_id son requeridos" });
+  return db.select().from(trm.adjuntos)
+    .where(and(eq(trm.adjuntos.entidad_tipo, entidad_tipo), eq(trm.adjuntos.entidad_id, entidad_id)))
+    .orderBy(desc(trm.adjuntos.subido_en));
+});
+
+fastify.post("/api/trm/adjuntos", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.adjuntos).values(req.body as any).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/adjuntos/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.adjuntos).where(eq(trm.adjuntos.id, id));
+  return { success: true };
+});
+
+// ============================================================
+//  REPORTES PROGRAMADOS
+// ============================================================
+fastify.get("/api/trm/reportes", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.reportesProgramados);
+  return terminal_id ? query.where(eq(trm.reportesProgramados.terminal_id, terminal_id)) : query;
+});
+
+fastify.post("/api/trm/reportes", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.reportesProgramados).values(req.body as any).returning();
+  return row;
+});
+
+fastify.patch("/api/trm/reportes/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.reportesProgramados).set(req.body as any).where(eq(trm.reportesProgramados.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/reportes/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.reportesProgramados).where(eq(trm.reportesProgramados.id, id));
+  return { success: true };
+});
+
+// ============================================================
+//  MAPA
+// ============================================================
+fastify.get("/api/trm/mapa/zonas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.mapaZonas).orderBy(trm.mapaZonas.orden);
+  return terminal_id ? query.where(eq(trm.mapaZonas.terminal_id, terminal_id)) : query;
+});
+
+fastify.post("/api/trm/mapa/zonas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.mapaZonas).values(req.body as any).returning();
+  return row;
+});
+
+fastify.patch("/api/trm/mapa/zonas/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.mapaZonas).set(req.body as any).where(eq(trm.mapaZonas.id, id)).returning();
+  return row;
+});
+
+fastify.get("/api/trm/mapa/marcadores", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+  const query = db.select().from(trm.mapaMarcadores);
+  return terminal_id ? query.where(eq(trm.mapaMarcadores.terminal_id, terminal_id)) : query;
+});
+
+fastify.post("/api/trm/mapa/marcadores", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.mapaMarcadores).values(req.body as any).returning();
+  return row;
+});
+
+fastify.patch("/api/trm/mapa/marcadores/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  const [row] = await db.update(trm.mapaMarcadores).set(req.body as any).where(eq(trm.mapaMarcadores.id, id)).returning();
+  return row;
+});
+
+fastify.delete("/api/trm/mapa/marcadores/:id", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { id } = req.params as { id: string };
+  await db.delete(trm.mapaMarcadores).where(eq(trm.mapaMarcadores.id, id));
+  return { success: true };
+});
+
+// ============================================================
+//  DASHBOARD
+// ============================================================
+fastify.get("/api/trm/dashboard", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id } = req.query as { terminal_id?: string };
+
+  // Métricas en tiempo real (sin caché)
+  const [riesgosActivos] = await db.select({ count: sql<number>`count(*)` })
+    .from(trm.riesgos).where(eq(trm.riesgos.estado, "Activo"));
+  const [riesgosCriticos] = await db.select({ count: sql<number>`count(*)` })
+    .from(trm.riesgos).where(and(eq(trm.riesgos.nivel, "Crítico"), eq(trm.riesgos.estado, "Activo")));
+  const [planesVencidos] = await db.select({ count: sql<number>`count(*)` })
+    .from(trm.planesMitigacion).where(eq(trm.planesMitigacion.estado, "Vencido"));
+  const [escalamientosPendientes] = await db.select({ count: sql<number>`count(*)` })
+    .from(trm.escalamientos).where(eq(trm.escalamientos.estado, "Enviado"));
+  const [accionesVencidas] = await db.select({ count: sql<number>`count(*)` })
+    .from(trm.accionesCorrectivas).where(eq(trm.accionesCorrectivas.estado, "Vencido"));
+
+  return {
+    riesgos_activos: Number(riesgosActivos.count),
+    riesgos_criticos: Number(riesgosCriticos.count),
+    planes_vencidos: Number(planesVencidos.count),
+    escalamientos_pendientes: Number(escalamientosPendientes.count),
+    acciones_vencidas: Number(accionesVencidas.count),
+    calculado_en: new Date(),
+  };
+});
+
+// Métricas cacheadas por terminal/periodo
+fastify.get("/api/trm/dashboard/metricas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id, periodo } = req.query as { terminal_id: string; periodo?: string };
+  if (!terminal_id) return rep.status(400).send({ error: "terminal_id es requerido" });
+  const query = db.select().from(trm.dashboardMetricas)
+    .where(eq(trm.dashboardMetricas.terminal_id, terminal_id))
+    .orderBy(desc(trm.dashboardMetricas.periodo))
+    .limit(12);
+  return query;
+});
+
+fastify.post("/api/trm/dashboard/metricas", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const body = req.body as any;
+  const [row] = await db.insert(trm.dashboardMetricas).values(body)
+    .onConflictDoUpdate({ target: [trm.dashboardMetricas.terminal_id, trm.dashboardMetricas.periodo], set: body })
+    .returning();
+  return row;
+});
+
+// ============================================================
+//  AUDITORÍA
+// ============================================================
+fastify.get("/api/trm/auditoria", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const { terminal_id, tabla } = req.query as { terminal_id?: string; tabla?: string };
+  let query = db.select().from(trm.auditoriaLog).orderBy(desc(trm.auditoriaLog.creado_en)).limit(200);
+  if (terminal_id) query = query.where(eq(trm.auditoriaLog.terminal_id, terminal_id)) as any;
+  if (tabla) query = query.where(eq(trm.auditoriaLog.tabla, tabla)) as any;
+  return query;
+});
+
+fastify.post("/api/trm/auditoria", async (req, rep) => {
+  if (!requireAuth(req, rep)) return;
+  const [row] = await db.insert(trm.auditoriaLog).values(req.body as any).returning();
+  return row;
+});
+
+// ============================================================
+//  INICIO DEL SERVIDOR
+// ============================================================
+const start = async () => {
+  try {
+    const port = Number(process.env.TRM_PORT) || 3002;
+    await fastify.listen({ port, host: "0.0.0.0" });
+    trmLogger.info(`🚀 TRM Server corriendo en http://localhost:${port}`, {
+      service: "trm-server",
+      method: "STARTUP",
+      path: "/",
+    });
+  } catch (err) {
+    trmLogger.error("Error al iniciar el servidor", {
+      service: "trm-server",
+      method: "STARTUP",
+      path: "/",
+      error: { message: (err as Error).message, stack: (err as Error).stack },
+    });
+    process.exit(1);
+  }
+};
+
+start();
