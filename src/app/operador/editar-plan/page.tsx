@@ -47,7 +47,7 @@ export default function EditarPlan() {
   const [progreso, setProgreso] = useState(45);
   const [tareas, setTareas] = useState<TareaDto[]>([]);
   const [tareasLoading, setTareasLoading] = useState(false);
-  const [notaAvance, setNotaAvance] = useState('');
+  const [nota_avance, setNotaAvance] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -192,11 +192,11 @@ export default function EditarPlan() {
       // Registrar avance en historial si cambió progreso, estado o hay nota
       const progresoChanged = progreso !== plan.progreso;
       const estadoChanged = estado !== plan.estado;
-      if (progresoChanged || estadoChanged || notaAvance.trim()) {
+      if (progresoChanged || estadoChanged || nota_avance.trim()) {
         await planesService.registrarAvance(plan.id, {
           progreso_nuevo: progreso,
           estado_nuevo: estado,
-          nota: notaAvance.trim() || undefined,
+          nota: nota_avance.trim() || undefined,
         });
       }
 
@@ -351,7 +351,7 @@ export default function EditarPlan() {
                 </Group>
                 <Box mt="sm" p="sm" style={{ background: 'var(--mantine-color-default-hover)', borderRadius: 8 }}>
                   <Text size="xs" c="dimmed" mb={4}>Nota de avance (se mostrará en el historial)</Text>
-                  <Textarea value={notaAvance} onChange={e => { setNotaAvance(e.target.value); setHasChanges(true); }}
+                  <Textarea value={nota_avance} onChange={e => { setNotaAvance(e.target.value); setHasChanges(true); }}
                     placeholder="Ej: RTG-01 y RTG-02 completados. RTG-03 en mantenimiento, finalización estimada 17/04."
                     minRows={2} />
                 </Box>

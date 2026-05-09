@@ -92,7 +92,8 @@ export interface HistorialEstadoDto {
   estado_anterior: string;
   estado_nuevo: string;
   justificacion?: string;
-  fecha: string;
+  fecha?: string;       // alias frontend
+  creado_en?: string;   // nombre real en el backend
   usuario?: string;
 }
 
@@ -200,7 +201,7 @@ export interface UpdatePlanPayload {
   recursos_adicionales?: string;
   justificacion_cambio?: string;
   evidencia_cierre?: string;
-  notaAvance?: string;
+  nota_avance?: string;
   
 }
 
@@ -329,7 +330,7 @@ export interface KriDto {
 
 // ── Escalamientos ─────────────────────────────────────────────────────────────
 
-export type UrgenciaEscalamiento = 'Normal' | 'Alta' | 'Crítica';
+export type UrgenciaEscalamiento = 'Normal' | 'Alta' | 'Critica';
 export type EstadoEscalamiento = 'Enviado' | 'Respondido' | 'Cerrado';
 
 export interface EscalamientoDto {
@@ -337,6 +338,7 @@ export interface EscalamientoDto {
   codigo: string;
   terminal_id?: string;
   creado_por?: string;
+  creado_por_nombre?: string; // populado por el backend en el listado
   motivo: string;
   urgencia: UrgenciaEscalamiento;
   estado: EstadoEscalamiento;

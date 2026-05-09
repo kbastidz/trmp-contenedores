@@ -8,8 +8,10 @@ import {
 import { PageHeader, Surface } from "@/components";
 import { PATH_DASHBOARD, PATH_OPERADOR } from "@/routes";
 import { usePlanes } from "@/lib/hooks/useApi";
+import { useCurrentUser } from "@/lib/hooks/useApi";
 import { escalamientosService } from "@/lib/trm";
 import type { UrgenciaEscalamiento } from "@/types/trm";
+import { TERMINAL_ID } from "@/lib/constants";
 
 const breadcrumbs = [
   { title: "Dashboard", href: PATH_DASHBOARD.default },
@@ -32,6 +34,7 @@ const MOTIVOS = [
 ];
 
 export default function Escalamiento() {
+  const { user } = useCurrentUser();
   const { data: planes, loading: loadingPlanes } = usePlanes();
 
   // Solo planes vencidos o en riesgo
@@ -68,7 +71,8 @@ export default function Escalamiento() {
     try {
       const codigo = `ESC-${new Date().getFullYear()}-${String(Date.now()).slice(-3)}`;
       const result = await escalamientosService.create({
-        terminal_id: "",
+        terminal_id: TERMINAL_ID,
+        creado_por: user?.id || undefined,
         codigo,
         motivo: form.motivo,
         urgencia: urgLabel as UrgenciaEscalamiento,

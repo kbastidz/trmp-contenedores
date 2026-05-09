@@ -90,7 +90,7 @@ function DetailPanel({ inc, areaNombre, onClose }: { inc: IncidenteDto; areaNomb
                   <Box style={{ flex: 1 }}>
                     <Text size="xs" fw={500}>{h.estado_anterior} → {h.estado_nuevo}</Text>
                     {h.justificacion && <Text size="xs" c="dimmed">{h.justificacion}</Text>}
-                    <Text size="xs" c="dimmed">{h.usuario ? `${h.usuario} · ` : ''}{new Date(h.fecha).toLocaleString('es-PE')}</Text>
+                    <Text size="xs" c="dimmed">{h.usuario ? `${h.usuario} · ` : ''}{(() => { const d = h.creado_en ?? h.fecha; return d ? new Date(d).toLocaleString('es-PE') : '—'; })()}</Text>
                   </Box>
                 </Group>
               ))}

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Anchor, Badge, Box, Button, Collapse, Group, Loader,
   Select, SimpleGrid, Stack, Tabs, Text, TextInput, Title,
 } from "@mantine/core";
 import { PageHeader, Surface } from "@/components";
 import { PATH_DASHBOARD, PATH_OPERADOR } from "@/routes";
-import { useEscalamientos, useEscalamientoHistorial } from "@/lib/hooks/useApi";
+import { useEscalamientos, useEscalamientoHistorial, useCurrentUser } from "@/lib/hooks/useApi";
 import { escalamientosService } from "@/lib/trm";
 import type { EscalamientoDto, UrgenciaEscalamiento, EstadoEscalamiento } from "@/types/trm";
 
@@ -17,10 +17,22 @@ const ESTADO_COLOR: Record<EstadoEscalamiento, string> = { Enviado: "yellow", Re
 const PER_PAGE = 8;
 
 function DetailPanel({ esc, onClose, onRefetch }: { esc: EscalamientoDto; onClose: () => void; onRefetch: () => void }) {
+  const { user } = useCurrentUser();
   const [tab, setTab] = useState<string | null>("resumen");
   const { data: historial } = useEscalamientoHistorial(esc.id);
   const [respTexto, setRespTexto] = useState("");
-  const [respAutor, setRespAutor] = useState("");
+  const [respAutor, setRespAutor] = useState(user?.name ?? '');
+
+  // Resuelve el nombre del creador: usa creado_por_nombre si el backend lo popula,
+  // si no compara con el usuario de sesión, si no muestra el ID truncado
+  const creadoPorNombre = esc.creado_por_nombre
+    ?? (esc.creado_por === user?.id ? user?.name : null)
+    ?? (esc.creado_por ? `${esc.creado_por.slice(0, 8)}…` : '—');
+
+  // Sincronizar cuando llega el usuario de sesión
+  useEffect(() => {
+    if (user?.name) setRespAutor(user.name);
+  }, [user?.name]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -32,6 +44,7 @@ function DetailPanel({ esc, onClose, onRefetch }: { esc: EscalamientoDto; onClos
       await escalamientosService.responder(esc.id, {
         respuesta_texto: respTexto,
         respuesta_autor: respAutor,
+        respuesta_usuario_id: user?.id || undefined,
       });
       onRefetch();
       onClose();
@@ -79,7 +92,7 @@ function DetailPanel({ esc, onClose, onRefetch }: { esc: EscalamientoDto; onClos
             <Stack gap={8}>
               {esc.nueva_fecha_propuesta && <Box><Text size="xs" c="dimmed">Nueva fecha propuesta</Text><Text size="xs">{new Date(esc.nueva_fecha_propuesta).toLocaleDateString("es-PE")}</Text></Box>}
               {esc.canal && <Box><Text size="xs" c="dimmed">Canal</Text><Text size="xs">{esc.canal}</Text></Box>}
-              {esc.creado_por && <Box><Text size="xs" c="dimmed">Creado por</Text><Text size="xs">{esc.creado_por}</Text></Box>}
+              {esc.creado_por && <Box><Text size="xs" c="dimmed">Creado por</Text><Text size="xs">{creadoPorNombre}</Text></Box>}
               {esc.createdAt && <Box><Text size="xs" c="dimmed">Fecha de envio</Text><Text size="xs">{new Date(esc.createdAt).toLocaleString("es-PE")}</Text></Box>}
               <Box><Text size="xs" c="dimmed">Nivel</Text><Text size="xs">{esc.nivel_escalamiento}</Text></Box>
             </Stack>
@@ -109,7 +122,7 @@ function DetailPanel({ esc, onClose, onRefetch }: { esc: EscalamientoDto; onClos
                   <Box style={{ flex: 1 }}>
                     <Text size="xs" fw={500}>{h.estado_anterior} → {h.estado_nuevo}</Text>
                     {h.justificacion && <Text size="xs" c="dimmed">{h.justificacion}</Text>}
-                    <Text size="xs" c="dimmed">{h.usuario ? `${h.usuario} · ` : ""}{new Date(h.fecha).toLocaleString("es-PE")}</Text>
+                    <Text size="xs" c="dimmed">{h.usuario ? `${h.usuario} · ` : ""}{(() => { const d = h.creado_en ?? h.fecha; return d ? new Date(d).toLocaleString("es-PE") : '—'; })()}</Text>
                   </Box>
                 </Group>
               ))}
@@ -120,7 +133,7 @@ function DetailPanel({ esc, onClose, onRefetch }: { esc: EscalamientoDto; onClos
         {esc.estado === "Enviado" && (
           <Tabs.Panel value="responder" pt="md">
             <Stack gap="sm">
-              <TextInput label="Autor de la respuesta *" placeholder="Ej: Gerencia de Operaciones" value={respAutor} onChange={e => setRespAutor(e.target.value)} />
+              <TextInput label="Autor de la respuesta" value={respAutor} readOnly placeholder="Cargando..." />
               <TextInput label="Texto de la respuesta *" placeholder="Describe la decision o accion tomada..." value={respTexto} onChange={e => setRespTexto(e.target.value)} />
               {saveError && <Text size="xs" c="red">{saveError}</Text>}
               <Button size="xs" onClick={handleResponder} loading={saving} disabled={!respTexto || !respAutor}>
@@ -135,6 +148,7 @@ function DetailPanel({ esc, onClose, onRefetch }: { esc: EscalamientoDto; onClos
 }
 
 export default function HistorialEscalamientos() {
+  const { user } = useCurrentUser();
   const { data: escalamientos, loading, error, refetch } = useEscalamientos();
   const [filtEstado, setFiltEstado] = useState("todos");
   const [filtUrg, setFiltUrg] = useState("");
@@ -266,7 +280,7 @@ export default function HistorialEscalamientos() {
                         }
                       </td>
                       <td style={{ padding: "8px 10px" }}>
-                        <Text size="xs" c="dimmed">{r.creado_por ?? (r.auto_generado ? "Sistema TRM" : "—")}</Text>
+                        <Text size="xs" c="dimmed">{r.creado_por_nombre ?? (r.creado_por === user?.id ? user?.name : null) ?? (r.auto_generado ? "Sistema TRM" : r.creado_por ? `${r.creado_por.slice(0, 8)}…` : "—")}</Text>
                       </td>
                     </tr>
                   ))}
