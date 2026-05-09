@@ -41,12 +41,11 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
   const form = useForm({
     initialValues: { name: '', email: '', image: '' },
     validate: {
-      name: isNotEmpty('Name is required'),
-      email: isEmail('Invalid email'),
+      name: isNotEmpty('El nombre es obligatorio'),
+      email: isEmail('Correo electrónico inválido'),
     },
   });
 
-  // Load available roles and user detail when user changes
   useEffect(() => {
     if (!user) return;
     form.setValues({ name: user.name ?? '', email: user.email ?? '', image: user.image ?? '' });
@@ -54,7 +53,6 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
 
     rolesService.list().then(setAllRoles).catch(() => setAllRoles([]));
 
-    // fetch full user detail to get current roles
     usersService.getById(user.id)
       .then((u) => setUserRoles(u.roles ?? []))
       .catch(() => {});
@@ -66,14 +64,14 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
     setLoading(true);
     try {
       await usersService.update(user.id, { name: values.name, image: values.image || undefined });
-      notifications.show({ title: 'Success', message: 'User updated successfully', color: 'green' });
+      notifications.show({ title: 'Éxito', message: 'Usuario actualizado correctamente', color: 'green' });
       drawerProps.onClose?.();
       onUserUpdated?.();
     } catch (err) {
-      console.error('Update error:', err);
+      console.error('Error al actualizar:', err);
       notifications.show({
         title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to update user',
+        message: err instanceof Error ? err.message : 'No se pudo actualizar el usuario',
         color: 'red',
       });
     } finally {
@@ -89,12 +87,12 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
       const role = allRoles.find((r) => r.id === selectedRoleId);
       if (role) setUserRoles((prev) => [...prev, { id: role.id, name: role.name }]);
       setSelectedRoleId(null);
-      notifications.show({ title: 'Role assigned', message: `Role "${role?.name}" added`, color: 'green' });
+      notifications.show({ title: 'Rol asignado', message: `Rol "${role?.name}" agregado`, color: 'green' });
       onUserUpdated?.();
     } catch (err) {
       notifications.show({
         title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to assign role',
+        message: err instanceof Error ? err.message : 'No se pudo asignar el rol',
         color: 'red',
       });
     } finally {
@@ -108,12 +106,12 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
     try {
       await usersService.removeRole(user.id, roleId);
       setUserRoles((prev) => prev.filter((r) => r.id !== roleId));
-      notifications.show({ title: 'Role removed', message: `Role "${roleName}" removed`, color: 'orange' });
+      notifications.show({ title: 'Rol eliminado', message: `Rol "${roleName}" eliminado`, color: 'orange' });
       onUserUpdated?.();
     } catch (err) {
       notifications.show({
         title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to remove role',
+        message: err instanceof Error ? err.message : 'No se pudo eliminar el rol',
         color: 'red',
       });
     } finally {
@@ -126,7 +124,7 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
     .map((r) => ({ value: r.id, label: r.name }));
 
   return (
-    <Drawer {...drawerProps} title="Edit User" size="md">
+    <Drawer {...drawerProps} title="Editar usuario" size="md">
       <LoadingOverlay visible={loading} />
       {user && (
         <Stack>
@@ -143,43 +141,36 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
           <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack>
               <TextInput
-                label="Name"
-                placeholder="Full name"
+                label="Nombre"
+                placeholder="Nombre completo"
                 required
                 key={form.key('name')}
                 {...form.getInputProps('name')}
               />
               <TextInput
-                label="Email"
+                label="Correo electrónico"
                 disabled
                 key={form.key('email')}
                 {...form.getInputProps('email')}
               />
-              <TextInput
-                label="Image URL"
-                placeholder="https://..."
-                key={form.key('image')}
-                {...form.getInputProps('image')}
-              />
               <Button type="submit" mt="xs" loading={loading}>
-                Save Changes
+                Guardar cambios
               </Button>
             </Stack>
           </form>
 
           <Divider label="Roles" labelPosition="left" mt="md" />
 
-          {/* Current roles */}
           <Stack gap="xs">
             {userRoles.length === 0 ? (
-              <Text size="sm" c="dimmed">No roles assigned</Text>
+              <Text size="sm" c="dimmed">Sin roles asignados</Text>
             ) : (
               userRoles.map((role) => (
                 <Group key={role.id} justify="space-between">
                   <Badge variant="light" color="blue" size="md">
                     {role.name}
                   </Badge>
-                  <Tooltip label="Remove role">
+                  <Tooltip label="Eliminar rol">
                     <ActionIcon
                       variant="subtle"
                       color="red"
@@ -195,12 +186,11 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
             )}
           </Stack>
 
-          {/* Assign new role */}
           {availableRoles.length > 0 && (
             <Group align="flex-end" mt="xs">
               <Select
-                label="Assign role"
-                placeholder="Select a role"
+                label="Asignar rol"
+                placeholder="Selecciona un rol"
                 data={availableRoles}
                 value={selectedRoleId}
                 onChange={setSelectedRoleId}
@@ -213,7 +203,7 @@ export const EditUserDrawer = ({ user, onUserUpdated, ...drawerProps }: EditUser
                 loading={rolesLoading}
                 onClick={handleAssignRole}
               >
-                Assign
+                Asignar
               </Button>
             </Group>
           )}

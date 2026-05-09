@@ -39,7 +39,7 @@ type ViewMode = 'grid' | 'table';
 const breadcrumbs = [
   { title: 'Dashboard', href: PATH_DASHBOARD.default },
   { title: 'Admin', href: '#' },
-  { title: 'Users', href: '#' },
+  { title: 'Usuarios', href: '#' },
 ].map((item, i) => (
   <Anchor href={item.href} key={i}>
     {item.title}
@@ -74,14 +74,14 @@ export default function AdminUsersPage() {
     setDeleting(true);
     try {
       await usersService.delete(deleteTarget.id);
-      notifications.show({ title: 'Deleted', message: `${deleteTarget.name} was removed`, color: 'green' });
+      notifications.show({ title: 'Eliminado', message: `${deleteTarget.name} fue eliminado`, color: 'green' });
       closeDelete();
       refetch();
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error('Error al eliminar:', err);
       notifications.show({
         title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to delete user',
+        message: err instanceof Error ? err.message : 'No se pudo eliminar el usuario',
         color: 'red',
       });
     } finally {
@@ -105,7 +105,7 @@ export default function AdminUsersPage() {
     }
 
     if (error) {
-      return <ErrorAlert title="Error loading users" message={error?.message ?? 'Unknown error'} />;
+      return <ErrorAlert title="Error al cargar usuarios" message={error?.message ?? 'Error desconocido'} />;
     }
 
     if (!users.length) {
@@ -113,10 +113,10 @@ export default function AdminUsersPage() {
         <Surface p="md">
           <Stack align="center">
             <IconMoodEmpty size={24} />
-            <Title order={4}>No users found</Title>
-            <Text>No users are registered yet.</Text>
+            <Title order={4}>No se encontraron usuarios</Title>
+            <Text>Aún no hay usuarios registrados.</Text>
             <Button leftSection={<IconPlus size={18} />} onClick={openNew}>
-              New User
+              Nuevo usuario
             </Button>
           </Stack>
         </Surface>
@@ -143,10 +143,10 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <title>Users | Admin</title>
+      <title>Usuarios | Admin</title>
 
       <PageHeader
-        title="Users"
+        title="Usuarios"
         breadcrumbItems={breadcrumbs}
         actionButton={
           <Group gap="sm">
@@ -161,7 +161,7 @@ export default function AdminUsersPage() {
               />
             )}
             <Button leftSection={<IconPlus size={18} />} onClick={openNew}>
-              New User
+              Nuevo usuario
             </Button>
           </Group>
         }
@@ -187,16 +187,16 @@ export default function AdminUsersPage() {
       <Modal
         opened={deleteOpened}
         onClose={closeDelete}
-        title="Delete User"
+        title="Eliminar usuario"
         centered
       >
         <Text>
-          Are you sure you want to delete <strong>{deleteTarget?.name}</strong>? This action cannot be undone.
+          ¿Estás seguro de que deseas eliminar a <strong>{deleteTarget?.name}</strong>? Esta acción no se puede deshacer.
         </Text>
         <Group justify="flex-end" mt="xl">
-          <Button variant="default" onClick={closeDelete}>Cancel</Button>
+          <Button variant="default" onClick={closeDelete}>Cancelar</Button>
           <Button color="red" loading={deleting} onClick={handleDeleteConfirm}>
-            Delete
+            Eliminar
           </Button>
         </Group>
       </Modal>

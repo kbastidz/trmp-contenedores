@@ -27,9 +27,9 @@ export const NewUserDrawer = ({ onUserCreated, ...drawerProps }: NewUserDrawerPr
   const form = useForm({
     initialValues: { name: '', email: '', password: '' },
     validate: {
-      name: isNotEmpty('Name is required'),
-      email: isEmail('Invalid email'),
-      password: (v) => (v.length < 6 ? 'Password must be at least 6 characters' : null),
+      name: isNotEmpty('El nombre es obligatorio'),
+      email: isEmail('Correo electrónico inválido'),
+      password: (v) => (v.length < 6 ? 'La contraseña debe tener al menos 6 caracteres' : null),
     },
   });
 
@@ -37,14 +37,14 @@ export const NewUserDrawer = ({ onUserCreated, ...drawerProps }: NewUserDrawerPr
     setLoading(true);
     try {
       await authService.signUp(values.name, values.email, values.password);
-      notifications.show({ title: 'Success', message: 'User created successfully', color: 'green' });
+      notifications.show({ title: 'Éxito', message: 'Usuario creado correctamente', color: 'green' });
       form.reset();
       drawerProps.onClose?.();
       onUserCreated?.();
     } catch (err) {
       notifications.show({
         title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to create user',
+        message: err instanceof Error ? err.message : 'No se pudo crear el usuario',
         color: 'red',
       });
     } finally {
@@ -53,34 +53,34 @@ export const NewUserDrawer = ({ onUserCreated, ...drawerProps }: NewUserDrawerPr
   };
 
   return (
-    <Drawer {...drawerProps} title="Create New User" size="md">
+    <Drawer {...drawerProps} title="Crear nuevo usuario" size="md">
       <LoadingOverlay visible={loading} />
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
-          <Title order={4}>User Information</Title>
+          <Title order={4}>Información del usuario</Title>
           <TextInput
-            label="Name"
-            placeholder="Full name"
+            label="Nombre"
+            placeholder="Nombre completo"
             required
             key={form.key('name')}
             {...form.getInputProps('name')}
           />
           <TextInput
-            label="Email"
-            placeholder="user@email.com"
+            label="Correo electrónico"
+            placeholder="usuario@correo.com"
             required
             key={form.key('email')}
             {...form.getInputProps('email')}
           />
           <PasswordInput
-            label="Password"
-            placeholder="Min. 6 characters"
+            label="Contraseña"
+            placeholder="Mín. 6 caracteres"
             required
             key={form.key('password')}
             {...form.getInputProps('password')}
           />
           <Button type="submit" mt="md" loading={loading}>
-            Create User
+            Crear usuario
           </Button>
         </Stack>
       </form>

@@ -42,7 +42,7 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 
-import { PATH_ADMIN, PATH_APPS, PATH_AUTH, PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
+import { PATH_ADMIN, PATH_AUTH, PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 
 export const SIDEBAR_LINKS = [
   {
@@ -67,29 +67,10 @@ export const SIDEBAR_LINKS = [
     ],
   },
   {
-    title: 'Apps',
-    links: [
-      { label: 'Customers', icon: IconUsers, link: PATH_APPS.customers, badge: 'NEW' },
-    ],
-  },
-  {
     title: 'Admin',
     links: [
       { label: 'Users', icon: IconUserCog, link: PATH_ADMIN.users },
     ],
-  },
-  {
-    title: 'Auth',
-    links: [
-      { label: 'Sign In', icon: IconLogin2, link: PATH_AUTH.signin },
-      { label: 'Sign Up', icon: IconUserPlus, link: PATH_AUTH.signup },
-      {
-        label: 'Reset Password',
-        icon: IconRotateRectangle,
-        link: PATH_AUTH.passwordReset,
-      },
-      { label: 'Clerk', icon: IconUserShield, link: PATH_AUTH.clerk }
-    ],
-  },
+  }
   
 ];

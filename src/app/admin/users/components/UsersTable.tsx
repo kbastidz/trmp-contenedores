@@ -43,12 +43,13 @@ const UsersTable = ({ data = [], loading, error, onEdit, onDelete }: UsersTableP
   const columns: DataTableProps<UserListItem>['columns'] = [
     {
       accessor: 'name',
+      title: 'Nombre',
       sortable: true,
       filter: (
         <TextInput
-          label="Users"
-          description="Filter by name or email"
-          placeholder="Search users..."
+          label="Usuarios"
+          description="Filtrar por nombre o correo"
+          placeholder="Buscar usuarios..."
           leftSection={<IconSearch size={16} />}
           value={query}
           onChange={(e) => setQuery(e.currentTarget.value)}
@@ -74,30 +75,31 @@ const UsersTable = ({ data = [], loading, error, onEdit, onDelete }: UsersTableP
     },
     {
       accessor: 'email',
+      title: 'Correo electrónico',
       sortable: true,
     },
     {
       accessor: 'createdAt',
-      title: 'Created',
+      title: 'Creado',
       sortable: true,
       render: (item) =>
-        item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—',
+        item.createdAt ? new Date(item.createdAt).toLocaleDateString('es-EC') : '—',
     },
     {
       accessor: 'actions',
-      title: 'Actions',
+      title: 'Acciones',
       textAlign: 'right',
       render: (item) => (
         <Group gap="xs" justify="flex-end">
           {onEdit && (
-            <Tooltip label="Edit">
+            <Tooltip label="Editar">
               <ActionIcon variant="subtle" color="gray" onClick={() => onEdit(item)}>
                 <IconEdit size={16} />
               </ActionIcon>
             </Tooltip>
           )}
           {onDelete && (
-            <Tooltip label="Delete">
+            <Tooltip label="Eliminar">
               <ActionIcon variant="subtle" color="red" onClick={() => onDelete(item)}>
                 <IconTrash size={16} />
               </ActionIcon>
@@ -132,7 +134,7 @@ const UsersTable = ({ data = [], loading, error, onEdit, onDelete }: UsersTableP
   }, [sortStatus, data, page, pageSize, debouncedQuery]);
 
   return error ? (
-    <ErrorAlert title="Error loading users" message={error.toString()} />
+    <ErrorAlert title="Error al cargar usuarios" message={error.toString()} />
   ) : (
     <DataTable
       minHeight={200}

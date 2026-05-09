@@ -22,7 +22,7 @@ export const UserCard = ({ data, onEdit, onDelete, ...paperProps }: UserCardProp
             {data.name || 'N/A'}
           </Title>
           <Text size="xs" c="dimmed">
-            ID: {data.id}
+            ID: ...{data.id.slice(-4)}
           </Text>
         </div>
       </Group>
@@ -36,7 +36,7 @@ export const UserCard = ({ data, onEdit, onDelete, ...paperProps }: UserCardProp
 
       {data.createdAt && (
         <Text size="xs" c="dimmed">
-          Joined: {new Date(data.createdAt).toLocaleDateString()}
+          Creado: {new Date(data.createdAt).toLocaleDateString()}
         </Text>
       )}
 

@@ -3,17 +3,11 @@ function path(root: string, sublink: string) {
 }
 
 const ROOTS_DASHBOARD = '/dashboard';
-const ROOT_APPS = '/apps';
 const ROOTS_AUTH = '/auth';
 
 export const PATH_DASHBOARD = {
   root: ROOTS_DASHBOARD,
   default: path(ROOTS_DASHBOARD, '/default')
-};
-
-export const PATH_APPS = {
-  root: ROOT_APPS,
-  customers: path(ROOT_APPS, '/customers'),
 };
 
 const ROOT_OPERADOR = '/operador';
