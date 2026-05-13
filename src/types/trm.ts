@@ -43,6 +43,7 @@ export interface RiesgoDto {
   terminal_id: string;
   area_id?: string;
   responsable_id?: string;
+  responsable_accion_id?: string;
   codigo: string;
   nombre: string;
   descripcion?: string;
@@ -54,6 +55,7 @@ export interface RiesgoDto {
   estado: EstadoRiesgo;
   // campos populados por JOIN en el backend
   responsable_nombre?: string;       // user.name del responsable_id
+  responsable_accion_nombre?: string; // user.name del responsable_accion_id
   area?: string;              // areas.nombre del area_id
   area_nombre?: string;       // alias alternativo
   terminal_nombre?: string;   // terminal.nombre del terminal_id
@@ -67,6 +69,7 @@ export interface CreateRiesgoPayload {
   terminal_id: string;
   area_id?: string;
   responsable_id?: string;
+  responsable_accion_id?: string;
   codigo: string;
   nombre: string;
   descripcion?: string;
@@ -88,6 +91,8 @@ export interface UpdateRiesgoPayload {
   nivel?: NivelRiesgo;
   estado?: EstadoRiesgo;
   justificacion_cambio_estado?: string;
+  responsable_id?: string;
+  responsable_accion_id?: string;
 }
 
 export interface HistorialEstadoDto {

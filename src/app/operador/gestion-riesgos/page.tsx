@@ -270,8 +270,8 @@ export default function GestionRiesgos() {
                 <Stack gap={8}>
                   <Box><Text size="xs" c="dimmed">Descripción</Text><Text size="xs">{selected.descripcion ?? '—'}</Text></Box>
                   <Box><Text size="xs" c="dimmed">Causa raíz</Text><Text size="xs">{selected.causa ?? '—'}</Text></Box>
-                  <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs">{selected.responsable ?? '—'}</Text></Box>
-                  <Box><Text size="xs" c="dimmed">Última revisión</Text><Text size="xs">{selected.ultima_revision ?? '—'}</Text></Box>
+                  <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs">{selected.responsable_nombre ?? '—'}</Text></Box>
+                  
                 </Stack>
 
                 <Stack gap="sm">

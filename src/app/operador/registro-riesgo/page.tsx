@@ -11,6 +11,18 @@ import { riesgosService, areasService } from '@/lib/trm';
 import { TERMINAL_ID } from '@/lib/constants';
 import type { AreaDto } from '@/types/trm';
 import { useCurrentUser } from '@/lib/hooks/useApi';
+import {
+  TIPOS_RIESGO,
+  TURNOS,
+  NORMATIVAS,
+  PROBABILIDAD_OCURRENCIA,
+  NIVEL_IMPACTO,
+  ANTECEDENTES,
+  CONTROLES_EXISTENTES,
+  PRIORIDADES,
+  getScoreInfo
+} from '@/constants/riesgos-combos';
+import { usersService } from '@/lib/auth';
 
 const breadcrumbs = [
   { title: 'Dashboard', href: PATH_DASHBOARD.default },
@@ -18,24 +30,6 @@ const breadcrumbs = [
   { title: 'Registrar Riesgo', href: '#' },
 ].map((item, i) => <Anchor href={item.href} key={i}>{item.title}</Anchor>);
 
-const CONTROLES = [
-  { label: 'Procedimiento operativo estándar (POE) documentado', tipo: 'Preventivo' },
-  { label: 'Capacitación y entrenamiento del personal', tipo: 'Preventivo' },
-  { label: 'Inspección preoperacional de equipos', tipo: 'Preventivo' },
-  { label: 'Sistema de bloqueo/etiquetado (LOTO)', tipo: 'Preventivo' },
-  { label: 'Equipo de protección personal (EPP)', tipo: 'Preventivo' },
-  { label: 'Señalización y demarcación de zonas', tipo: 'Preventivo' },
-  { label: 'Alarmas y sensores de seguridad', tipo: 'Detectivo' },
-  { label: 'Rondas de supervisión y auditorías', tipo: 'Detectivo' },
-  { label: 'Plan de emergencia y evacuación', tipo: 'Correctivo' },
-];
-
-function getScoreInfo(score: number) {
-  if (score <= 4) return { label: 'Bajo', color: 'green' };
-  if (score <= 9) return { label: 'Medio', color: 'yellow' };
-  if (score <= 16) return { label: 'Alto', color: 'orange' };
-  return { label: 'Crítico', color: 'red' };
-}
 
 export default function RegistroRiesgo() {
   const { user } = useCurrentUser();
@@ -47,6 +41,7 @@ export default function RegistroRiesgo() {
   const [error, setError] = useState<string | null>(null);
   const [createdId, setCreatedId] = useState<string | null>(null);
   const [areas, setAreas] = useState<AreaDto[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [form, setForm] = useState({ nombre: '', desc: '', area_id: '', tipo: '', resp: '', turno: '', norma: '', prev: '', trigger: '', conseq: '', accion: '', resp2: '', fecha: '', prio: '', recursos: '' });
   const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
@@ -55,6 +50,11 @@ export default function RegistroRiesgo() {
     areasService.list(TERMINAL_ID)
       .then(setAreas)
       .catch(err => console.error('[RegistroRiesgo] Error cargando áreas:', err));
+    
+    // Cargar listado de usuarios
+    usersService.list()
+      .then(setUsers)
+      .catch(err => console.error('[RegistroRiesgo] Error cargando usuarios:', err));
   }, []);
 
   const score = prob && imp ? parseInt(prob) * parseInt(imp) : null;
@@ -68,7 +68,8 @@ export default function RegistroRiesgo() {
       const result = await riesgosService.create({
         terminal_id: TERMINAL_ID,
         area_id: form.area_id || undefined,
-        responsable_id: user?.id || undefined,
+        responsable_id: form.resp || undefined,
+        responsable_accion_id: form.resp2 || undefined,
         codigo: `RISK-${Date.now()}`,
         nombre: form.nombre,
         descripcion: form.desc,
@@ -132,12 +133,20 @@ export default function RegistroRiesgo() {
                 <Select label="Área operacional *" placeholder="Seleccionar..." value={form.area_id} onChange={v => update('area_id', v || '')}
                   data={areas.map(a => ({ value: a.id, label: a.nombre }))} />
                 <Select label="Tipo de riesgo *" placeholder="Seleccionar..." value={form.tipo} onChange={v => update('tipo', v || '')}
-                  data={['Seguridad industrial','Operacional / Proceso','Seguridad física','Ambiental','Tecnológico','Humano / Fatiga','Externo / Climático','Legal / Regulatorio']} />
+                  data={TIPOS_RIESGO} />
               </SimpleGrid>
               <SimpleGrid cols={{ base: 1, sm: 3 }}>
-                <TextInput label="Responsable *" placeholder="Cargando..." value={user?.name ?? ''} readOnly />
-                <Select label="Turno afectado" placeholder="Todos" value={form.turno} onChange={v => update('turno', v || '')} data={['Turno día','Turno noche','Todos los turnos']} clearable />
-                <Select label="Normativa aplicable" placeholder="Ninguna específica" value={form.norma} onChange={v => update('norma', v || '')} data={['ISO 45001','Código ISPS','IMDG','BASC','ISO 31000']} clearable />
+                <Select 
+                  label="Responsable *" 
+                  placeholder="Seleccionar responsable..." 
+                  value={form.resp} 
+                  onChange={v => update('resp', v || '')}
+                  data={users.map(u => ({ value: u.id, label: u.name }))}
+                  searchable
+                  clearable
+                />
+                <Select label="Turno afectado" placeholder="Todos" value={form.turno} onChange={v => update('turno', v || '')} data={TURNOS} clearable />
+                <Select label="Normativa aplicable" placeholder="Ninguna específica" value={form.norma} onChange={v => update('norma', v || '')} data={NORMATIVAS} clearable />
               </SimpleGrid>
             </Stack>
           </Surface>
@@ -151,15 +160,15 @@ export default function RegistroRiesgo() {
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
                 <Radio.Group label="Probabilidad de ocurrencia *" value={prob} onChange={setProb}>
                   <Stack gap={4} mt={4}>
-                    {[['1','1 — Raro (menos de 1 vez al año)'],['2','2 — Improbable (1 vez al año)'],['3','3 — Posible (mensual)'],['4','4 — Probable (semanal)'],['5','5 — Casi seguro (diario)']].map(([v,l]) => (
-                      <Radio key={v} value={v} label={l} size="xs" styles={{ root: { padding: '6px 8px', border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 6 } }} />
+                    {PROBABILIDAD_OCURRENCIA.map(({ value, label }) => (
+                      <Radio key={value} value={value} label={label} size="xs" styles={{ root: { padding: '6px 8px', border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 6 } }} />
                     ))}
                   </Stack>
                 </Radio.Group>
                 <Radio.Group label="Nivel de impacto *" value={imp} onChange={setImp}>
                   <Stack gap={4} mt={4}>
-                    {[['1','1 — Insignificante (sin lesiones)'],['2','2 — Menor (primeros auxilios)'],['3','3 — Moderado (lesión con baja)'],['4','4 — Mayor (lesión grave / pérdida)'],['5','5 — Catastrófico (fatalidad)']].map(([v,l]) => (
-                      <Radio key={v} value={v} label={l} size="xs" styles={{ root: { padding: '6px 8px', border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 6 } }} />
+                    {NIVEL_IMPACTO.map(({ value, label }) => (
+                      <Radio key={value} value={value} label={label} size="xs" styles={{ root: { padding: '6px 8px', border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 6 } }} />
                     ))}
                   </Stack>
                 </Radio.Group>
@@ -177,7 +186,7 @@ export default function RegistroRiesgo() {
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Contexto adicional</Text>
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <Select label="¿Ya ocurrió antes?" data={['No hay antecedentes','Sí, una vez','Sí, varias veces','Casi ocurrió (near miss)']} />
+                <Select label="¿Ya ocurrió antes?" data={ANTECEDENTES} />
                 <TextInput label="Condición que lo desencadena" placeholder="Ej: viento > 45 km/h, fallo de sensor..." />
               </SimpleGrid>
               <Textarea label="Consecuencias potenciales" placeholder="Personas, equipos, medio ambiente, reputación, operación..." mt="sm" minRows={2} />
@@ -192,7 +201,7 @@ export default function RegistroRiesgo() {
               <Text fw={500} size="sm" mb="xs">Controles existentes</Text>
               <Text size="xs" c="dimmed" mb="sm">Marca los controles que ya están implementados para este riesgo</Text>
               <Stack gap={4}>
-                {CONTROLES.map((c) => (
+                {CONTROLES_EXISTENTES.map((c) => (
                   <Group key={c.label} gap="sm" style={{ padding: '6px 10px', border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 6 }}>
                     <Checkbox size="xs" />
                     <Text size="xs" style={{ flex: 1 }}>{c.label}</Text>
@@ -205,11 +214,19 @@ export default function RegistroRiesgo() {
               <Text fw={500} size="sm" mb="md">Plan de mitigación</Text>
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
                 <TextInput label="Acción de mitigación propuesta *" placeholder="Ej: Instalar sensor de carga en gancho de RTG" value={form.accion} onChange={e => update('accion', e.target.value)} />
-                <TextInput label="Responsable de la acción" placeholder="Cargo o nombre" value={form.resp2} onChange={e => update('resp2', e.target.value)} />
+                <Select 
+                  label="Responsable de la acción" 
+                  placeholder="Seleccionar responsable..." 
+                  value={form.resp2} 
+                  onChange={v => update('resp2', v || '')}
+                  data={users.map(u => ({ value: u.id, label: u.name }))}
+                  searchable
+                  clearable
+                />
               </SimpleGrid>
               <SimpleGrid cols={{ base: 1, sm: 2 }} mt="sm">
                 <TextInput label="Fecha límite" type="date" value={form.fecha} onChange={e => update('fecha', e.target.value)} />
-                <Select label="Prioridad" data={['Inmediata (24h)','Alta (1 semana)','Media (1 mes)','Baja (trimestral)']} />
+                <Select label="Prioridad" data={PRIORIDADES} />
               </SimpleGrid>
               <TextInput label="Recursos necesarios" placeholder="Ej: Presupuesto $3,000, coordinación con proveedor..." mt="sm" value={form.recursos} onChange={e => update('recursos', e.target.value)} />
             </Surface>
@@ -225,11 +242,12 @@ export default function RegistroRiesgo() {
                 ['Nombre del riesgo', form.nombre || '—'],
                 ['Área operacional', areas.find(a => a.id === form.area_id)?.nombre || '—'],
                 ['Tipo de riesgo', form.tipo || '—'],
-                ['Responsable', user?.name || '—'],
+                ['Responsable', users.find(u => u.id === form.resp)?.name || '—'],
                 ['Probabilidad', prob ? `${prob}/5` : '—'],
                 ['Impacto', imp ? `${imp}/5` : '—'],
                 ['Puntaje / Nivel', score ? `${score} — ${scoreInfo?.label}` : '—'],
                 ['Acción de mitigación', form.accion || '—'],
+                ['Responsable de la acción', users.find(u => u.id === form.resp2)?.name || '—'],
                 ['Prioridad', form.prio || '—'],
                 ['Fecha límite', form.fecha || '—'],
               ].map(([k, v]) => (

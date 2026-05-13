@@ -114,7 +114,7 @@ export default function DetalleRiesgo() {
             </SimpleGrid>
           </Group>
           <Group gap="xl" wrap="wrap">
-            {riesgo.responsable && <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs" fw={500}>{riesgo.responsable}</Text></Box>}
+            {riesgo.responsable_nombre && <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs" fw={500}>{riesgo.responsable_nombre}</Text></Box>}
             {riesgo.createdAt && <Box><Text size="xs" c="dimmed">Registrado</Text><Text size="xs" fw={500}>{new Date(riesgo.createdAt).toLocaleDateString('es-PE')}</Text></Box>}
             {riesgo.ultima_revision && <Box><Text size="xs" c="dimmed">Última revisión</Text><Text size="xs" fw={500}>{new Date(riesgo.ultima_revision).toLocaleDateString('es-PE')}</Text></Box>}
           </Group>

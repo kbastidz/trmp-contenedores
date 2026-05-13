@@ -10,7 +10,9 @@ import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 import { useRiesgo } from '@/lib/hooks/useApi';
 import { riesgosService } from '@/lib/trm';
+import { usersService } from '@/lib/auth';
 import type { EstadoRiesgo, NivelRiesgo, UpdateRiesgoPayload } from '@/types/trm';
+import { TIPOS_RIESGO } from '@/constants/riesgos-combos';
 
 const ESTADO_COLOR: Record<EstadoRiesgo, string> = {
   Activo: 'red', 'En revisión': 'orange', 'En mitigación': 'blue', Aceptado: 'yellow', Cerrado: 'green',
@@ -43,6 +45,7 @@ export default function EditarRiesgo() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [users, setUsers] = useState<any[]>([]);
 
   const [form, setForm] = useState({
     nombre: '',
@@ -50,6 +53,8 @@ export default function EditarRiesgo() {
     causa: '',
     categoria: '',
     justificacion: '',
+    responsable_id: '',
+    responsable_accion_id: '',
   });
 
   // Populate form once riesgo loads
@@ -61,11 +66,20 @@ export default function EditarRiesgo() {
       causa: riesgo.causa ?? '',
       categoria: riesgo.categoria ?? '',
       justificacion: '',
+      responsable_id: riesgo.responsable_id ?? '',
+      responsable_accion_id: riesgo.responsable_accion_id ?? '',
     });
     setProb(riesgo.probabilidad);
     setImp(riesgo.impacto);
     setEstado(riesgo.estado);
   }, [riesgo]);
+
+  // Cargar listado de usuarios
+  useEffect(() => {
+    usersService.list()
+      .then(setUsers)
+      .catch(err => console.error('[EditarRiesgo] Error cargando usuarios:', err));
+  }, []);
 
   const update = (k: keyof typeof form, v: string) => {
     setForm(f => ({ ...f, [k]: v }));
@@ -98,6 +112,8 @@ export default function EditarRiesgo() {
         nivel: nivel.label,
         estado,
         justificacion_cambio_estado: form.justificacion || undefined,
+        responsable_id: form.responsable_id || undefined,
+        responsable_accion_id: form.responsable_accion_id || undefined,
       };
       await riesgosService.update(riesgo.id, payload);
       setSaved(true);
@@ -188,7 +204,27 @@ export default function EditarRiesgo() {
                   label="Categoría"
                   value={form.categoria}
                   onChange={v => update('categoria', v || '')}
-                  data={['Operacional','Seguridad industrial','Ambiental','Tecnológico','Legal / Regulatorio','Humano / Fatiga','Externo / Climático']}
+                  data={TIPOS_RIESGO}
+                />
+                <Select 
+                  label="Responsable del riesgo" 
+                  placeholder="Seleccionar responsable..." 
+                  value={form.responsable_id} 
+                  onChange={v => update('responsable_id', v || '')}
+                  data={users.map(u => ({ value: u.id, label: u.name }))}
+                  searchable
+                  clearable
+                />
+              </SimpleGrid>
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                <Select 
+                  label="Responsable de la acción" 
+                  placeholder="Seleccionar responsable..." 
+                  value={form.responsable_accion_id} 
+                  onChange={v => update('responsable_accion_id', v || '')}
+                  data={users.map(u => ({ value: u.id, label: u.name }))}
+                  searchable
+                  clearable
                 />
               </SimpleGrid>
             </Surface>
