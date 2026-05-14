@@ -22,6 +22,14 @@ import type {
   EscalamientoDto,
   CreateEscalamientoPayload,
   ResponderEscalamientoPayload,
+  AccionDto,
+  CreateAccionPayload,
+  UpdateAccionPayload,
+  ComentarioDto,
+  CreateComentarioPayload,
+  NotificacionDto,
+  KriValorDto,
+  CreateKriValorPayload,
 } from '@/types/trm';
 
 const TRM_API =
@@ -68,6 +76,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export const terminalesService = {
   list: () => request<TerminalDto[]>('/api/trm/terminales'),
   getById: (id: string) => request<TerminalDto>(`/api/trm/terminales/${id}`),
+  create: (payload: Omit<TerminalDto, 'id'>) =>
+    request<TerminalDto>('/api/trm/terminales', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id: string, payload: Partial<TerminalDto>) =>
+    request<TerminalDto>(`/api/trm/terminales/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request<void>(`/api/trm/terminales/${id}`, { method: 'DELETE' }),
 };
 
 // ── Áreas ─────────────────────────────────────────────────────────────────────
@@ -75,6 +95,18 @@ export const terminalesService = {
 export const areasService = {
   list: (terminal_id?: string) =>
     request<AreaDto[]>(`/api/trm/areas${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
+  create: (payload: Omit<AreaDto, 'id'>) =>
+    request<AreaDto>('/api/trm/areas', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id: string, payload: Partial<AreaDto>) =>
+    request<AreaDto>(`/api/trm/areas/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request<void>(`/api/trm/areas/${id}`, { method: 'DELETE' }),
 };
 
 // ── Equipos ───────────────────────────────────────────────────────────────────
@@ -82,6 +114,18 @@ export const areasService = {
 export const equiposService = {
   list: (terminal_id?: string) =>
     request<EquipoDto[]>(`/api/trm/equipos${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
+  create: (payload: Omit<EquipoDto, 'id'>) =>
+    request<EquipoDto>('/api/trm/equipos', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id: string, payload: Partial<EquipoDto>) =>
+    request<EquipoDto>(`/api/trm/equipos/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request<void>(`/api/trm/equipos/${id}`, { method: 'DELETE' }),
 };
 
 // ── Riesgos ───────────────────────────────────────────────────────────────────
@@ -109,6 +153,15 @@ export const riesgosService = {
 
   historial: (id: string) =>
     request<HistorialEstadoDto[]>(`/api/trm/riesgos/${id}/historial`),
+
+  vincularControl: (riesgo_id: string, payload: { control_id: string; efectivo?: boolean; observaciones?: string }) =>
+    request<void>(`/api/trm/riesgos/${riesgo_id}/controles`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  desvincularControl: (riesgo_id: string, control_id: string) =>
+    request<void>(`/api/trm/riesgos/${riesgo_id}/controles/${control_id}`, { method: 'DELETE' }),
 };
 
 // ── Planes ────────────────────────────────────────────────────────────────────
@@ -208,8 +261,21 @@ export const tareasPlanService = {
 // ── Controles ─────────────────────────────────────────────────────────────────
 
 export const controlesService = {
+  list: () => request<ControlDto[]>('/api/trm/controles'),
   listByRiesgo: (riesgo_id: string) =>
     request<ControlDto[]>(`/api/trm/riesgos/${riesgo_id}/controles`),
+  create: (payload: Omit<ControlDto, 'id'>) =>
+    request<ControlDto>('/api/trm/controles', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id: string, payload: Partial<ControlDto>) =>
+    request<ControlDto>(`/api/trm/controles/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request<void>(`/api/trm/controles/${id}`, { method: 'DELETE' }),
 };
 
 // ── KRI ───────────────────────────────────────────────────────────────────────
@@ -217,6 +283,26 @@ export const controlesService = {
 export const kriService = {
   list: (terminal_id?: string) =>
     request<KriDto[]>(`/api/trm/kri${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
+  getById: (id: string) => request<KriDto>(`/api/trm/kri/${id}`),
+  create: (payload: Omit<KriDto, 'id'>) =>
+    request<KriDto>('/api/trm/kri', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id: string, payload: Partial<KriDto>) =>
+    request<KriDto>(`/api/trm/kri/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request<void>(`/api/trm/kri/${id}`, { method: 'DELETE' }),
+  listValores: (kri_id: string) =>
+    request<KriValorDto[]>(`/api/trm/kri/${kri_id}/valores`),
+  registrarValor: (kri_id: string, payload: CreateKriValorPayload) =>
+    request<KriValorDto>(`/api/trm/kri/${kri_id}/valores`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 };
 
 // ── Escalamientos ─────────────────────────────────────────────────────────────
@@ -252,4 +338,51 @@ export const escalamientosService = {
 
   historial: (id: string) =>
     request<HistorialEstadoDto[]>(`/api/trm/escalamientos/${id}/historial`),
+
+  delete: (id: string) =>
+    request<void>(`/api/trm/escalamientos/${id}`, { method: 'DELETE' }),
+};
+
+// ── Acciones Correctivas ─────────────────────────────────────────────────────────
+
+export const accionesService = {
+  list: (terminal_id?: string) =>
+    request<AccionDto[]>(`/api/trm/acciones${terminal_id ? `?terminal_id=${terminal_id}` : ''}`),
+  create: (payload: CreateAccionPayload) =>
+    request<AccionDto>('/api/trm/acciones', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id: string, payload: UpdateAccionPayload) =>
+    request<AccionDto>(`/api/trm/acciones/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request<void>(`/api/trm/acciones/${id}`, { method: 'DELETE' }),
+};
+
+// ── Comentarios ─────────────────────────────────────────────────────────────────
+
+export const comentariosService = {
+  list: (params: { entidad_tipo: string; entidad_id: string }) =>
+    request<ComentarioDto[]>(`/api/trm/comentarios?entidad_tipo=${params.entidad_tipo}&entidad_id=${params.entidad_id}`),
+  create: (payload: CreateComentarioPayload) =>
+    request<ComentarioDto>('/api/trm/comentarios', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request<void>(`/api/trm/comentarios/${id}`, { method: 'DELETE' }),
+};
+
+// ── Notificaciones ───────────────────────────────────────────────────────────────
+
+export const notificacionesService = {
+  list: (usuario_id: string, soloNoLeidas?: boolean) => {
+    const qs = new URLSearchParams();
+    qs.set('usuario_id', usuario_id);
+    if (soloNoLeidas) qs.set('solo_no_leidas', 'true');
+    return request<NotificacionDto[]>(`/api/trm/notificaciones?${qs.toString()}`);
+  },
 };

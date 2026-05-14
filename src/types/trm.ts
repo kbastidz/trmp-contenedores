@@ -391,3 +391,104 @@ export interface ResponderEscalamientoPayload {
   respuesta_autor: string;
   respuesta_usuario_id?: string;
 }
+
+// ── Acciones Correctivas ─────────────────────────────────────────────────────────
+
+export type EstadoAccion = 'Pendiente' | 'En progreso' | 'Completada';
+export type PrioridadAccion = 'Inmediata (24h)' | 'Alta (1 semana)' | 'Media (1 mes)' | 'Baja (trimestral)';
+
+export interface AccionDto {
+  id: string;
+  terminal_id: string;
+  responsable_id?: string;
+  titulo: string;
+  descripcion?: string;
+  estado: EstadoAccion;
+  fecha_limite?: string;
+  prioridad: PrioridadAccion;
+  riesgo_id?: string;
+  escalamiento_id?: string;
+  // campos populados por JOIN en el backend
+  responsable_nombre?: string;
+  riesgo_codigo?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateAccionPayload {
+  terminal_id: string;
+  responsable_id?: string;
+  titulo: string;
+  descripcion?: string;
+  estado: EstadoAccion;
+  fecha_limite?: string;
+  prioridad: PrioridadAccion;
+  riesgo_id?: string;
+  escalamiento_id?: string;
+}
+
+export interface UpdateAccionPayload {
+  titulo?: string;
+  descripcion?: string;
+  estado?: EstadoAccion;
+  fecha_limite?: string;
+  prioridad?: PrioridadAccion;
+}
+
+// ── Comentarios ─────────────────────────────────────────────────────────────────
+
+export interface ComentarioDto {
+  id: string;
+  terminal_id: string;
+  entidad_tipo: string;
+  entidad_id: string;
+  texto: string;
+  visible_para?: string;
+  autor_id?: string;
+  nombre_autor?: string;
+  createdAt?: string;
+}
+
+export interface CreateComentarioPayload {
+  terminal_id: string;
+  entidad_tipo: string;
+  entidad_id: string;
+  texto: string;
+  visible_para?: string;
+  autor_id?: string;
+  nombre_autor?: string;
+}
+
+// ── Notificaciones ───────────────────────────────────────────────────────────────
+
+export interface NotificacionDto {
+  id: string;
+  usuario_id: string;
+  titulo: string;
+  mensaje: string;
+  leida: boolean;
+  entidad_tipo?: string;
+  entidad_id?: string;
+  createdAt?: string;
+}
+
+// ── Valores KRI ─────────────────────────────────────────────────────────────────
+
+export interface KriValorDto {
+  id: string;
+  kri_id: string;
+  terminal_id: string;
+  periodo: string;
+  valor: number;
+  estado: string;
+  registrado_por?: string;
+  creado_en?: string;
+}
+
+export interface CreateKriValorPayload {
+  terminal_id: string;
+  periodo: string;
+  valor: number;
+  estado: string;
+  registrado_por?: string;
+}

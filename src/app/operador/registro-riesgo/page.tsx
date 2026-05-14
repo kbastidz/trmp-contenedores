@@ -7,9 +7,9 @@ import {
 } from '@mantine/core';
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
-import { riesgosService, areasService } from '@/lib/trm';
+import { riesgosService, areasService, controlesService } from '@/lib/trm';
 import { TERMINAL_ID } from '@/lib/constants';
-import type { AreaDto } from '@/types/trm';
+import type { AreaDto, ControlDto } from '@/types/trm';
 import { useCurrentUser } from '@/lib/hooks/useApi';
 import {
   TIPOS_RIESGO,
@@ -18,7 +18,6 @@ import {
   PROBABILIDAD_OCURRENCIA,
   NIVEL_IMPACTO,
   ANTECEDENTES,
-  CONTROLES_EXISTENTES,
   PRIORIDADES,
   getScoreInfo
 } from '@/constants/riesgos-combos';
@@ -42,6 +41,8 @@ export default function RegistroRiesgo() {
   const [createdId, setCreatedId] = useState<string | null>(null);
   const [areas, setAreas] = useState<AreaDto[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [controles, setControles] = useState<ControlDto[]>([]);
+  const [controlesSeleccionados, setControlesSeleccionados] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({ nombre: '', desc: '', area_id: '', tipo: '', resp: '', turno: '', norma: '', prev: '', trigger: '', conseq: '', accion: '', resp2: '', fecha: '', prio: '', recursos: '' });
   const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
@@ -50,11 +51,16 @@ export default function RegistroRiesgo() {
     areasService.list(TERMINAL_ID)
       .then(setAreas)
       .catch(err => console.error('[RegistroRiesgo] Error cargando áreas:', err));
-    
+
     // Cargar listado de usuarios
     usersService.list()
       .then(setUsers)
       .catch(err => console.error('[RegistroRiesgo] Error cargando usuarios:', err));
+
+    // Cargar listado de controles
+    controlesService.list()
+      .then(setControles)
+      .catch(err => console.error('[RegistroRiesgo] Error cargando controles:', err));
   }, []);
 
   const score = prob && imp ? parseInt(prob) * parseInt(imp) : null;
@@ -80,7 +86,25 @@ export default function RegistroRiesgo() {
         nivel,
         estado: 'Activo',
       });
-      setCreatedId(result.id ?? null);
+
+      const riesgoId = result.id;
+      if (!riesgoId) {
+        throw new Error('No se pudo obtener el ID del riesgo creado');
+      }
+
+      // Vincular controles seleccionados
+      if (controlesSeleccionados.size > 0) {
+        const vincularPromises = Array.from(controlesSeleccionados).map(controlId =>
+          riesgosService.vincularControl(riesgoId, {
+            control_id: controlId,
+            efectivo: true,
+            observaciones: 'Control vinculado al crear el riesgo'
+          })
+        );
+        await Promise.all(vincularPromises);
+      }
+
+      setCreatedId(riesgoId);
       setSubmitted(true);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al registrar el riesgo');
@@ -201,10 +225,22 @@ export default function RegistroRiesgo() {
               <Text fw={500} size="sm" mb="xs">Controles existentes</Text>
               <Text size="xs" c="dimmed" mb="sm">Marca los controles que ya están implementados para este riesgo</Text>
               <Stack gap={4}>
-                {CONTROLES_EXISTENTES.map((c) => (
-                  <Group key={c.label} gap="sm" style={{ padding: '6px 10px', border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 6 }}>
-                    <Checkbox size="xs" />
-                    <Text size="xs" style={{ flex: 1 }}>{c.label}</Text>
+                {controles.map((c) => (
+                  <Group key={c.id} gap="sm" style={{ padding: '6px 10px', border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 6 }}>
+                    <Checkbox
+                      size="xs"
+                      checked={controlesSeleccionados.has(c.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(controlesSeleccionados);
+                        if (e.currentTarget.checked) {
+                          newSet.add(c.id);
+                        } else {
+                          newSet.delete(c.id);
+                        }
+                        setControlesSeleccionados(newSet);
+                      }}
+                    />
+                    <Text size="xs" style={{ flex: 1 }}>{c.nombre}</Text>
                     <Text size="xs" c="dimmed">{c.tipo}</Text>
                   </Group>
                 ))}
