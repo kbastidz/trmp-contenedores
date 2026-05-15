@@ -61,6 +61,8 @@ export interface RiesgoDto {
   terminal_nombre?: string;   // terminal.nombre del terminal_id
   ultima_revision?: string;
   planes?: PlanResumen[];
+  controles?: RiesgoControlDto[];  // controles vinculados al riesgo
+  incidentes?: IncidenteDto[];     // incidentes vinculados al riesgo
   createdAt?: string;
   updatedAt?: string;
 }
@@ -324,6 +326,21 @@ export interface ControlDto {
   activo: boolean;
   efectivo?: boolean;
   observaciones?: string;
+}
+
+// ── Relación Riesgo-Control ─────────────────────────────────────────────────────
+
+export interface RiesgoControlDto {
+  id: string;
+  riesgo_id: string;
+  control_id: string;
+  efectivo: boolean;
+  observaciones?: string;
+  evaluado_en?: string;
+  // campos populados por JOIN
+  control_nombre?: string;
+  control_tipo?: string;
+  control_descripcion?: string;
 }
 
 // ── KRI ───────────────────────────────────────────────────────────────────────

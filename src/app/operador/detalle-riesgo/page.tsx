@@ -10,9 +10,9 @@ import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 import {
   useRiesgo, useRiesgoHistorial, usePlanesByRiesgo,
-  useIncidentesByRiesgo, useControlesByRiesgo, useKriByTerminal,
+  useKriByTerminal,
 } from '@/lib/hooks/useApi';
-import type { NivelRiesgo, EstadoRiesgo } from '@/types/trm';
+import type { NivelRiesgo, EstadoRiesgo, RiesgoControlDto, IncidenteDto } from '@/types/trm';
 
 const MATRIX_DATA = [[1,2,3,4,5],[2,4,6,8,10],[3,6,9,12,15],[4,8,12,16,20],[5,10,15,20,25]];
 function getCellColor(v: number) {
@@ -38,9 +38,9 @@ export default function DetalleRiesgo() {
   const { data: riesgo, loading, error } = useRiesgo(id);
   const { data: historial } = useRiesgoHistorial(id);
   const { data: planes } = usePlanesByRiesgo(id);
-  const { data: incidentes } = useIncidentesByRiesgo(id);
-  const { data: controles } = useControlesByRiesgo(id);
   const { data: kris } = useKriByTerminal(riesgo?.terminal_id ?? null);
+  const controles = riesgo?.controles ?? [];
+  const incidentes = riesgo?.incidentes ?? [];
 
   const breadcrumbs = [
     { title: 'Dashboard', href: PATH_DASHBOARD.default },
@@ -199,7 +199,7 @@ export default function DetalleRiesgo() {
                 <Text size="xs" c="dimmed" fs="italic">Sin controles vinculados.</Text>
               ) : (
                 <Stack gap={6}>
-                  {controles.map((c) => (
+                  {controles.map((c: RiesgoControlDto) => (
                     <Group key={c.id} gap="sm" p="xs" style={{ border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 8 }}>
                       <Box style={{ width: 14, height: 14, borderRadius: '50%', border: `0.5px solid ${c.efectivo ? '#3B6D11' : '#F09595'}`, background: c.efectivo ? '#EAF3DE' : '#FCEBEB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke={c.efectivo ? '#3B6D11' : '#A32D2D'} strokeWidth="2.5">
@@ -207,10 +207,10 @@ export default function DetalleRiesgo() {
                         </svg>
                       </Box>
                       <Box style={{ flex: 1 }}>
-                        <Text size="xs" fw={500}>{c.nombre}</Text>
+                        <Text size="xs" fw={500}>{c.control_nombre || `Control ID: ${c.control_id}`}</Text>
                         {c.observaciones && <Text size="xs" c={c.efectivo ? 'dimmed' : 'red'}>{c.observaciones}</Text>}
                       </Box>
-                      <Text size="xs" c="dimmed">{c.tipo}</Text>
+                      <Text size="xs" c="dimmed">{c.control_tipo || '—'}</Text>
                     </Group>
                   ))}
                 </Stack>
@@ -256,7 +256,7 @@ export default function DetalleRiesgo() {
                 <Text size="xs" c="dimmed" fs="italic">Sin incidentes vinculados.</Text>
               ) : (
                 <Stack gap={0}>
-                  {incidentes.map((inc) => {
+                  {incidentes.map((inc: IncidenteDto) => {
                     const sev = SEVERIDAD_COLOR[inc.severidad] ?? { c: '#185FA5', bg: '#E6F1FB' };
                     return (
                       <Group key={inc.id} gap="sm" style={{ padding: '8px 0', borderBottom: '0.5px solid var(--mantine-color-default-border)' }}>
