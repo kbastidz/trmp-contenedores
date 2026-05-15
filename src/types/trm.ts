@@ -62,7 +62,6 @@ export interface RiesgoDto {
   ultima_revision?: string;
   planes?: PlanResumen[];
   controles?: RiesgoControlDto[];  // controles vinculados al riesgo
-  incidentes?: IncidenteDto[];     // incidentes vinculados al riesgo
   createdAt?: string;
   updatedAt?: string;
 }

@@ -10,7 +10,7 @@ import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 import {
   useRiesgo, useRiesgoHistorial, usePlanesByRiesgo,
-  useKriByTerminal,
+  useIncidentesByRiesgo, useKriByTerminal,
 } from '@/lib/hooks/useApi';
 import type { NivelRiesgo, EstadoRiesgo, RiesgoControlDto, IncidenteDto } from '@/types/trm';
 
@@ -38,9 +38,11 @@ export default function DetalleRiesgo() {
   const { data: riesgo, loading, error } = useRiesgo(id);
   const { data: historial } = useRiesgoHistorial(id);
   const { data: planes } = usePlanesByRiesgo(id);
+  const { data: allIncidentes } = useIncidentesByRiesgo(id);
   const { data: kris } = useKriByTerminal(riesgo?.terminal_id ?? null);
   const controles = riesgo?.controles ?? [];
-  const incidentes = riesgo?.incidentes ?? [];
+  // Filtrar incidentes en frontend porque el backend no filtra correctamente por riesgo_id
+  const incidentes = allIncidentes?.filter(inc => inc.riesgo_id === id) ?? [];
 
   const breadcrumbs = [
     { title: 'Dashboard', href: PATH_DASHBOARD.default },
