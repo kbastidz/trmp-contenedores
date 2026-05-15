@@ -52,7 +52,7 @@ function DetailPanel({ inc, areaNombre, onClose }: { inc: IncidenteDto; areaNomb
               {inc.turno && <Box><Text size="xs" c="dimmed">Turno</Text><Text size="xs">{inc.turno}</Text></Box>}
               {inc.fecha_ocurrencia && <Box><Text size="xs" c="dimmed">Fecha</Text><Text size="xs">{new Date(inc.fecha_ocurrencia).toLocaleDateString('es-PE')}{inc.hora_ocurrencia ? ` · ${inc.hora_ocurrencia}` : ''}</Text></Box>}
               {inc.equipo_involucrado && <Box><Text size="xs" c="dimmed">Equipo</Text><Text size="xs">{inc.equipo_involucrado}</Text></Box>}
-              {inc.responsable && <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs">{inc.responsable}</Text></Box>}
+              {inc.responsable_nombre && <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs">{inc.responsable_nombre}</Text></Box>}
             </Stack>
             <Stack gap={8}>
               {inc.descripcion && <Box><Text size="xs" c="dimmed">Descripción</Text><Text size="xs">{inc.descripcion}</Text></Box>}
