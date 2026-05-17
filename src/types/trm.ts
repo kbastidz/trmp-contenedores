@@ -64,6 +64,7 @@ export interface RiesgoDto {
   controles?: RiesgoControlDto[];  // controles vinculados al riesgo
   createdAt?: string;
   updatedAt?: string;
+  tiene_plan?: boolean;
 }
 
 export interface CreateRiesgoPayload {

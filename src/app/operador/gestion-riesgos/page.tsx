@@ -48,7 +48,7 @@ export default function GestionRiesgos() {
     return riesgos
       .filter(r => {
         if (filtNivel !== 'todos' && filtNivel !== 'sin-plan' && r.nivel !== filtNivel) return false;
-        if (filtNivel === 'sin-plan' && (r.planes ?? []).length > 0) return false;
+        if (filtNivel === 'sin-plan' && r.tiene_plan) return false;
         if (filtArea && getAreaNombre(r) !== filtArea) return false;
         if (filtEstado && r.estado !== filtEstado) return false;
         if (q && !r.nombre.toLowerCase().includes(q) && !r.codigo.toLowerCase().includes(q) && !getAreaNombre(r).toLowerCase().includes(q)) return false;
@@ -198,16 +198,9 @@ export default function GestionRiesgos() {
                           <Text size="xs" style={{ color: NIVEL_COLOR[r.nivel], marginTop: 2 }}>{r.nivel}</Text>
                         </td>
                         <td style={{ padding: '8px 10px' }}>
-                          {(r.planes ?? []).length === 0
-                            ? <Text size="xs" c="dimmed">Sin plan</Text>
-                            : (r.planes ?? []).map(p => (
-                              <Box key={p.id} mb={2}>
-                                <Text size="xs" c="dimmed">{p.codigo}</Text>
-                                <Box style={{ height: 3, background: 'var(--mantine-color-default-border)', borderRadius: 2, overflow: 'hidden' }}>
-                                  <Box style={{ height: '100%', width: `${p.progreso}%`, background: p.estado === 'Vencido' ? '#E24B4A' : p.progreso === 0 ? '#B4B2A9' : '#378ADD', borderRadius: 2 }} />
-                                </Box>
-                              </Box>
-                            ))
+                          {r.tiene_plan
+                            ? <Text size="xs" c="dimmed">Con Plan</Text>
+                            : <Text size="xs" c="dimmed">Sin Plan</Text>
                           }
                         </td>
                         <td style={{ padding: '8px 10px', textAlign: 'center' }}>
@@ -295,16 +288,9 @@ export default function GestionRiesgos() {
 
                   <Box>
                     <Text size="xs" c="dimmed" mb={6}>Planes de mitigación</Text>
-                    {(selected.planes ?? []).length === 0
-                      ? <Text size="xs" c="dimmed">Sin planes asignados</Text>
-                      : (selected.planes ?? []).map(p => (
-                        <Group key={p.id} gap="xs" mb={4}>
-                          <Text size="xs" c="blue" fw={500} style={{ minWidth: 56 }}>{p.codigo}</Text>
-                          <Progress value={p.progreso} color={p.estado === 'Vencido' ? 'red' : p.progreso === 0 ? 'gray' : 'blue'} size="xs" style={{ flex: 1 }} />
-                          <Text size="xs" fw={500} style={{ minWidth: 28, textAlign: 'right' }}>{p.progreso}%</Text>
-                          <Badge color={p.estado === 'Vencido' ? 'red' : p.estado === 'Pendiente' ? 'gray' : 'blue'} variant="light" size="xs">{p.estado}</Badge>
-                        </Group>
-                      ))
+                    {selected.tiene_plan
+                      ? <Text size="xs" c="dimmed">Con Plan</Text>
+                      : <Text size="xs" c="dimmed">Sin Plan</Text>
                     }
                   </Box>
                 </Stack>
