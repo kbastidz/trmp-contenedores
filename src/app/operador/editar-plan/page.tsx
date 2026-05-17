@@ -10,8 +10,10 @@ import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 import { usePlan, useRiesgos, useAreas } from '@/lib/hooks/useApi';
 import { planesService, tareasPlanService } from '@/lib/trm';
+import { usersService } from '@/lib/auth';
 import { TERMINAL_ID } from '@/lib/constants';
 import type { EstadoPlan, UpdatePlanPayload, TareaDto, UpdateTareaPayload } from '@/types/trm';
+import type { UserListItem } from '@/lib/auth';
 
 const ESTADOS: EstadoPlan[] = ['Pendiente', 'En progreso', 'Completado', 'Vencido', 'Cancelado'];
 
@@ -35,6 +37,7 @@ export default function EditarPlan() {
   const { data: plan, loading, error } = usePlan(id);
   const { data: riesgos } = useRiesgos(TERMINAL_ID);
   const { data: areas } = useAreas(TERMINAL_ID);
+  const [users, setUsers] = useState<UserListItem[]>([]);
 
   // Nombre del riesgo vinculado: usa riesgo_nombre si el backend lo popula, si no busca por riesgo_id
   const riesgoNombre = plan?.riesgo_nombre
@@ -57,13 +60,19 @@ export default function EditarPlan() {
     titulo: '', descripcion: '', objetivo: '', tipo_control: 'Preventivo',
     estrategia: 'Reducir probabilidad e impacto', norma: 'ISO 45001',
     indicador: '', fecha_inicio: '', fecha_limite: '', frecuencia: 'Semanal',
-    fecha_revision: '', responsable: '', aprobador: '', area_id: '',
+    fecha_revision: '', responsable_id: '', aprobador_id: '', area_id: '',
     nivel_aprobacion: 'Gerencia de Operaciones', presupuesto: 'Significativo ($10K–$50K)',
     fuente: 'Presupuesto de mantenimiento', prioridad: 'Inmediata (24–48h)',
     recursos_adicionales: '', observaciones: '', justificacion: '', evidencia_cierre: '',
   });
 
   const update = (k: keyof typeof form, v: string) => { setForm(f => ({ ...f, [k]: v })); setHasChanges(true); };
+
+  useEffect(() => {
+    usersService.list()
+      .then(setUsers)
+      .catch(err => console.error('[EditarPlan] Error cargando usuarios:', err));
+  }, []);
 
   useEffect(() => {
     if (!plan) return;
@@ -87,7 +96,8 @@ export default function EditarPlan() {
       fecha_limite:   plan.fecha_limite?.split('T')[0] ?? '',
       fecha_revision: plan.fecha_revision?.split('T')[0] ?? '',
       observaciones:  plan.observaciones ?? '',
-      aprobador:      plan.aprobador ?? '',
+      responsable_id: plan.responsable_id ?? '',
+      aprobador_id:   plan.aprobador ?? '',
       area_id:        plan.area_id ?? '',
     }));
   }, [plan]);
@@ -177,9 +187,9 @@ export default function EditarPlan() {
         fecha_revision:       form.fecha_revision || undefined,
         observaciones:        form.observaciones || undefined,
         area_id:              form.area_id || undefined,
-        aprobador:            form.aprobador || undefined,
+        aprobador:            form.aprobador_id || undefined,
         norma:                form.norma || undefined,
-        responsable:          form.responsable || undefined,
+        responsable:          form.responsable_id || undefined,
         presupuesto:          form.presupuesto || undefined,
         fuente_financiamiento: form.fuente || undefined,
         prioridad:            form.prioridad || undefined,
@@ -321,15 +331,18 @@ export default function EditarPlan() {
                       type="date" value={form.fecha_limite} onChange={e => update('fecha_limite', e.target.value)}
                       styles={fechaVencida ? { input: { borderColor: '#E24B4A' } } : {}} />
                   </Box>
+                  
+                </SimpleGrid>
+                <SimpleGrid cols={{ base: 1, sm: 3 }} mb="sm">
                   <Select label="Frecuencia de seguimiento" value={form.frecuencia} onChange={v => update('frecuencia', v || '')}
                     data={['Diaria', 'Semanal', 'Quincenal', 'Mensual']} />
-                </SimpleGrid>
                 <TextInput label="Fecha de revisión de efectividad" type="date" value={form.fecha_revision} onChange={e => update('fecha_revision', e.target.value)} />
                 {fechaVencida && (
                   <Box mt="sm" p="sm" style={{ background: '#FCEBEB', borderRadius: 8 }}>
                     <Text size="xs" c="red">⚠ La fecha límite ya venció. Si vas a extenderla, justifícalo en la pestaña Estado.</Text>
                   </Box>
                 )}
+                </SimpleGrid>
               </Surface>
             </Stack>
           </Tabs.Panel>
@@ -377,7 +390,15 @@ export default function EditarPlan() {
                             styles={t.estado === 'Completada' ? { input: { textDecoration: 'line-through', color: 'var(--mantine-color-dimmed)' } } : {}} />
                         </Group>
                         <SimpleGrid cols={{ base: 1, sm: 3 }}>
-                          <TextInput label="Responsable" size="xs" value={t.responsable ?? ''} onChange={e => updateTarea(t, 'responsable', e.target.value)} />
+                          <Select
+                            label="Responsable"
+                            size="xs"
+                            value={t.responsable ?? ''}
+                            onChange={v => updateTarea(t, 'responsable', v || '')}
+                            data={users.map(u => ({ value: u.id, label: u.name }))}
+                            placeholder="Seleccionar..."
+                            clearable
+                          />
                           <TextInput label="Fecha límite" size="xs" type="date" value={t.fecha_limite ?? ''} onChange={e => updateTarea(t, 'fecha_limite', e.target.value)} />
                           <Select label="Estado" size="xs" value={t.estado} onChange={v => updateTarea(t, 'estado', v || 'Pendiente')}
                             data={['Pendiente', 'En ejecución', 'Completada']} />
@@ -397,13 +418,26 @@ export default function EditarPlan() {
               <Surface p="md">
                 <Text fw={500} size="sm" mb="md">Responsables</Text>
                 <SimpleGrid cols={{ base: 1, sm: 2 }} mb="sm">
-                  <TextInput label="Responsable del plan *" value={form.responsable} onChange={e => update('responsable', e.target.value)} />
-                  <TextInput label="Aprobador" value={form.aprobador} onChange={e => update('aprobador', e.target.value)} />
+                  <Select
+                    label="Responsable del plan *"
+                    value={form.responsable_id}
+                    onChange={v => update('responsable_id', v || '')}
+                    data={users.map(u => ({ value: u.id, label: u.name }))}
+                    placeholder="Seleccionar..."
+                    clearable
+                  />
+                  <Select
+                    label="Aprobador"
+                    value={form.aprobador_id}
+                    onChange={v => update('aprobador_id', v || '')}
+                    data={users.map(u => ({ value: u.id, label: u.name }))}
+                    placeholder="Seleccionar..."
+                    clearable
+                  />
                 </SimpleGrid>
                 <SimpleGrid cols={{ base: 1, sm: 2 }}>
                   <Select label="Área responsable" value={form.area_id} onChange={v => update('area_id', v || '')}
                     data={areas.map(a => ({ value: a.id, label: a.nombre }))} placeholder="Seleccionar..." />
-                  <TextInput label="Aprobador" value={form.aprobador} onChange={e => update('aprobador', e.target.value)} />
                 </SimpleGrid>
               </Surface>
               <Surface p="md">

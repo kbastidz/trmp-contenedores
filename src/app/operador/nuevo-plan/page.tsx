@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Anchor, Badge, Box, Button, Checkbox, Group, Loader,
   Select, SimpleGrid, Stack, Stepper, Text, Textarea, TextInput, Title,
@@ -8,8 +8,10 @@ import {
 import { PageHeader, Surface } from '@/components';
 import { PATH_DASHBOARD, PATH_OPERADOR } from '@/routes';
 import { planesService } from '@/lib/trm';
+import { usersService } from '@/lib/auth';
 import { useCurrentUser, useRiesgos, useAreas } from '@/lib/hooks/useApi';
 import type { EstadoPlan } from '@/types/trm';
+import type { UserListItem } from '@/lib/auth';
 import { TERMINAL_ID } from '@/lib/constants';
 
 const breadcrumbs = [
@@ -31,6 +33,7 @@ export default function NuevoPlan() {
   const { user } = useCurrentUser();
   const { data: riesgos, loading: loadingRiesgos } = useRiesgos();
   const { data: areas } = useAreas(TERMINAL_ID);
+  const [users, setUsers] = useState<UserListItem[]>([]);
 
   const [active, setActive] = useState(0);
   const [selRiesgoId, setSelRiesgoId] = useState<string | null>(null);
@@ -43,11 +46,17 @@ export default function NuevoPlan() {
 
   const [form, setForm] = useState({
     titulo: '', objetivo: '', estrategia: '', nivelObj: '', norma: '',
-    indicador: '', frecuencia: 'Mensual', respPlan: '', area_id: '',
-    aprobador: '', presupuesto: '', fuente: '', prioridad: '',
+    indicador: '', frecuencia: 'Mensual', responsable_id: '', area_id: '',
+    aprobador_id: '', presupuesto: '', fuente: '', prioridad: '',
     recursos: '', inicio: '', cierre: '',
   });
   const update = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  useEffect(() => {
+    usersService.list()
+      .then(setUsers)
+      .catch(err => console.error('[NuevoPlan] Error cargando usuarios:', err));
+  }, []);
 
   const filteredRiesgos = riesgos.filter(r =>
     r.nombre.toLowerCase().includes(search.toLowerCase()) ||
@@ -65,7 +74,7 @@ export default function NuevoPlan() {
       const result = await planesService.create({
         terminal_id: TERMINAL_ID,
         riesgo_id: selRiesgoId,
-        responsable_id: user?.id || undefined,
+        responsable_id: form.responsable_id || user?.id || undefined,
         codigo,
         titulo: form.titulo,
         objetivo: form.objetivo || undefined,
@@ -77,7 +86,7 @@ export default function NuevoPlan() {
         estrategia: form.estrategia || undefined,
         indicador: form.indicador || undefined,
         area_id: form.area_id || undefined,
-        aprobador: form.aprobador || undefined,
+        aprobador: form.aprobador_id || undefined,
         norma: form.norma || undefined,
       });
       setCreatedCodigo(result.codigo);
@@ -195,11 +204,25 @@ export default function NuevoPlan() {
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Responsables</Text>
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <TextInput label="Responsable del plan *" placeholder="Cargando..." value={user?.name ?? ''} readOnly />
-                
+                <Select
+                  label="Responsable del plan *"
+                  placeholder="Seleccionar responsable..."
+                  data={users.map(u => ({ value: u.id, label: u.name }))}
+                  value={form.responsable_id || user?.id || ''}
+                  onChange={v => update('responsable_id', v || '')}
+                  clearable
+                />
                 <Select label="Área responsable" placeholder="Seleccionar área..." data={areas.map(a => ({ value: a.id, label: a.nombre }))} value={form.area_id} onChange={v => update('area_id', v || '')} clearable />
               </SimpleGrid>
-              <TextInput label="Aprobador del plan" placeholder="Cargo o nombre" mt="sm" value={form.aprobador} onChange={e => update('aprobador', e.target.value)} />
+              <Select
+                label="Aprobador del plan"
+                placeholder="Seleccionar aprobador..."
+                data={users.map(u => ({ value: u.id, label: u.name }))}
+                value={form.aprobador_id}
+                onChange={v => update('aprobador_id', v || '')}
+                clearable
+                mt="sm"
+              />
             </Surface>
             <Surface p="md">
               <Text fw={500} size="sm" mb="md">Presupuesto y prioridad</Text>
@@ -224,7 +247,8 @@ export default function NuevoPlan() {
                   ['Tipo de control', selTipo ? TIPO_CONTROL[selTipo - 1].label : '—'],
                   ['Estrategia', form.estrategia || '—'],
                   ['Área responsable', areas.find(a => a.id === form.area_id)?.nombre || '—'],
-                  ['Aprobador', form.aprobador || '—'],
+                  ['Responsable', users.find(u => u.id === form.responsable_id)?.name || user?.name || '—'],
+                  ['Aprobador', users.find(u => u.id === form.aprobador_id)?.name || '—'],
                   ['Normativa', form.norma || '—'],
                   ['Prioridad', form.prioridad || '—'],
                   ['Fecha de inicio', form.inicio || '—'],
