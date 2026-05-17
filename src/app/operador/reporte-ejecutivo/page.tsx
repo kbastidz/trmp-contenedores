@@ -175,7 +175,7 @@ export default function ReporteEjecutivo() {
               {semaforoAreas.map((a) => (
                 <Box key={a.nombre} p="sm" style={{ border: '0.5px solid var(--mantine-color-default-border)', borderRadius: 8, textAlign: 'center' }}>
                   <Box style={{ width: 14, height: 14, borderRadius: '50%', background: NIVEL_HEX[a.nivel], margin: '0 auto 6px' }} />
-                  <Text size="xs" fw={500} lineClamp={1}>{a.nombre}</Text>
+                  <Text size="xs" fw={500} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.nombre}</Text>
                   <Text size="xs" c="dimmed">{a.total} riesgos · {a.criticos} críticos</Text>
                   <Badge color={NIVEL_COLOR[a.nivel]} variant="light" size="xs" mt={4}>{a.nivel}</Badge>
                 </Box>
@@ -197,7 +197,7 @@ export default function ReporteEjecutivo() {
                     return (
                       <Group key={r.id} gap="xs" style={{ padding: '6px 0', borderBottom: '0.5px solid var(--mantine-color-default-border)' }}>
                         <Box style={{ width: 8, height: 8, borderRadius: '50%', background: NIVEL_HEX[r.nivel], flexShrink: 0 }} />
-                        <Text size="xs" style={{ flex: 1 }} lineClamp={1}>{r.nombre}</Text>
+                        <Text size="xs" style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.nombre}</Text>
                         <Badge color={NIVEL_COLOR[r.nivel]} variant="light" size="xs">{score}</Badge>
                         <Text size="xs" c="dimmed" style={{ width: 70, textAlign: 'right' }}>{r.area ?? '—'}</Text>
                       </Group>
@@ -219,7 +219,7 @@ export default function ReporteEjecutivo() {
                   <Stack gap={6} mb="md">
                     {incidentesPorArea.map((a) => (
                       <Group key={a.nombre} gap="xs" wrap="nowrap">
-                        <Text size="xs" style={{ minWidth: 120 }} lineClamp={1}>{a.nombre}</Text>
+                        <Text size="xs" style={{ minWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.nombre}</Text>
                         <Progress value={(a.total / maxIncArea) * 100} color="blue" size="xs" style={{ flex: 1 }} />
                         <Text size="xs" fw={500} style={{ minWidth: 20, textAlign: 'right' }}>{a.total}</Text>
                       </Group>
@@ -310,7 +310,7 @@ export default function ReporteEjecutivo() {
                     : 'gray';
                   return (
                     <Table.Tr key={p.id}>
-                      <Table.Td lineClamp={1}>{p.titulo}</Table.Td>
+                      <Table.Td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</Table.Td>
                       <Table.Td ta="center" c="dimmed">{p.responsable_nombre ?? p.responsable_id?.slice(0, 8) ?? '—'}</Table.Td>
                       <Table.Td ta="center" c={vencido ? 'red' : undefined}>
                         {p.fecha_limite ? new Date(p.fecha_limite).toLocaleDateString('es-PE') : '—'}
