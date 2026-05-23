@@ -160,7 +160,7 @@ export default function Escalamiento() {
                         <Text size="xs" fw={500} mb={6}>{p.titulo}</Text>
                         <Group gap="xs" mb={6}>
                           {p.area && <Badge color="blue" variant="light" size="xs">{p.area}</Badge>}
-                          {p.responsable && <Text size="xs" c="dimmed">Resp: {p.responsable}</Text>}
+                          {p.responsable_nombre && <Text size="xs" c="dimmed">Resp: {p.responsable_nombre}</Text>}
                         </Group>
                         <Group gap="sm">
                           <Progress value={p.progreso} color="red" size="xs" style={{ flex: 1 }} />

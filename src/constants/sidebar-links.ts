@@ -48,28 +48,34 @@ export const SIDEBAR_LINKS = [
   {
     title: 'Dashboard',
     links: [
-      { label: 'Default', icon: IconChartBar, link: PATH_DASHBOARD.default }
+      { label: 'Dashboard Riesgos', icon: IconLayoutDashboard, link: PATH_OPERADOR.dashboard },
     ],
   },
   {
     title: 'Operador',
     links: [
-      { label: 'Dashboard Riesgos', icon: IconLayoutDashboard, link: PATH_OPERADOR.dashboard },
+      
       { label: 'Gestión Incidentes', icon: IconAlertTriangle, link: PATH_OPERADOR.gestionIncidentes },
-      { label: 'Registrar Incidente', icon: IconClipboardList, link: PATH_OPERADOR.registroIncidente },
-      { label: 'Registrar Riesgo', icon: IconShieldCheck, link: PATH_OPERADOR.registroRiesgo },
+      //{ label: 'Registrar Incidente', icon: IconClipboardList, link: PATH_OPERADOR.registroIncidente },
+      //{ label: 'Registrar Riesgo', icon: IconShieldCheck, link: PATH_OPERADOR.registroRiesgo },
       { label: 'Gestión de Riesgos', icon: IconFiles, link: PATH_OPERADOR.gestionRiesgos },
-      { label: 'Nuevo Plan', icon: IconPlus, link: PATH_OPERADOR.nuevoPlan },
+      //{ label: 'Nuevo Plan', icon: IconPlus, link: PATH_OPERADOR.nuevoPlan },
       { label: 'Seguimiento Planes', icon: IconChecklist, link: PATH_OPERADOR.seguimientoPlanes },
       { label: 'Historial Escalamientos', icon: IconList, link: PATH_OPERADOR.historialEscalamientos },
-      { label: 'Reporte Ejecutivo', icon: IconReportAnalytics, link: PATH_OPERADOR.reporteEjecutivo },
-      { label: 'Configuración', icon: IconUserCog, link: PATH_OPERADOR.configuracion },
+      
+      //{ label: 'Configuración', icon: IconUserCog, link: PATH_OPERADOR.configuracion },
     ],
   },
   {
     title: 'Admin',
     links: [
       { label: 'Users', icon: IconUserCog, link: PATH_ADMIN.users },
+    ],
+  },
+  {
+    title: 'REPORTE',
+    links: [
+      { label: 'Reporte Ejecutivo', icon: IconReportAnalytics, link: PATH_OPERADOR.reporteEjecutivo }
     ],
   }
   

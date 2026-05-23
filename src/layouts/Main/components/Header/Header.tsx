@@ -236,7 +236,10 @@ const HeaderNav = (props: HeaderNavProps) => {
             </Menu.Label>
             <Menu.Divider />
             <Menu.Item leftSection={<IconUser size={16} />}>Profile</Menu.Item>
-            <Menu.Item leftSection={<IconSettings size={16} />}>
+            <Menu.Item 
+              leftSection={<IconSettings size={16} />}
+              onClick={() => router.push('/operador/configuracion')}
+            >
               Settings
             </Menu.Item>
             <Menu.Divider />
