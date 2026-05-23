@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import jsPDF from 'jspdf';
 import {
   Anchor, Badge, Box, Button, Group, Loader, Progress, SimpleGrid,
   Stack, Table, Text, Title,
@@ -50,6 +51,157 @@ export default function ReporteEjecutivo() {
   const { data: kris, loading: loadingK } = useKriByTerminal(TERMINAL_ID);
   const { data: areas } = useAreas(TERMINAL_ID);
   const [metricas, setMetricas] = useState<DashboardMetricas | null>(null);
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    let y = 20;
+
+    // Header
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Reporte Ejecutivo de Riesgos', 105, y, { align: 'center' });
+    y += 10;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Terminal ID: ${TERMINAL_ID.slice(0, 8)}…`, 105, y, { align: 'center' });
+    y += 6;
+    doc.text(`Período: ${periodo} · Generado: ${new Date().toLocaleDateString('es-PE')}`, 105, y, { align: 'center' });
+    y += 6;
+
+    const nivelGlobal = riesgosCriticos > 3 ? 'Crítico' : riesgosCriticos > 0 ? 'Medio-Alto' : 'Controlado';
+    doc.text(`Nivel global: ${nivelGlobal}`, 105, y, { align: 'center' });
+    y += 15;
+
+    // Métricas
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Métricas Principales', 20, y);
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const metricasData = [
+      ['Riesgos activos', String(totalRiesgos)],
+      ['Riesgos críticos', String(riesgosCriticos)],
+      ['Incidentes (mes)', String(totalIncidentes)],
+      ['Controles efectivos', efectividad != null ? `${efectividad}%` : '—'],
+      ['Acciones vencidas', String(accionesVencidas)],
+    ];
+
+    metricasData.forEach(([label, value]) => {
+      doc.text(`${label}: ${value}`, 25, y);
+      y += 6;
+    });
+    y += 10;
+
+    // Semáforo por área
+    if (semaforoAreas.length > 0) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Semáforo de Riesgo por Área', 20, y);
+      y += 8;
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      semaforoAreas.forEach((a) => {
+        doc.text(`${a.nombre}: ${a.total} riesgos · ${a.criticos} críticos · ${a.nivel}`, 25, y);
+        y += 5;
+      });
+      y += 10;
+    }
+
+    // Top riesgos
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Top ${topRiesgos.length} Riesgos por Score`, 20, y);
+    y += 8;
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    topRiesgos.forEach((r) => {
+      const score = r.probabilidad * r.impacto;
+      doc.text(`${r.nombre} - Score: ${score} - ${r.area ?? '—'}`, 25, y);
+      y += 5;
+    });
+    y += 10;
+
+    // Incidentes por área
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Incidentes por Área', 20, y);
+    y += 8;
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    incidentesPorArea.forEach((a) => {
+      doc.text(`${a.nombre}: ${a.total} incidentes`, 25, y);
+      y += 5;
+    });
+    y += 8;
+
+    doc.text('Por severidad:', 25, y);
+    y += 5;
+    doc.text(`Críticos: ${incCriticos}`, 30, y);
+    y += 5;
+    doc.text(`Graves: ${incGraves}`, 30, y);
+    y += 5;
+    doc.text(`Leves/Moderados: ${incLeves}`, 30, y);
+    y += 10;
+
+    // KRIs
+    if (kris.length > 0) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Indicadores Clave de Riesgo (KRI)', 20, y);
+      y += 8;
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      kris.forEach((k) => {
+        const val = k.ultimo_valor ?? null;
+        const estado = k.ultimo_estado ?? (
+          val == null ? '—'
+          : k.umbral_critico != null && val >= k.umbral_critico ? 'Crítico'
+          : k.umbral_alerta != null && val >= k.umbral_alerta ? 'Alerta'
+          : 'OK'
+        );
+        doc.text(`${k.nombre}: ${val != null ? `${val}${k.unidad ? ` ${k.unidad}` : ''}` : '—'} - Estado: ${estado}`, 25, y);
+        y += 5;
+      });
+      y += 10;
+    }
+
+    // Estado de planes
+    if (accionesMes.length > 0) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Estado de Planes de Mitigación', 20, y);
+      y += 8;
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      accionesMes.forEach((p) => {
+        const vencido = p.fecha_limite && p.fecha_limite < hoy && p.estado !== 'Completado';
+        const estado = vencido ? 'Vencida' : p.estado;
+        doc.text(`${p.titulo} - ${p.responsable_nombre ?? p.responsable_id?.slice(0, 8) ?? '—'} - ${p.fecha_limite ? new Date(p.fecha_limite).toLocaleDateString('es-PE') : '—'} - ${p.progreso}% - ${estado}`, 25, y);
+        y += 5;
+      });
+      y += 10;
+    }
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Elaborado por: Sistema Terminal Risk Monitor', 20, y);
+    y += 5;
+    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 20, y);
+    y += 5;
+    doc.text(`Terminal ID: ${TERMINAL_ID}`, 20, y);
+
+    // Guardar PDF
+    doc.save(`reporte-ejecutivo-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
 
   const loading = loadingR || loadingI || loadingP || loadingK;
 
@@ -124,7 +276,7 @@ export default function ReporteEjecutivo() {
         breadcrumbItems={breadcrumbs}
         actionButton={
           <Group gap="sm">
-            <Button size="xs" variant="default">Exportar PDF</Button>
+            <Button size="xs" variant="default" onClick={handleExportPDF}>Exportar PDF</Button>
             <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>Plan de mitigación</Button>
           </Group>
         }
