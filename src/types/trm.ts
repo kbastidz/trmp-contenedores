@@ -386,6 +386,7 @@ export interface EscalamientoDto {
   terminal_nombre?: string;   // terminal.nombre del terminal_id
   createdAt?: string;
   updatedAt?: string;
+  creado_en?: string;
 }
 
 export interface CreateEscalamientoPayload {

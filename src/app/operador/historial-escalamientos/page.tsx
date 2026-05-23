@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import * as XLSX from "xlsx";
 import {
   Anchor, Badge, Box, Button, Collapse, Group, Loader,
   Select, SimpleGrid, Stack, Tabs, Text, TextInput, Title,
@@ -156,6 +157,60 @@ export default function HistorialEscalamientos() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<EscalamientoDto | null>(null);
 
+  const handleExport = () => {
+    // Crear libro de trabajo
+    const wb = XLSX.utils.book_new();
+
+    // Crear hoja de datos
+    const headers = ['ID', 'Fecha', 'Urgencia', 'Motivo', 'Estado', 'Respuesta', 'Creado por'];
+    const rows = filtered.map(r => {
+      const creadoPorNombre = r.creado_por_nombre
+        ?? (r.creado_por === user?.id ? user?.name : null)
+        ?? (r.auto_generado ? "Sistema TRM" : r.creado_por ? `${r.creado_por.slice(0, 8)}…` : "—");
+      
+      // Extraer fecha del código (formato: ESC-AAAA-M-D)
+      let fecha = r.creado_en;
+      
+      return [
+        r.codigo,
+        fecha ? new Date(fecha).toLocaleDateString("es-PE") : 'Sin fecha',
+        r.urgencia,
+        r.motivo,
+        r.estado,
+        r.respuesta_fecha ? new Date(r.respuesta_fecha).toLocaleDateString("es-PE") : '—',
+        creadoPorNombre,
+      ];
+    });
+
+    // Crear hoja con cabecera y datos
+    const wsData = [
+      ['Reporte de Escalamientos'],
+      [`Fecha de generación: ${new Date().toLocaleString("es-PE")}`],
+      [`Total de escalamientos: ${filtered.length}`],
+      [],
+      headers,
+      ...rows,
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Configurar anchos de columnas
+    ws['!cols'] = [
+      { wch: 15 }, // ID
+      { wch: 15 }, // Fecha
+      { wch: 12 }, // Urgencia
+      { wch: 40 }, // Motivo
+      { wch: 15 }, // Estado
+      { wch: 15 }, // Respuesta
+      { wch: 25 }, // Creado por
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Escalamientos');
+
+    // Generar y descargar archivo
+    XLSX.writeFile(wb, `escalamientos_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   const breadcrumbs = [
     { title: "Dashboard", href: PATH_DASHBOARD.default },
     { title: "Operador", href: PATH_OPERADOR.dashboard },
@@ -191,7 +246,7 @@ export default function HistorialEscalamientos() {
         actionButton={
           <Group gap="sm">
             <Button size="xs" component="a" href={PATH_OPERADOR.escalamiento}>+ Nuevo escalamiento</Button>
-            <Button size="xs" variant="default">Exportar</Button>
+            <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
       />
