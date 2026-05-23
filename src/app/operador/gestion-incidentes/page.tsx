@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import {
   Anchor, Badge, Box, Button, Collapse, Grid, Group, Loader,
   Progress, Select, SimpleGrid, Stack, Tabs, Text, TextInput, Title,
@@ -112,6 +113,75 @@ export default function GestionIncidentes() {
   const [filtEst, setFiltEst] = useState('');
   const [filtArea, setFiltArea] = useState('');
 
+  const handleExport = () => {
+    // Crear libro de trabajo
+    const wb = XLSX.utils.book_new();
+
+    // Crear hoja de datos
+    const headers = ['ID', 'Severidad', 'Descripción', 'Área', 'Riesgo', 'Fecha', 'Turno', 'Estado'];
+    const rows = filtered.map(inc => [
+      inc.codigo,
+      inc.severidad,
+      inc.titulo,
+      getAreaNombre(inc) || '—',
+      getRiesgoCodigo(inc) || '—',
+      inc.fecha_ocurrencia ? new Date(inc.fecha_ocurrencia).toLocaleDateString('es-PE') : '—',
+      inc.turno || '—',
+      inc.estado,
+    ]);
+
+    // Crear hoja con cabecera y datos
+    const wsData = [
+      ['Reporte de Incidentes'],
+      [`Fecha de generación: ${new Date().toLocaleString('es-PE')}`],
+      [`Total de incidentes: ${filtered.length}`],
+      [],
+      headers,
+      ...rows,
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Configurar anchos de columnas
+    ws['!cols'] = [
+      { wch: 15 }, // ID
+      { wch: 12 }, // Severidad
+      { wch: 40 }, // Descripción
+      { wch: 20 }, // Área
+      { wch: 15 }, // Riesgo
+      { wch: 15 }, // Fecha
+      { wch: 12 }, // Turno
+      { wch: 15 }, // Estado
+    ];
+
+    // Aplicar estilos a la cabecera
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const address = XLSX.utils.encode_cell({ r: 4, c: C }); // Fila 5 (índice 4) es la cabecera de datos
+      if (!ws[address]) continue;
+      ws[address].s = {
+        font: { bold: true },
+        fill: { fgColor: { rgb: 'E6F1FB' } },
+        alignment: { horizontal: 'center' },
+      };
+    }
+
+    // Aplicar estilos al título
+    ws['A1'].s = {
+      font: { bold: true, sz: 16 },
+    };
+
+    // Aplicar estilos a la fecha
+    ws['A2'].s = {
+      font: { italic: true },
+    };
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Incidentes');
+
+    // Generar y descargar archivo
+    XLSX.writeFile(wb, `incidentes_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   const breadcrumbs = [
     { title: 'Dashboard', href: PATH_DASHBOARD.default },
     { title: 'Operador', href: PATH_OPERADOR.dashboard },
@@ -164,7 +234,7 @@ export default function GestionIncidentes() {
         actionButton={
           <Group gap="sm">
             <Button size="xs" component="a" href={PATH_OPERADOR.registroIncidente}>+ Nuevo incidente</Button>
-            <Button size="xs" variant="default">Exportar</Button>
+            <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
       />
@@ -257,7 +327,7 @@ export default function GestionIncidentes() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '0.5px solid var(--mantine-color-default-border)', background: 'var(--mantine-color-default-hover)' }}>
-                    {['ID','Sev.','Descripción','Área','Riesgo','Fecha','Turno','Estado',''].map(h => (
+                    {['INC','Sev.','Descripción','Área','Riesgo','Fecha','Turno','Estado',''].map(h => (
                       <th key={h} style={{ fontSize: 11, color: 'var(--mantine-color-dimmed)', fontWeight: 500, textAlign: 'left', padding: '8px 10px', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
