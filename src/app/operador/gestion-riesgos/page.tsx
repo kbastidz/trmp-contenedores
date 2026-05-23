@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import {
   Anchor, Badge, Box, Button, Collapse, Group, Loader, Progress,
   Select, SimpleGrid, Stack, Text, TextInput,
@@ -36,6 +37,80 @@ export default function GestionRiesgos() {
   const [sortDir, setSortDir] = useState<1 | -1>(-1);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<RiesgoDto | null>(null);
+
+  const handleExport = () => {
+    // Crear libro de trabajo
+    const wb = XLSX.utils.book_new();
+
+    // Crear hoja de datos
+    const headers = ['RISK', 'Nivel', 'Riesgo', 'Área', 'Probabilidad', 'Impacto', 'Score', 'Plan activo', 'Estado'];
+    const rows = filtered.map(r => {
+      const score = r.probabilidad * r.impacto;
+      return [
+        r.codigo,
+        r.nivel,
+        r.nombre,
+        getAreaNombre(r) || '—',
+        `${r.probabilidad}/5`,
+        `${r.impacto}/5`,
+        score,
+        r.tiene_plan ? 'Con Plan' : 'Sin Plan',
+        r.estado,
+      ];
+    });
+
+    // Crear hoja con cabecera y datos
+    const wsData = [
+      ['Reporte de Riesgos'],
+      [`Fecha de generación: ${new Date().toLocaleString('es-PE')}`],
+      [`Total de riesgos: ${filtered.length}`],
+      [],
+      headers,
+      ...rows,
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Configurar anchos de columnas
+    ws['!cols'] = [
+      { wch: 15 }, // ID
+      { wch: 12 }, // Nivel
+      { wch: 40 }, // Riesgo
+      { wch: 20 }, // Área
+      { wch: 12 }, // Probabilidad
+      { wch: 10 }, // Impacto
+      { wch: 10 }, // Score
+      { wch: 15 }, // Plan activo
+      { wch: 15 }, // Estado
+    ];
+
+    // Aplicar estilos a la cabecera
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const address = XLSX.utils.encode_cell({ r: 4, c: C }); // Fila 5 (índice 4) es la cabecera de datos
+      if (!ws[address]) continue;
+      ws[address].s = {
+        font: { bold: true },
+        fill: { fgColor: { rgb: 'E6F1FB' } },
+        alignment: { horizontal: 'center' },
+      };
+    }
+
+    // Aplicar estilos al título
+    ws['A1'].s = {
+      font: { bold: true, sz: 16 },
+    };
+
+    // Aplicar estilos a la fecha
+    ws['A2'].s = {
+      font: { italic: true },
+    };
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Riesgos');
+
+    // Generar y descargar archivo
+    XLSX.writeFile(wb, `riesgos_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
 
   const breadcrumbs = [
     { title: 'Dashboard', href: PATH_DASHBOARD.default },
@@ -93,7 +168,7 @@ export default function GestionRiesgos() {
         actionButton={
           <Group gap="sm">
             <Button size="xs" component="a" href={PATH_OPERADOR.registroRiesgo}>+ Nuevo riesgo</Button>
-            <Button size="xs" variant="default">Exportar</Button>
+            <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
       />
@@ -165,7 +240,7 @@ export default function GestionRiesgos() {
                 <thead>
                   <tr style={{ borderBottom: '0.5px solid var(--mantine-color-default-border)', background: 'var(--mantine-color-default-hover)' }}>
                     {[
-                      { col: 'codigo', label: 'ID ↕' }, { col: '', label: 'Niv.' },
+                      { col: 'codigo', label: 'RISK ↕' }, { col: '', label: 'Niv.' },
                       { col: 'nombre', label: 'Riesgo ↕' }, { col: 'area', label: 'Área ↕' },
                       { col: 'probabilidad', label: 'Prob.' }, { col: 'impacto', label: 'Imp.' },
                       { col: 'score', label: 'Score ↕' }, { col: '', label: 'Plan activo' },
