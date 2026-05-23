@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import {
   Anchor, Badge, Box, Button, Collapse, Group, Loader, Progress,
   Select, SimpleGrid, Stack, Tabs, Text, Title,
@@ -44,7 +45,7 @@ function PlanCard({ plan, onClick, selected }: { plan: PlanDto; onClick: () => v
         <Progress value={plan.progreso} color={progressColor(plan.progreso, overdue)} size="xs" mb={4} />
       )}
       <Group justify="space-between">
-        <Text size="xs" c="dimmed">{plan.responsable ?? '—'}</Text>
+        <Text size="xs" c="dimmed">{plan.responsable_nombre ?? '—'}</Text>
         {plan.progreso > 0 && <Text size="xs" c={progressColor(plan.progreso, overdue)}>{plan.progreso}%</Text>}
       </Group>
     </Box>
@@ -84,7 +85,7 @@ function DetailPanel({ plan, onClose }: { plan: PlanDto; onClose: () => void }) 
             <Stack gap={8}>
               {plan.objetivo && <Box><Text size="xs" c="dimmed">Objetivo</Text><Text size="xs">{plan.objetivo}</Text></Box>}
               {plan.area && <Box><Text size="xs" c="dimmed">Área</Text><Text size="xs">{plan.area}</Text></Box>}
-              {plan.responsable && <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs">{plan.responsable}</Text></Box>}
+              {plan.responsable_nombre && <Box><Text size="xs" c="dimmed">Responsable</Text><Text size="xs">{plan.responsable_nombre}</Text></Box>}
               {plan.tipo_control && <Box><Text size="xs" c="dimmed">Tipo de control</Text><Text size="xs">{plan.tipo_control}</Text></Box>}
             </Stack>
             <Stack gap={8}>
@@ -134,6 +135,51 @@ export default function SeguimientoPlanes() {
   const [filtArea, setFiltArea] = useState('');
   const [filtResp, setFiltResp] = useState('');
 
+  const handleExport = () => {
+    // Crear libro de trabajo
+    const wb = XLSX.utils.book_new();
+
+    // Crear hoja de datos
+    const headers = ['Código', 'Título', 'Área', 'Responsable', 'Progreso', 'Estado', 'Fecha límite'];
+    const rows = filtered.map(p => [
+      p.codigo,
+      p.titulo,
+      p.area || '—',
+      (p as any).responsable || p.responsable_id || '—',
+      `${p.progreso}%`,
+      p.estado,
+      p.fecha_limite ? new Date(p.fecha_limite).toLocaleDateString('es-PE') : '—',
+    ]);
+
+    // Crear hoja con cabecera y datos
+    const wsData = [
+      ['Reporte de Planes de Mitigación'],
+      [`Fecha de generación: ${new Date().toLocaleString('es-PE')}`],
+      [`Total de planes: ${filtered.length}`],
+      [],
+      headers,
+      ...rows,
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Configurar anchos de columnas
+    ws['!cols'] = [
+      { wch: 15 }, // Código
+      { wch: 40 }, // Título
+      { wch: 20 }, // Área
+      { wch: 25 }, // Responsable
+      { wch: 12 }, // Progreso
+      { wch: 15 }, // Estado
+      { wch: 15 }, // Fecha límite
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Planes');
+
+    // Generar y descargar archivo
+    XLSX.writeFile(wb, `planes_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   const breadcrumbs = [
     { title: 'Dashboard', href: PATH_DASHBOARD.default },
     { title: 'Operador', href: PATH_OPERADOR.dashboard },
@@ -142,7 +188,7 @@ export default function SeguimientoPlanes() {
 
   const filtered = useMemo(() => planes.filter(p => {
     if (filtArea && p.area !== filtArea) return false;
-    if (filtResp && p.responsable !== filtResp) return false;
+    if (filtResp && p.responsable_nombre !== filtResp) return false;
     return true;
   }), [planes, filtArea, filtResp]);
 
@@ -150,7 +196,7 @@ export default function SeguimientoPlanes() {
   const vencidos = filtered.filter(p => p.estado === 'Vencido' || (isOverdue(p) && p.estado !== 'Completado'));
 
   const areas = [...new Set(planes.map(p => p.area).filter(Boolean))] as string[];
-  const responsables = [...new Set(planes.map(p => p.responsable).filter(Boolean))] as string[];
+  const responsables = [...new Set(planes.map(p => p.responsable_nombre).filter(Boolean))] as string[];
 
   const counts = useMemo(() => ({
     total: planes.length,
@@ -169,7 +215,7 @@ export default function SeguimientoPlanes() {
         actionButton={
           <Group gap="sm">
             <Button size="xs" component="a" href={PATH_OPERADOR.nuevoPlan}>+ Nuevo plan</Button>
-            <Button size="xs" variant="default">Exportar</Button>
+            <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
       />
