@@ -32,10 +32,8 @@ import type {
   CreateKriValorPayload,
 } from '@/types/trm';
 
-const TRM_API =
-  typeof window !== 'undefined'
-    ? ''  // en el browser llama al proxy local /api/trm/...
-    : (process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3002'); // en SSR va directo
+// En static export no hay servidor Next.js, así que siempre llamamos directo al backend.
+const TRM_API = process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3002';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const method = options?.method ?? 'GET';

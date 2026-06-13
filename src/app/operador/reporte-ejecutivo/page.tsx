@@ -205,9 +205,10 @@ export default function ReporteEjecutivo() {
 
   const loading = loadingR || loadingI || loadingP || loadingK;
 
-  // Cargar métricas del dashboard
+  // Cargar métricas del dashboard directamente desde el backend
   useEffect(() => {
-    fetch(`/api/trm/dashboard/metricas?terminal_id=${TERMINAL_ID}`, { credentials: 'include' })
+    const TRM_API = process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3002';
+    fetch(`${TRM_API}/api/trm/dashboard/metricas?terminal_id=${TERMINAL_ID}`, { credentials: 'include' })
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data) setMetricas(Array.isArray(data) ? data[0] : data); })
       .catch(() => null);

@@ -9,8 +9,6 @@ import type { AuthUser } from '@/lib/auth';
 
 export type ApiResponse<T> = IApiResponse<T>;
 
-const AUTH_API = process.env.NEXT_PUBLIC_AUTH_API_URL ?? 'http://localhost:3000';
-
 // ── Session ───────────────────────────────────────────────────────────────────
 
 export function useCurrentUser() {
@@ -32,9 +30,9 @@ export function useApiGet<T>(endpoint: string) {
   return useFetch<ApiResponse<T>>(endpoint);
 }
 
-// Hook for customers
+// Hook for customers — lee el JSON mock directamente (sin API route, compatible con static export)
 export function useCustomers() {
-  return useApiGet<CustomerDto[]>('/api/customers');
+  return useApiGet<CustomerDto[]>('/mocks/Customers.json');
 }
 
 // Hook for admin users (calls external auth service directly)

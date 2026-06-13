@@ -1,4 +1,5 @@
-const BASE_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_AUTH_API_URL ?? 'http://localhost:3000');
+// En static export no hay servidor Next.js, así que siempre llamamos directo al backend.
+const BASE_URL = process.env.NEXT_PUBLIC_AUTH_API_URL ?? 'http://localhost:3000';
 
 export interface AuthUser {
   id: string;
@@ -51,22 +52,22 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const authService = {
   signIn: (email: string, password: string) =>
-    request<SignInResponse>('/api/admin/auth/sign-in/email', {
+    request<SignInResponse>(`${BASE_URL}/api/auth/sign-in/email`, {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
 
   signUp: (name: string, email: string, password: string) =>
-    request<SignUpResponse>('/api/admin/auth/sign-up/email', {
+    request<SignUpResponse>(`${BASE_URL}/api/auth/sign-up/email`, {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     }),
 
   signOut: () =>
-    request<void>('/api/admin/auth/sign-out', { method: 'POST' }),
+    request<void>(`${BASE_URL}/api/auth/sign-out`, { method: 'POST' }),
 
   getSession: () =>
-    request<{ user: AuthUser; session: AuthSession } | null>('/api/admin/auth/get-session'),
+    request<{ user: AuthUser; session: AuthSession } | null>(`${BASE_URL}/api/auth/get-session`),
 };
 
 // ── Users CRUD ────────────────────────────────────────────────────────────────
@@ -83,28 +84,28 @@ export interface UserListItem {
 
 export const usersService = {
   list: () =>
-    request<UserListItem[]>('/api/admin/users'),
+    request<UserListItem[]>(`${BASE_URL}/api/users`),
 
   getById: (id: string) =>
-    request<UserListItem>(`/api/admin/users/${id}`),
+    request<UserListItem>(`${BASE_URL}/api/users/${id}`),
 
   update: (id: string, payload: { name?: string; image?: string }) =>
-    request<UserListItem>(`/api/admin/users/${id}`, {
+    request<UserListItem>(`${BASE_URL}/api/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(payload),
     }),
 
   delete: (id: string) =>
-    request<void>(`/api/admin/users/${id}`, { method: 'DELETE' }),
+    request<void>(`${BASE_URL}/api/users/${id}`, { method: 'DELETE' }),
 
   assignRole: (userId: string, roleIds: string[]) =>
-    request<void>(`/api/admin/users/${userId}/roles`, {
+    request<void>(`${BASE_URL}/api/users/${userId}/roles`, {
       method: 'POST',
       body: JSON.stringify({ roleIds }),
     }),
 
   removeRole: (userId: string, roleId: string) =>
-    request<void>(`/api/admin/users/${userId}/roles/${roleId}`, { method: 'DELETE' }),
+    request<void>(`${BASE_URL}/api/users/${userId}/roles/${roleId}`, { method: 'DELETE' }),
 };
 
 // ── Roles ─────────────────────────────────────────────────────────────────────
@@ -117,5 +118,5 @@ export interface RoleDto {
 }
 
 export const rolesService = {
-  list: () => request<RoleDto[]>('/api/admin/roles'),
+  list: () => request<RoleDto[]>(`${BASE_URL}/api/roles`),
 };
