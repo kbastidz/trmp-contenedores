@@ -52,22 +52,22 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const authService = {
   signIn: (email: string, password: string) =>
-    request<SignInResponse>(`${BASE_URL}/api/auth/sign-in/email`, {
+    request<SignInResponse>('/api/auth/sign-in/email', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
 
   signUp: (name: string, email: string, password: string) =>
-    request<SignUpResponse>(`${BASE_URL}/api/auth/sign-up/email`, {
+    request<SignUpResponse>('/api/auth/sign-up/email', {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     }),
 
   signOut: () =>
-    request<void>(`${BASE_URL}/api/auth/sign-out`, { method: 'POST' }),
+    request<void>('/api/auth/sign-out', { method: 'POST' }),
 
   getSession: () =>
-    request<{ user: AuthUser; session: AuthSession } | null>(`${BASE_URL}/api/auth/get-session`),
+    request<{ user: AuthUser; session: AuthSession } | null>('/api/auth/get-session'),
 };
 
 // ── Users CRUD ────────────────────────────────────────────────────────────────
@@ -84,28 +84,28 @@ export interface UserListItem {
 
 export const usersService = {
   list: () =>
-    request<UserListItem[]>(`${BASE_URL}/api/users`),
+    request<UserListItem[]>('/api/users'),
 
   getById: (id: string) =>
-    request<UserListItem>(`${BASE_URL}/api/users/${id}`),
+    request<UserListItem>(`/api/users/${id}`),
 
   update: (id: string, payload: { name?: string; image?: string }) =>
-    request<UserListItem>(`${BASE_URL}/api/users/${id}`, {
+    request<UserListItem>(`/api/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(payload),
     }),
 
   delete: (id: string) =>
-    request<void>(`${BASE_URL}/api/users/${id}`, { method: 'DELETE' }),
+    request<void>(`/api/users/${id}`, { method: 'DELETE' }),
 
   assignRole: (userId: string, roleIds: string[]) =>
-    request<void>(`${BASE_URL}/api/users/${userId}/roles`, {
+    request<void>(`/api/users/${userId}/roles`, {
       method: 'POST',
       body: JSON.stringify({ roleIds }),
     }),
 
   removeRole: (userId: string, roleId: string) =>
-    request<void>(`${BASE_URL}/api/users/${userId}/roles/${roleId}`, { method: 'DELETE' }),
+    request<void>(`/api/users/${userId}/roles/${roleId}`, { method: 'DELETE' }),
 };
 
 // ── Roles ─────────────────────────────────────────────────────────────────────
@@ -118,5 +118,5 @@ export interface RoleDto {
 }
 
 export const rolesService = {
-  list: () => request<RoleDto[]>(`${BASE_URL}/api/roles`),
+  list: () => request<RoleDto[]>('/api/roles'),
 };
