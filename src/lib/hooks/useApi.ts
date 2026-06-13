@@ -6,6 +6,7 @@ import { riesgosService, planesService, incidentesService, controlesService, kri
 import type { RiesgoDto, HistorialEstadoDto, PlanDto, HistorialAvanceDto, IncidenteDto, ControlDto, KriDto, EscalamientoDto } from '@/types/trm';
 import { authService } from '@/lib/auth';
 import type { AuthUser } from '@/lib/auth';
+import { assetUrl } from '@/lib/basePath';
 
 export type ApiResponse<T> = IApiResponse<T>;
 
@@ -32,8 +33,7 @@ export function useApiGet<T>(endpoint: string) {
 
 // Hook for customers — lee el JSON mock directamente (sin API route, compatible con static export)
 export function useCustomers() {
-  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
-  return useApiGet<CustomerDto[]>(`${base}/mocks/Customers.json`);
+  return useApiGet<CustomerDto[]>(assetUrl('/mocks/Customers.json'));
 }
 
 // Hook for admin users (calls external auth service directly)

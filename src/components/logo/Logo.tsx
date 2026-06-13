@@ -6,6 +6,7 @@ import {
 } from '@mantine/core';
 import Image from 'next/image';
 import Link from 'next/link';
+import logoSrc from '../../../public/logo-no-background.png';
 
 import classes from './Logo.module.css';
 
@@ -24,7 +25,7 @@ const Logo = ({ href, showText = true, ...others }: LogoProps) => {
     >
       <Group gap="xs">
         <Image
-          src="/logo-no-background.png"
+          src={logoSrc}
           height={showText ? 32 : 24}
           width={showText ? 32 : 24}
           alt="design sparx logo"

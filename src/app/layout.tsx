@@ -40,21 +40,21 @@ export default function RootLayout({
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/apple-touch-icon.png`}
+          href="/trmp-contenedores/apple-touch-icon.png"
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/favicon-32x32.png`}
+          href="/trmp-contenedores/favicon-32x32.png"
         />
         <link
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/favicon-16x16.png`}
+          href="/trmp-contenedores/favicon-16x16.png"
         />
-        <link rel="manifest" href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/site.webmanifest`} />
+        <link rel="manifest" href="/trmp-contenedores/site.webmanifest" />
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"

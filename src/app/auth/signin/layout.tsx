@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 
 import { Box, Center, Stack } from '@mantine/core';
 import Image from 'next/image';
+import logoSrc from '../../../../public/logo-no-background.png';
 
 import { SystemNotificationBanner } from '@/components';
 
@@ -26,7 +27,7 @@ function SignInLayout({ children }: AuthProps) {
         <Stack>
           <Center>
             <Image
-              src="/logo-no-background.png"
+              src={logoSrc}
               alt="DesignSparx logo"
               width={96}
               height={96}
