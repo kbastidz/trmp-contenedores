@@ -24,24 +24,37 @@ export default function RootLayout({
       {/* className={openSans.className} */}
       <head>
         <title>DesignSparx - Nextjs Mantine Admin Dashboard Template</title>
+        {/* Restaurar la URL cuando GitHub Pages redirige al index vía 404.html */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var params = new URLSearchParams(window.location.search);
+            var p = params.get('p');
+            if (p) {
+              var basePath = '/trmp-contenedores';
+              var decoded = decodeURIComponent(p);
+              var newUrl = basePath + decoded;
+              window.history.replaceState(null, '', newUrl);
+            }
+          })();
+        `}} />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/apple-touch-icon.png"
+          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/apple-touch-icon.png`}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href="/favicon-32x32.png"
+          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/favicon-32x32.png`}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href="/favicon-16x16.png"
+          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/favicon-16x16.png`}
         />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/site.webmanifest`} />
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"

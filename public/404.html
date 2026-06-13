@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Redirigiendo...</title>
+  <script>
+    // Técnica de SPA fallback para GitHub Pages
+    // Codifica el path actual como query param y redirige al index
+    var basePath = '/trmp-contenedores';
+    var location = window.location;
+    var path = location.pathname.slice(basePath.length) || '/';
+    var search = location.search;
+    var hash = location.hash;
+    var redirectUrl = basePath + '/?p=' + encodeURIComponent(path + search) + hash;
+    location.replace(redirectUrl);
+  </script>
+</head>
+<body>
+  Redirigiendo...
+</body>
+</html>

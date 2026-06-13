@@ -32,7 +32,8 @@ export function useApiGet<T>(endpoint: string) {
 
 // Hook for customers — lee el JSON mock directamente (sin API route, compatible con static export)
 export function useCustomers() {
-  return useApiGet<CustomerDto[]>('/mocks/Customers.json');
+  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+  return useApiGet<CustomerDto[]>(`${base}/mocks/Customers.json`);
 }
 
 // Hook for admin users (calls external auth service directly)

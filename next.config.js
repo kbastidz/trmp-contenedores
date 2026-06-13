@@ -1,17 +1,23 @@
 /** @type {import('next').NextConfig} */
+
+// En GitHub Actions se inyecta GITHUB_ACTIONS=true automáticamente
+const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
+const basePath = isGitHubPages ? '/trmp-contenedores' : '';
+
+// Exponemos el basePath al bundle del cliente para que los helpers de assets lo usen
+process.env.NEXT_PUBLIC_BASE_PATH = basePath;
+
 const nextConfig = {
   // Static export para GitHub Pages
   output: 'export',
 
-  // Nombre del repositorio como base path para GitHub Pages
-  // https://kbastidz.github.io/trmp-contenedores/
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
-  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
+  basePath,
+  assetPrefix: basePath,
 
   reactStrictMode: true,
   trailingSlash: true,
 
-  // Requerido para export estático (Next.js Image Optimization no funciona sin servidor)
+  // Requerido para export estático
   images: {
     unoptimized: true,
   },
