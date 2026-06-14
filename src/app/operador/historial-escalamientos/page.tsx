@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useEffect } from "react";
+import Link from 'next/link';
 import * as XLSX from "xlsx";
 import {
   Anchor, Badge, Box, Button, Collapse, Group, Loader,
@@ -69,7 +70,7 @@ function DetailPanel({ esc, onClose, onRefetch }: { esc: EscalamientoDto; onClos
         </Box>
         <Group gap="sm">
           {esc.estado === "Enviado" && (
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.escalamiento}>Re-escalar</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.escalamiento}>Re-escalar</Button>
           )}
           <Button size="xs" variant="default" onClick={onClose}>Cerrar</Button>
         </Group>
@@ -245,7 +246,7 @@ export default function HistorialEscalamientos() {
         breadcrumbItems={breadcrumbs}
         actionButton={
           <Group gap="sm">
-            <Button size="xs" component="a" href={PATH_OPERADOR.escalamiento}>+ Nuevo escalamiento</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.escalamiento}>+ Nuevo escalamiento</Button>
             <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
@@ -380,7 +381,7 @@ export default function HistorialEscalamientos() {
         <Group justify="space-between" pt="xs" style={{ borderTop: "0.5px solid var(--mantine-color-default-border)" }}>
           <Text size="xs" c="dimmed">Terminal Risk Monitor · Escalamientos automaticos activos</Text>
           <Group gap="sm">
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>Tablero Kanban</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.seguimientoPlanes}>Tablero Kanban</Button>
           </Group>
         </Group>
       </Stack>

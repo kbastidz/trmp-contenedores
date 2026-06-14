@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
+import Link from 'next/link';
 import {
   Anchor, Badge, Box, Button, Checkbox, Group, Loader, Progress,
   Select, SimpleGrid, Stack, Text, Textarea, TextInput, Title,
@@ -104,9 +105,9 @@ export default function Escalamiento() {
           <Text size="sm" c="dimmed" mb={4}>Referencia: <strong>{createdCodigo}</strong></Text>
           <Text size="xs" c="dimmed" mb="lg">Tiempo de respuesta esperado: <strong>{urgTiempo}</strong></Text>
           <Group justify="center" gap="sm" wrap="wrap">
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.historialEscalamientos}>Ver historial</Button>
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>Tablero de planes</Button>
-            <Button size="xs" component="a" href={PATH_OPERADOR.dashboard}>Dashboard</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.historialEscalamientos}>Ver historial</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.seguimientoPlanes}>Tablero de planes</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.dashboard}>Dashboard</Button>
           </Group>
         </Surface>
       </>

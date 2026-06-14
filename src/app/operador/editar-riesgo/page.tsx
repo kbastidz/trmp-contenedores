@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -136,7 +137,7 @@ export default function EditarRiesgo() {
       <PageHeader title="Editar Riesgo" breadcrumbItems={breadcrumbs} />
       <Surface p="xl" mt="md" style={{ textAlign: 'center' }}>
         <Text c="red">{error?.message ?? 'Riesgo no encontrado. Verifica el ID en la URL.'}</Text>
-        <Button size="xs" mt="md" variant="default" component="a" href={PATH_OPERADOR.gestionRiesgos}>← Volver al listado</Button>
+        <Button size="xs" mt="md" variant="default" component={Link} href={PATH_OPERADOR.gestionRiesgos}>← Volver al listado</Button>
       </Surface>
     </>
   );
@@ -152,8 +153,8 @@ export default function EditarRiesgo() {
         <Title order={4} mb={6}>Riesgo actualizado correctamente</Title>
         <Text size="sm" c="dimmed" mb="lg">Los cambios en {riesgo.codigo} quedaron registrados.</Text>
         <Group justify="center" gap="sm">
-          <Button size="xs" variant="default" component="a" href={`${PATH_OPERADOR.detalleRiesgo}?id=${riesgo.id}`}>Ver ficha</Button>
-          <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.gestionRiesgos}>Ver listado</Button>
+          <Button size="xs" variant="default" component={Link} href={`${PATH_OPERADOR.detalleRiesgo}?id=${riesgo.id}`}>Ver ficha</Button>
+          <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.gestionRiesgos}>Ver listado</Button>
         </Group>
       </Surface>
     </>
@@ -308,7 +309,7 @@ export default function EditarRiesgo() {
               {hasChanges && <Badge color="yellow" variant="light" size="xs">Cambios sin guardar</Badge>}
             </Group>
             <Group gap="sm">
-              <Button size="xs" variant="default" component="a" href={`${PATH_OPERADOR.detalleRiesgo}?id=${riesgo.id}`}>Cancelar</Button>
+              <Button size="xs" variant="default" component={Link} href={`${PATH_OPERADOR.detalleRiesgo}?id=${riesgo.id}`}>Cancelar</Button>
               <Button size="xs" onClick={handleSave} loading={saving} disabled={!hasChanges}>Guardar cambios</Button>
             </Group>
           </Group>

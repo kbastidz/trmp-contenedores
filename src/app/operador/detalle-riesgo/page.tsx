@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -63,7 +64,7 @@ export default function DetalleRiesgo() {
       <PageHeader title="Detalle de Riesgo" breadcrumbItems={breadcrumbs} />
       <Surface p="xl" mt="md" style={{ textAlign: 'center' }}>
         <Text c="red">{error?.message ?? 'Riesgo no encontrado. Verifica el ID en la URL.'}</Text>
-        <Button size="xs" mt="md" variant="default" component="a" href={PATH_OPERADOR.gestionRiesgos}>← Volver al listado</Button>
+        <Button size="xs" mt="md" variant="default" component={Link} href={PATH_OPERADOR.gestionRiesgos}>← Volver al listado</Button>
       </Surface>
     </>
   );
@@ -79,10 +80,10 @@ export default function DetalleRiesgo() {
         breadcrumbItems={breadcrumbs}
         actionButton={
           <Group gap="sm">
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.gestionRiesgos}>← Volver</Button>
-            <Button size="xs" variant="default" component="a" href={editHref}>Editar</Button>
-            <Button size="xs" component="a" href={PATH_OPERADOR.nuevoPlan}>+ Plan</Button>
-            <Button size="xs" component="a" href={PATH_OPERADOR.registroIncidente}>+ Incidente</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.gestionRiesgos}>← Volver</Button>
+            <Button size="xs" variant="default" component={Link} href={editHref}>Editar</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.nuevoPlan}>+ Plan</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.registroIncidente}>+ Incidente</Button>
           </Group>
         }
       />
@@ -243,7 +244,7 @@ export default function DetalleRiesgo() {
                   ))}
                 </Stack>
               )}
-              <Button size="xs" variant="default" mt="sm" component="a" href={PATH_OPERADOR.nuevoPlan}>+ Nuevo plan</Button>
+              <Button size="xs" variant="default" mt="sm" component={Link} href={PATH_OPERADOR.nuevoPlan}>+ Nuevo plan</Button>
             </Surface>
           </Tabs.Panel>
 
@@ -273,7 +274,7 @@ export default function DetalleRiesgo() {
                   })}
                 </Stack>
               )}
-              <Button size="xs" variant="default" mt="sm" component="a" href={PATH_OPERADOR.registroIncidente}>+ Vincular incidente</Button>
+              <Button size="xs" variant="default" mt="sm" component={Link} href={PATH_OPERADOR.registroIncidente}>+ Vincular incidente</Button>
             </Surface>
           </Tabs.Panel>
 
@@ -305,8 +306,8 @@ export default function DetalleRiesgo() {
         <Group justify="space-between" pt="sm" style={{ borderTop: '0.5px solid var(--mantine-color-default-border)' }}>
           <Text size="xs" c="dimmed">{riesgo.codigo} · Terminal Risk Monitor</Text>
           <Group gap="sm">
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>Planes</Button>
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.gestionIncidentes}>Incidentes</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.seguimientoPlanes}>Planes</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.gestionIncidentes}>Incidentes</Button>
           </Group>
         </Group>
       </Stack>

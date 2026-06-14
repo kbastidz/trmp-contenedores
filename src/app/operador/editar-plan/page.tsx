@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -230,7 +231,7 @@ export default function EditarPlan() {
       <PageHeader title="Editar Plan" breadcrumbItems={breadcrumbs} />
       <Surface p="xl" mt="md" style={{ textAlign: 'center' }}>
         <Text c="red">{error?.message ?? 'Plan no encontrado. Verifica el ID en la URL.'}</Text>
-        <Button size="xs" mt="md" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>← Volver</Button>
+        <Button size="xs" mt="md" variant="default" component={Link} href={PATH_OPERADOR.seguimientoPlanes}>← Volver</Button>
       </Surface>
     </>
   );
@@ -246,9 +247,9 @@ export default function EditarPlan() {
         <Title order={4} mb={6}>Plan actualizado correctamente</Title>
         <Text size="sm" c="dimmed" mb="lg">Los cambios en {plan.codigo} quedaron registrados en el log de auditoría. El tablero Kanban se actualizó.</Text>
         <Group justify="center" gap="sm">
-          <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>Ver tablero Kanban</Button>
+          <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.seguimientoPlanes}>Ver tablero Kanban</Button>
           {plan.riesgo_id && (
-            <Button size="xs" component="a" href={`${PATH_OPERADOR.detalleRiesgo}?id=${plan.riesgo_id}`}>Ver riesgo vinculado</Button>
+            <Button size="xs" component={Link} href={`${PATH_OPERADOR.detalleRiesgo}?id=${plan.riesgo_id}`}>Ver riesgo vinculado</Button>
           )}
         </Group>
       </Surface>
@@ -521,7 +522,7 @@ export default function EditarPlan() {
               {hasChanges && <Badge color="yellow" variant="light" size="xs">Cambios sin guardar</Badge>}
             </Group>
             <Group gap="sm">
-              <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>Cancelar</Button>
+              <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.seguimientoPlanes}>Cancelar</Button>
               <Button size="xs" onClick={handleSave} loading={saving} disabled={!hasChanges}
                 style={{ background: '#185FA5', color: 'white', borderColor: '#185FA5' }}>
                 Guardar cambios

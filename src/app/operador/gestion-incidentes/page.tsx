@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
@@ -34,7 +35,7 @@ function DetailPanel({ inc, areaNombre, onClose }: { inc: IncidenteDto; areaNomb
           </Group>
         </Box>
         <Group gap="sm" style={{ flexShrink: 0 }}>
-          <Button size="xs" component="a" href={`${PATH_OPERADOR.editarIncidente}?id=${inc.id}`}>Editar</Button>
+          <Button size="xs" component={Link} href={`${PATH_OPERADOR.editarIncidente}?id=${inc.id}`}>Editar</Button>
           <Button size="xs" variant="default" onClick={onClose}>✕</Button>
         </Group>
       </Group>
@@ -233,7 +234,7 @@ export default function GestionIncidentes() {
         breadcrumbItems={breadcrumbs}
         actionButton={
           <Group gap="sm">
-            <Button size="xs" component="a" href={PATH_OPERADOR.registroIncidente}>+ Nuevo incidente</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.registroIncidente}>+ Nuevo incidente</Button>
             <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
@@ -357,7 +358,7 @@ export default function GestionIncidentes() {
                         <Badge color={EST_COLOR[inc.estado]} variant="light" size="xs">{inc.estado}</Badge>
                       </td>
                       <td style={{ padding: '6px 10px' }} onClick={e => e.stopPropagation()}>
-                        <Button size="xs" variant="subtle" component="a" href={`${PATH_OPERADOR.editarIncidente}?id=${inc.id}`}>Editar</Button>
+                        <Button size="xs" variant="subtle" component={Link} href={`${PATH_OPERADOR.editarIncidente}?id=${inc.id}`}>Editar</Button>
                       </td>
                     </tr>
                   ))}

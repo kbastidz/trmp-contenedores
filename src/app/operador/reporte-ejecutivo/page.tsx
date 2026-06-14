@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
 import jsPDF from 'jspdf';
@@ -278,7 +279,7 @@ export default function ReporteEjecutivo() {
         actionButton={
           <Group gap="sm">
             <Button size="xs" variant="default" onClick={handleExportPDF}>Exportar PDF</Button>
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.seguimientoPlanes}>Plan de mitigación</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.seguimientoPlanes}>Plan de mitigación</Button>
           </Group>
         }
       />

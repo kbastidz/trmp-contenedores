@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useState, useEffect } from 'react';
 import {
@@ -123,8 +124,8 @@ export default function RegistroIncidente() {
           <Title order={4} mb={6}>Incidente registrado exitosamente</Title>
           <Text size="sm" c="dimmed" mb={4}>ID asignado: <strong>{createdCodigo}</strong></Text>
           <Group justify="center" gap="sm" wrap="wrap" mt="lg">
-            <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.gestionIncidentes}>Ver incidentes</Button>
-            <Button size="xs" component="a" href={PATH_OPERADOR.dashboard}>Dashboard</Button>
+            <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.gestionIncidentes}>Ver incidentes</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.dashboard}>Dashboard</Button>
           </Group>
         </Surface>
       </>

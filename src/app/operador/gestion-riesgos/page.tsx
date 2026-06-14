@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
@@ -167,7 +168,7 @@ export default function GestionRiesgos() {
         breadcrumbItems={breadcrumbs}
         actionButton={
           <Group gap="sm">
-            <Button size="xs" component="a" href={PATH_OPERADOR.registroRiesgo}>+ Nuevo riesgo</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.registroRiesgo}>+ Nuevo riesgo</Button>
             <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
@@ -282,7 +283,7 @@ export default function GestionRiesgos() {
                           <Badge color={ESTADO_BADGE[r.estado]} variant="light" size="xs">{r.estado}</Badge>
                         </td>
                         <td style={{ padding: '6px 10px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
-                          <Button size="xs" variant="subtle" component="a" href={`${PATH_OPERADOR.editarRiesgo}?id=${r.id}`}>Editar</Button>
+                          <Button size="xs" variant="subtle" component={Link} href={`${PATH_OPERADOR.editarRiesgo}?id=${r.id}`}>Editar</Button>
                         </td>
                       </tr>
                     );
@@ -329,7 +330,7 @@ export default function GestionRiesgos() {
                   </Group>
                 </Box>
                 <Group gap="sm" style={{ flexShrink: 0 }}>
-                  <Button size="xs" component="a" href={`${PATH_OPERADOR.detalleRiesgo}?id=${selected.id}`}>Ver ficha completa</Button>
+                  <Button size="xs" component={Link} href={`${PATH_OPERADOR.detalleRiesgo}?id=${selected.id}`}>Ver ficha completa</Button>
                   <Button size="xs" variant="default" onClick={() => setSelected(null)}>✕</Button>
                 </Group>
               </Group>
@@ -377,7 +378,7 @@ export default function GestionRiesgos() {
         {/* Footer */}
         <Group justify="space-between" pt="xs" style={{ borderTop: '0.5px solid var(--mantine-color-default-border)' }}>
           <Text size="xs" c="dimmed">Terminal Risk Monitor v2.1 · Última actualización: hoy</Text>
-          <Button size="xs" variant="default" component="a" href={PATH_OPERADOR.reporteEjecutivo}>Reporte ejecutivo</Button>
+          <Button size="xs" variant="default" component={Link} href={PATH_OPERADOR.reporteEjecutivo}>Reporte ejecutivo</Button>
         </Group>
       </Stack>
     </>

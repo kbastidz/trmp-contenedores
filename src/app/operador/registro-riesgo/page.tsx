@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useState, useEffect } from 'react';
 import {
@@ -126,7 +127,7 @@ export default function RegistroRiesgo() {
           <Text size="sm" c="dimmed" mb="lg">ID asignado: <strong>{createdId ?? '—'}</strong> · El responsable será notificado por correo</Text>
           <Group justify="center" gap="sm">
             <Button size="xs" variant="default" onClick={() => { setSubmitted(false); setActive(0); }}>Registrar otro</Button>
-            <Button size="xs" component="a" href={PATH_OPERADOR.dashboard}>Ir al dashboard</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.dashboard}>Ir al dashboard</Button>
           </Group>
         </Surface>
       </>

@@ -1,4 +1,5 @@
-'use client';
+﻿'use client';
+import Link from 'next/link';
 
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
@@ -69,7 +70,7 @@ function DetailPanel({ plan, onClose }: { plan: PlanDto; onClose: () => void }) 
           </Group>
         </Box>
         <Group gap="sm" style={{ flexShrink: 0 }}>
-          <Button size="xs" component="a" href={`${PATH_OPERADOR.editarPlan}?id=${plan.id}`}>Editar</Button>
+          <Button size="xs" component={Link} href={`${PATH_OPERADOR.editarPlan}?id=${plan.id}`}>Editar</Button>
           <Button size="xs" variant="default" onClick={onClose}>✕</Button>
         </Group>
       </Group>
@@ -101,7 +102,7 @@ function DetailPanel({ plan, onClose }: { plan: PlanDto; onClose: () => void }) 
           {overdue && (
             <Box mt="sm" p="sm" style={{ background: '#FCEBEB', borderRadius: 8 }}>
               <Text size="xs" c="red" mb={6}>Plan vencido — vinculado a riesgo activo. Se recomienda escalar.</Text>
-              <Button size="xs" color="red" variant="outline" component="a" href={PATH_OPERADOR.escalamiento}>Escalar</Button>
+              <Button size="xs" color="red" variant="outline" component={Link} href={PATH_OPERADOR.escalamiento}>Escalar</Button>
             </Box>
           )}
         </Tabs.Panel>
@@ -214,7 +215,7 @@ export default function SeguimientoPlanes() {
         breadcrumbItems={breadcrumbs}
         actionButton={
           <Group gap="sm">
-            <Button size="xs" component="a" href={PATH_OPERADOR.nuevoPlan}>+ Nuevo plan</Button>
+            <Button size="xs" component={Link} href={PATH_OPERADOR.nuevoPlan}>+ Nuevo plan</Button>
             <Button size="xs" variant="default" onClick={handleExport}>Exportar</Button>
           </Group>
         }
@@ -285,7 +286,7 @@ export default function SeguimientoPlanes() {
                   {estado === 'Vencido' && list.length > 0 && (
                     <Box p="sm" mt="xs" style={{ background: '#FCEBEB', borderRadius: 8 }}>
                       <Text size="xs" c="red" mb={6}>Planes vencidos vinculados a riesgos activos.</Text>
-                      <Button size="xs" color="red" variant="outline" component="a" href={PATH_OPERADOR.escalamiento}>Escalar</Button>
+                      <Button size="xs" color="red" variant="outline" component={Link} href={PATH_OPERADOR.escalamiento}>Escalar</Button>
                     </Box>
                   )}
                 </Surface>
