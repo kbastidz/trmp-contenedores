@@ -32,13 +32,17 @@ export interface AuthSession {
 }
 
 export interface SignInResponse {
+  redirect: boolean;
+  token: string;
   user: AuthUser;
-  session: AuthSession;
+  session?: AuthSession;
 }
 
 export interface SignUpResponse {
+  redirect: boolean;
+  token: string;
   user: AuthUser;
-  session: AuthSession;
+  session?: AuthSession;
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -69,32 +73,49 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 }
 
-export const authService = {
-  signIn: async (email: string, password: string) => {
-    const result = await request<SignInResponse>('/api/auth/sign-in/email', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    // Guardar el token para usarlo en requests cross-site
-    // Better Auth devuelve session.token o session.id dependiendo de la versión
-    const token = result?.session?.token ?? result?.session?.id;
-    if (token) {
-      setStoredToken(token);
-    }
-    return result;
-  },
+/**
+ * Hace sign-in y extrae el token de sesión.
+ * Better Auth devuelve el token directamente en el body: { token, user, redirect }
+ */
+async function signInAndStoreToken(
+  path: string,
+  body: Record<string, string>
+): Promise<SignInResponse> {
+  const existingToken = getStoredToken();
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(existingToken ? { Authorization: `Bearer ${existingToken}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
 
-  signUp: async (name: string, email: string, password: string) => {
-    const result = await request<SignUpResponse>('/api/auth/sign-up/email', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, password }),
-    });
-    const token = result?.session?.token ?? result?.session?.id;
-    if (token) {
-      setStoredToken(token);
-    }
-    return result;
-  },
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody?.message ?? `Request failed: ${res.status}`);
+  }
+
+  const result: SignInResponse = await res.json();
+
+  // El token viene en result.token (campo directo del body de Better Auth)
+  if (result?.token) {
+    setStoredToken(result.token);
+    console.log('[Auth] Token de sesión almacenado correctamente');
+  } else {
+    console.warn('[Auth] No se encontró token en la respuesta del sign-in');
+  }
+
+  return result;
+}
+
+export const authService = {
+  signIn: (email: string, password: string) =>
+    signInAndStoreToken('/api/auth/sign-in/email', { email, password }),
+
+  signUp: (name: string, email: string, password: string) =>
+    signInAndStoreToken('/api/auth/sign-up/email', { name, email, password }),
 
   signOut: async () => {
     await request<void>('/api/auth/sign-out', { method: 'POST' });
