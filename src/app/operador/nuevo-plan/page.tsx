@@ -138,7 +138,7 @@ export default function NuevoPlan() {
             {loadingRiesgos ? (
               <Group justify="center" p="md"><Loader size="sm" /></Group>
             ) : (
-              <Stack gap={6}>
+              <Stack gap={6} style={{ maxHeight: 360, overflowY: 'auto', paddingRight: 4 }}>
                 {filteredRiesgos.map((r) => {
                   const score = r.probabilidad * r.impacto;
                   const color = score >= 17 ? 'red' : score >= 10 ? 'orange' : score >= 5 ? 'yellow' : 'green';

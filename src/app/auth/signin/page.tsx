@@ -73,8 +73,8 @@ function Page() {
         content="Sign in to your account to access the dashboard."
       />
 
-      <Title ta="center">Welcome back!</Title>
-      <Text ta="center">Sign in to your account to continue</Text>
+      <Title ta="center">Bienvenido!</Title>
+      <Text ta="center">Iniciar Sesión para continuar</Text>
 
       <Surface component={Paper} className={classes.card}>
         {error && (
@@ -106,7 +106,7 @@ function Page() {
           />
           <Group justify="space-between" mt="lg">
             <Checkbox
-              label="Remember me"
+              label="Recordarme"
               classNames={{ label: classes.label }}
             />
             <Text
@@ -115,11 +115,11 @@ function Page() {
               size="sm"
               {...LINK_PROPS}
             >
-              Forgot password?
+              Olvidaste tu contraseña?
             </Text>
           </Group>
           <Button fullWidth mt="xl" type="submit" loading={isLoading}>
-            Sign in
+            Ingresar
           </Button>
         </form>
         <Center mt="md">
@@ -130,7 +130,7 @@ function Page() {
             href={PATH_AUTH.signup}
             {...LINK_PROPS}
           >
-            Do not have an account yet? Create account
+            Aún no tienes una cuenta? Crea una cuenta.
           </Text>
         </Center>
       </Surface>

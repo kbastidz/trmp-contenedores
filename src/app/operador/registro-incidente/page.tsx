@@ -150,13 +150,13 @@ export default function RegistroIncidente() {
         {/* Paso 1 — Riesgo vinculado */}
         {active === 0 && (
           <Surface p="md">
-            <Text fw={500} size="sm" mb="xs">¿A qué riesgo está vinculado este incidente? <Text span c="dimmed" size="xs">(opcional)</Text></Text>
+            <Text fw={500} size="sm" mb="xs">¿A qué riesgo está vinculado este incidente?</Text>
             <Text size="xs" c="dimmed" mb="sm">Si el incidente materializa un riesgo registrado, selecciónalo. Si no, puedes continuar sin vincular.</Text>
             <TextInput placeholder="Buscar riesgo por nombre o área..." mb="sm" value={searchRiesgo} onChange={e => setSearchRiesgo(e.target.value)} />
             {loadingRiesgos ? (
               <Group justify="center" p="md"><Loader size="sm" /></Group>
             ) : (
-              <Stack gap={6}>
+              <Stack gap={6} style={{ maxHeight: 360, overflowY: 'auto', paddingRight: 4 }}>
                 {riesgos
                   .filter(r =>
                     r.nombre.toLowerCase().includes(searchRiesgo.toLowerCase()) ||

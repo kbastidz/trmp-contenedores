@@ -143,7 +143,7 @@ export default function Escalamiento() {
               ) : planesVencidos.length === 0 ? (
                 <Text size="xs" c="dimmed" fs="italic">No hay planes vencidos en este momento.</Text>
               ) : (
-                <Stack gap="sm">
+                <Stack gap="sm" style={{ maxHeight: 360, overflowY: 'auto', paddingRight: 4 }}>
                   {planesVencidos.map((p) => {
                     const diasVencido = p.fecha_limite
                       ? Math.floor((Date.now() - new Date(p.fecha_limite).getTime()) / 86400000)

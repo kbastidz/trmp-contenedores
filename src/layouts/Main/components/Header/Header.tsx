@@ -27,7 +27,7 @@ import { MESSAGES } from '@/constants/messages';
 import { NOTIFICATIONS } from '@/constants/notifications';
 import { HeaderVariant, useSidebarConfig } from '@/contexts/theme-customizer';
 import { useRouter } from 'next/navigation';
-import UserProfileData from '@public/mocks/UserProfile.json';
+import { useCurrentUser } from '@/lib/hooks/useApi';
 
 const ICON_SIZE = 20;
 
@@ -53,6 +53,7 @@ const HeaderNav = (props: HeaderNavProps) => {
   const mobile_match = useMediaQuery('(max-width: 425px)');
   const sidebarConfig = useSidebarConfig();
   const router = useRouter();
+  const { user } = useCurrentUser();
 
   // Determine text color based on header variant
   const getTextColor = () => {
@@ -218,8 +219,8 @@ const HeaderNav = (props: HeaderNavProps) => {
                 style={{ borderRadius: '50%' }}
               >
                 <Avatar
-                  src={UserProfileData.avatar}
-                  alt={UserProfileData.name}
+                  src={user?.image ?? null}
+                  alt={user?.name ?? ''}
                   size="sm"
                 />
               </ActionIcon>
@@ -229,9 +230,9 @@ const HeaderNav = (props: HeaderNavProps) => {
             <Menu.Label>
               <Stack gap={4}>
                 <Text size="sm" fw={500}>
-                  {UserProfileData.name}
+                  {user?.name ?? '—'}
                 </Text>
-                <Text size="xs">{UserProfileData.email}</Text>
+                <Text size="xs">{user?.email ?? '—'}</Text>
               </Stack>
             </Menu.Label>
             <Menu.Divider />
