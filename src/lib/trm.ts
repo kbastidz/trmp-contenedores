@@ -31,6 +31,7 @@ import type {
   KriValorDto,
   CreateKriValorPayload,
 } from '@/types/trm';
+import { getStoredToken } from '@/lib/auth';
 
 // En static export no hay servidor Next.js, así que siempre llamamos directo al backend.
 const TRM_API = process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3002';
@@ -38,6 +39,7 @@ const TRM_API = process.env.NEXT_PUBLIC_TRM_API_URL ?? 'http://localhost:3002';
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const method = options?.method ?? 'GET';
   const url = `${TRM_API}${path}`;
+  const token = getStoredToken();
 
   console.log(`[TRM] ➡️  ${method} ${url}`);
   if (options?.body) {
@@ -49,6 +51,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   });

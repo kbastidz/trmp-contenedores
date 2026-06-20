@@ -1,6 +1,22 @@
 // En static export no hay servidor Next.js, así que siempre llamamos directo al backend.
 const BASE_URL = process.env.NEXT_PUBLIC_AUTH_API_URL ?? 'http://localhost:3000';
 
+const SESSION_TOKEN_KEY = 'trm_session_token';
+
+export function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(SESSION_TOKEN_KEY);
+}
+
+export function setStoredToken(token: string | null): void {
+  if (typeof window === 'undefined') return;
+  if (token) {
+    localStorage.setItem(SESSION_TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(SESSION_TOKEN_KEY);
+  }
+}
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -12,6 +28,7 @@ export interface AuthSession {
   id: string;
   userId: string;
   expiresAt: string;
+  token?: string; // Better Auth también puede devolver el token directamente
 }
 
 export interface SignInResponse {
@@ -25,11 +42,13 @@ export interface SignUpResponse {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getStoredToken();
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   });
@@ -51,20 +70,36 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const authService = {
-  signIn: (email: string, password: string) =>
-    request<SignInResponse>('/api/auth/sign-in/email', {
+  signIn: async (email: string, password: string) => {
+    const result = await request<SignInResponse>('/api/auth/sign-in/email', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
-    }),
+    });
+    // Guardar el token para usarlo en requests cross-site
+    // Better Auth devuelve session.token o session.id dependiendo de la versión
+    const token = result?.session?.token ?? result?.session?.id;
+    if (token) {
+      setStoredToken(token);
+    }
+    return result;
+  },
 
-  signUp: (name: string, email: string, password: string) =>
-    request<SignUpResponse>('/api/auth/sign-up/email', {
+  signUp: async (name: string, email: string, password: string) => {
+    const result = await request<SignUpResponse>('/api/auth/sign-up/email', {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
-    }),
+    });
+    const token = result?.session?.token ?? result?.session?.id;
+    if (token) {
+      setStoredToken(token);
+    }
+    return result;
+  },
 
-  signOut: () =>
-    request<void>('/api/auth/sign-out', { method: 'POST' }),
+  signOut: async () => {
+    await request<void>('/api/auth/sign-out', { method: 'POST' });
+    setStoredToken(null);
+  },
 
   getSession: () =>
     request<{ user: AuthUser; session: AuthSession } | null>('/api/auth/get-session'),

@@ -4,7 +4,7 @@ import type { IApiResponse } from '@/types/api-response';
 import type { CustomerDto } from '@/types';
 import { riesgosService, planesService, incidentesService, controlesService, kriService, escalamientosService } from '@/lib/trm';
 import type { RiesgoDto, HistorialEstadoDto, PlanDto, HistorialAvanceDto, IncidenteDto, ControlDto, KriDto, EscalamientoDto } from '@/types/trm';
-import { authService } from '@/lib/auth';
+import { authService, setStoredToken } from '@/lib/auth';
 import type { AuthUser } from '@/lib/auth';
 import { assetUrl } from '@/lib/basePath';
 
@@ -19,7 +19,11 @@ export function useCurrentUser() {
   useEffect(() => {
     authService.getSession()
       .then(session => setUser(session?.user ?? null))
-      .catch(() => setUser(null))
+      .catch(() => {
+        // Sesión inválida o expirada — limpiar token almacenado
+        setStoredToken(null);
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
